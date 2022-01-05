@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">MusicPlayer</string>
+    <string name="category_name">Category</string>
+    <string name="song_title">Song Title</string>
+    <string name="artist">Artist</string>
+    <string name="search_lyrics">Search Lyrics</string>
+    <string name="favorite">Favorite</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
