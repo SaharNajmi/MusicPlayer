@@ -24,9 +24,12 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
+        android:ellipsize="end"
+        android:maxLines="1"
         android:id="@+id/song_title"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        app:layout_constraintRight_toLeftOf="@id/guideline"
         android:layout_marginLeft="@dimen/margin"
         android:text="@string/song_title"
         android:textColor="@color/white"
@@ -38,14 +41,14 @@
 
     <TextView
         android:id="@+id/artist"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="@dimen/margin"
+        app:layout_constraintRight_toLeftOf="@id/guideline"
         android:text="@string/artist"
         android:textColor="@color/myWhite"
         android:textSize="14sp"
         app:layout_constraintBottom_toBottomOf="@id/cover_image"
-        app:layout_constraintLeft_toRightOf="@id/cover_image"
+        app:layout_constraintLeft_toLeftOf="@id/song_title"
         app:layout_constraintTop_toBottomOf="@id/song_title" />
 
     <ImageView
@@ -66,7 +69,6 @@
         android:background="@drawable/layout_circle_border"
         android:padding="@dimen/margin"
         android:src="@drawable/ic_pause"
-        android:tint="@color/white"
         app:layout_constraintBottom_toBottomOf="@id/cover_image"
         app:layout_constraintLeft_toRightOf="@id/btn_back"
         app:layout_constraintRight_toLeftOf="@id/btn_next"
