@@ -1,5 +1,9 @@
 package com.example.adapter
 
+import android.content.Context
+import android.graphics.Bitmap
+import android.provider.MediaStore
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -8,7 +12,9 @@ import com.example.common.Constants.POSITION_SONG
 import com.example.musicplayer.databinding.MusicItemLayoutBinding
 import com.model.SongModel
 
+
 class SongAdapter(
+    val context: Context,
     val list: ArrayList<SongModel>,
     val eventListener: SongEventListener
 ) :
@@ -18,6 +24,14 @@ class SongAdapter(
         fun bind(songModel: SongModel) {
             view.artist.text = songModel.artist
             view.songTitle.text = songModel.songTitle
+            var bitmap: Bitmap? = null
+            try {
+                bitmap =
+                    MediaStore.Images.Media.getBitmap(context.contentResolver, songModel.coverImage)
+                view.coverImage.setImageBitmap(bitmap)
+            } catch (e: Exception) {
+                Log.e("Error set image!!", e.toString())
+            }
         }
     }
 
