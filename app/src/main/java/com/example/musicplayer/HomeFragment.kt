@@ -1,9 +1,12 @@
 package com.example.musicplayer
 
 import android.content.*
+import android.graphics.Bitmap
+import android.net.Uri
 import android.os.Bundle
 import android.os.IBinder
 import android.provider.MediaStore
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -110,7 +113,7 @@ class HomeFragment : Fragment(), SongEventListener, CategoryEventListener {
 
     fun showListMusic() {
         binding.recyclerMusics.layoutManager = LinearLayoutManager(requireContext())
-        binding.recyclerMusics.adapter = SongAdapter(listMusic, this)
+        binding.recyclerMusics.adapter = SongAdapter(requireContext(), listMusic, this)
     }
 
     fun readExternalData() {
@@ -121,13 +124,20 @@ class HomeFragment : Fragment(), SongEventListener, CategoryEventListener {
             val songId = musicCursor.getColumnIndex(MediaStore.Audio.Media._ID)
             val songArtist = musicCursor.getColumnIndex(MediaStore.Audio.Media.ARTIST)
             val songTitle = musicCursor.getColumnIndex(MediaStore.Audio.Media.TITLE)
-
+            val albumId = musicCursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID)
             while (musicCursor.moveToNext()) {
+                //get cover image song
+                val IMAGE_URI = Uri.parse("content://media/external/audio/albumart")
+                val album_uri =
+                    ContentUris.withAppendedId(IMAGE_URI, musicCursor.getLong(albumId))
+
+                //add music into array song
                 listMusic.add(
                     SongModel(
                         musicCursor.getLong(songId),
                         musicCursor.getString(songArtist),
                         musicCursor.getString(songTitle),
+                        album_uri
                     )
                 )
             }
@@ -135,6 +145,17 @@ class HomeFragment : Fragment(), SongEventListener, CategoryEventListener {
     }
 
     fun updateUi() {
+        var bitmap: Bitmap? = null
+        try {
+            bitmap =
+                MediaStore.Images.Media.getBitmap(
+                    requireContext().contentResolver,
+                    songModel.coverImage
+                )
+            binding.playMusicLayout.coverImage.setImageBitmap(bitmap)
+        } catch (e: Exception) {
+            Log.e("Error set image!!", e.toString())
+        }
         binding.playMusicLayout.songTitle.text = songModel.songTitle
         binding.playMusicLayout.artist.text = songModel.artist
     }
