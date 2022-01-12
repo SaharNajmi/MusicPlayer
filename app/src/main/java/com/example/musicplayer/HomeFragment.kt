@@ -10,6 +10,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.SeekBar
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
@@ -75,6 +76,10 @@ class HomeFragment : Fragment(), SongEventListener, CategoryEventListener {
         override fun onServiceConnected(componentName: ComponentName?, iBinder: IBinder?) {
             val binder: MusicService.MusicBinder = iBinder as MusicService.MusicBinder
             musicService = binder.getService()
+
+            //set progress seekBar
+            musicService.setSeekbar(binding.playMusicLayout.seekBar)
+
             musicBound = true
         }
 

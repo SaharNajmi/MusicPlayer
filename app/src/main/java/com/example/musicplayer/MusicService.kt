@@ -9,6 +9,7 @@ import android.os.Binder
 import android.os.IBinder
 import android.os.PowerManager
 import android.provider.MediaStore
+import android.widget.SeekBar
 import com.model.SongModel
 import java.io.IOException
 
@@ -18,6 +19,7 @@ class MusicService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnEr
     lateinit var songs: SongModel
     var playerState = PAUSED
     val musicBind: IBinder = MusicBinder()
+    lateinit var seekBar: SeekBar
 
     companion object {
         val PAUSED = 1
@@ -55,6 +57,12 @@ class MusicService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnEr
 
     override fun onPrepared(mp: MediaPlayer?) {
         mp!!.start()
+        val duration = mp.duration
+        seekBar.max = duration
+        seekBar.postDelayed(progressRunner, 1000)
+
+        //disable seekBar drag
+        seekBar.setOnTouchListener { _, _ -> true }
     }
 
     fun playSong() {
@@ -76,6 +84,21 @@ class MusicService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnEr
         }
 
         player.prepareAsync()
+
+        //Run Progressbar seekBar
+        progressRunner.run()
+    }
+
+    fun setSeekbar(seekBar: SeekBar) {
+        this.seekBar = seekBar
+    }
+
+    val progressRunner: Runnable = object : Runnable {
+        override fun run() {
+            seekBar.progress = player.currentPosition
+            if (player.isPlaying)
+                seekBar.postDelayed(this, 1000)
+        }
     }
 
     fun pauseSong() {
