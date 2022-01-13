@@ -1,6 +1,7 @@
 package com.example.musicplayer
 
 import android.content.*
+import android.content.res.Resources
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
@@ -10,7 +11,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.SeekBar
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
@@ -21,12 +21,16 @@ import com.example.`interface`.SongEventListener
 import com.example.adapter.CategoryAdapter
 import com.example.adapter.SongAdapter
 import com.example.common.Constants.POSITION_SONG
+import com.example.musicplayer.databinding.DetailMusicLayoutBinding
 import com.example.musicplayer.databinding.FragmentHomeBinding
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.model.Category
 import com.model.SongModel
 
 class HomeFragment : Fragment(), SongEventListener, CategoryEventListener {
     lateinit var binding: FragmentHomeBinding
+    lateinit var bottomSheetBinding: DetailMusicLayoutBinding
     lateinit var musicService: MusicService
     var playIntent: Intent? = null
     var musicBound = false
@@ -70,6 +74,11 @@ class HomeFragment : Fragment(), SongEventListener, CategoryEventListener {
 
         //buttons control song
         musicController()
+
+        //go to detail music
+        binding.playMusicLayout.layoutController.setOnClickListener {
+            showBottomSheetDialog()
+        }
     }
 
     private val boundServiceConnection = object : ServiceConnection {
@@ -87,6 +96,38 @@ class HomeFragment : Fragment(), SongEventListener, CategoryEventListener {
             musicBound = false
         }
 
+    }
+
+    fun showBottomSheetDialog() {
+        val dialog = BottomSheetDialog(requireContext())
+        bottomSheetBinding = DetailMusicLayoutBinding.inflate(LayoutInflater.from(requireContext()))
+
+        dialog.setOnShowListener {
+            val bottomSheetLayout =
+                dialog.findViewById<View>(R.id.design_bottom_sheet) ?: return@setOnShowListener
+            val bottomSheetBehavior = BottomSheetBehavior.from(bottomSheetLayout)
+
+            //expended bottomSheet
+            bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+            //full screen bottomSheet
+            showFullScreenBottomSheet(bottomSheetLayout)
+        }
+
+        //close dialog
+        bottomSheetBinding.btnDown.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        //show dialog
+        dialog.setContentView(bottomSheetBinding.root)
+        dialog.show()
+    }
+
+    private fun showFullScreenBottomSheet(bottomSheet: View) {
+        val layoutParams = bottomSheet.layoutParams
+        //get height layout
+        layoutParams.height = Resources.getSystem().displayMetrics.heightPixels
+        bottomSheet.layoutParams = layoutParams
     }
 
     override fun onStart() {
