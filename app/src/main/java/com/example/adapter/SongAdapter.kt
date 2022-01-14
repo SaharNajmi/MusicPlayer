@@ -7,8 +7,8 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.example.`interface`.OnSongPosition
 import com.example.`interface`.SongEventListener
-import com.example.common.Constants.POSITION_SONG
 import com.example.musicplayer.databinding.MusicItemLayoutBinding
 import com.model.SongModel
 
@@ -16,7 +16,8 @@ import com.model.SongModel
 class SongAdapter(
     val context: Context,
     val list: ArrayList<SongModel>,
-    val eventListener: SongEventListener
+    val eventListener: SongEventListener,
+    val songPosition: OnSongPosition
 ) :
     RecyclerView.Adapter<SongAdapter.Holder>() {
 
@@ -46,8 +47,8 @@ class SongAdapter(
         holder.bind(myList)
 
         holder.itemView.setOnClickListener {
-            POSITION_SONG = position
             eventListener.onSelect(list[position])
+            songPosition.onSongPosition(position)
         }
     }
 

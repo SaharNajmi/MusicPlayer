@@ -1,85 +1,96 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".HomeFragment">
+    android:layout_height="match_parent">
 
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.75" />
-
-    <TextView
-        android:id="@+id/app_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="@dimen/margin"
-        android:layout_marginTop="20dp"
-        android:layout_marginRight="@dimen/margin"
-        android:layout_marginBottom="@dimen/margin"
-        android:text="@string/app_name"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@id/recycler_category"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <ImageView
-        android:id="@+id/favorite"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/ic_not_favorite"
-        app:layout_constraintBottom_toBottomOf="@id/app_title"
-        app:layout_constraintLeft_toRightOf="@id/guideline"
-        app:layout_constraintRight_toLeftOf="@id/search"
-        app:layout_constraintTop_toTopOf="@id/app_title" />
-
-    <ImageView
-        android:id="@+id/search"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/ic_search"
-        app:layout_constraintBottom_toBottomOf="@id/app_title"
-        app:layout_constraintLeft_toRightOf="@id/favorite"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="@id/app_title" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recycler_category"
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="@dimen/margin"
-        android:layout_marginTop="15dp"
-        android:layout_marginRight="@dimen/margin"
-        android:layout_marginBottom="@dimen/margin"
-        app:layout_constraintBottom_toTopOf="@id/recycler_musics"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/app_title" />
+        android:layout_height="match_parent"
+        tools:context=".HomeFragment">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recycler_musics"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginLeft="@dimen/margin"
-        android:layout_marginTop="15dp"
-        android:layout_marginRight="@dimen/margin"
-        app:layout_constraintBottom_toTopOf="@id/play_music_layout"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/recycler_category" />
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.75" />
 
+        <TextView
+            android:id="@+id/app_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/margin"
+            android:layout_marginTop="20dp"
+            android:layout_marginRight="@dimen/margin"
+            android:layout_marginBottom="@dimen/margin"
+            android:text="@string/app_name"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toTopOf="@id/recycler_category"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/favorite"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_not_favorite"
+            app:layout_constraintBottom_toBottomOf="@id/app_title"
+            app:layout_constraintLeft_toRightOf="@id/guideline"
+            app:layout_constraintRight_toLeftOf="@id/search"
+            app:layout_constraintTop_toTopOf="@id/app_title" />
+
+        <ImageView
+            android:id="@+id/search"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_search"
+            app:layout_constraintBottom_toBottomOf="@id/app_title"
+            app:layout_constraintLeft_toRightOf="@id/favorite"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="@id/app_title" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_category"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/margin"
+            android:layout_marginTop="15dp"
+            android:layout_marginRight="@dimen/margin"
+            android:layout_marginBottom="@dimen/margin"
+            app:layout_constraintBottom_toTopOf="@id/recycler_musics"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/app_title" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_musics"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginLeft="@dimen/margin"
+            android:layout_marginTop="15dp"
+            android:layout_marginRight="@dimen/margin"
+            app:layout_constraintBottom_toTopOf="@id/play_music_layout"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/recycler_category" />
+
+        <!--music controller-->
+        <include
+            android:id="@+id/play_music_layout"
+            layout="@layout/music_controller_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/recycler_musics" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+    <!--music detail-->
     <include
-        android:id="@+id/play_music_layout"
-        layout="@layout/bottom_sheet_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/recycler_musics" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+        android:id="@+id/detail_music_layout"
+        layout="@layout/music_detail_layout" />
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+
