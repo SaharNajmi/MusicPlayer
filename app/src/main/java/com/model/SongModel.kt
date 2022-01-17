@@ -5,6 +5,7 @@ import android.net.Uri
 data class SongModel(
     val id: Long,
     val artist: String,
+    val albumID: Long,
     val songTitle: String,
     val coverImage: Uri,
     val lyrics: String = "",

@@ -1,4 +1,4 @@
-package com.example.musicplayer
+package com.example.musicplayer.all
 
 import android.content.*
 import android.graphics.Bitmap
@@ -11,25 +11,22 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
-import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.example.`interface`.CategoryEventListener
 import com.example.`interface`.OnSongComplete
 import com.example.`interface`.OnSongPosition
 import com.example.`interface`.SongEventListener
-import com.example.adapter.CategoryAdapter
 import com.example.adapter.SongAdapter
+import com.example.musicplayer.R
 import com.example.musicplayer.databinding.FragmentHomeBinding
+import com.example.service.MusicService
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.model.Category
+import com.model.AlbumModel
 import com.model.SongModel
 import kotlin.random.Random
 
-class HomeFragment : Fragment(), SongEventListener, OnSongPosition, CategoryEventListener,
+class HomeFragment : Fragment(), SongEventListener, OnSongPosition,
     OnSongComplete {
     lateinit var binding: FragmentHomeBinding
     lateinit var musicService: MusicService
@@ -40,12 +37,6 @@ class HomeFragment : Fragment(), SongEventListener, OnSongPosition, CategoryEven
     var isRepeat = false
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<ConstraintLayout>
     val listMusic = ArrayList<SongModel>()
-    val listCategory = listOf(
-        Category.All,
-        Category.Folder,
-        Category.Album,
-        Category.Artist
-    )
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -58,20 +49,8 @@ class HomeFragment : Fragment(), SongEventListener, OnSongPosition, CategoryEven
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        //go to favorite frg
-        binding.favorite.setOnClickListener {
-            it.findNavController().navigate(R.id.action_homeFragment_to_favoriteFragment)
-        }
-        //go to search music frg
-        binding.search.setOnClickListener {
-            it.findNavController().navigate(R.id.action_homeFragment_to_searchMusicFragment)
-        }
-
         //get all songs from phone
         readExternalData()
-
-        //show category
-        showListCategory()
 
         //show list items into recyclerView
         showListMusic()
@@ -140,12 +119,6 @@ class HomeFragment : Fragment(), SongEventListener, OnSongPosition, CategoryEven
         }
     }
 
-    fun showListCategory() {
-        binding.recyclerCategory.layoutManager =
-            LinearLayoutManager(requireContext(), RecyclerView.HORIZONTAL, false)
-        binding.recyclerCategory.adapter = CategoryAdapter(listCategory, this)
-    }
-
     fun showListMusic() {
         binding.recyclerMusics.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerMusics.adapter = SongAdapter(requireContext(), listMusic, this, this)
@@ -160,6 +133,10 @@ class HomeFragment : Fragment(), SongEventListener, OnSongPosition, CategoryEven
             val songArtist = musicCursor.getColumnIndex(MediaStore.Audio.Media.ARTIST)
             val songTitle = musicCursor.getColumnIndex(MediaStore.Audio.Media.TITLE)
             val albumId = musicCursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID)
+            val artistId = musicCursor.getColumnIndex(MediaStore.Audio.Media.ARTIST_ID)
+
+            var listArtist = ArrayList<Long>()
+            var listAlbum = ArrayList<Long>()
             while (musicCursor.moveToNext()) {
                 //get cover image song
                 val IMAGE_URI = Uri.parse("content://media/external/audio/albumart")
@@ -171,11 +148,44 @@ class HomeFragment : Fragment(), SongEventListener, OnSongPosition, CategoryEven
                     SongModel(
                         musicCursor.getLong(songId),
                         musicCursor.getString(songArtist),
+                        musicCursor.getLong(albumId),
                         musicCursor.getString(songTitle),
                         album_uri
                     )
                 )
+
+                listArtist.add(musicCursor.getLong(artistId))
+                listAlbum.add(musicCursor.getLong(albumId))
+
             }
+
+            //Remove duplicate elements from artist and album
+            listArtist = listArtist.distinct() as ArrayList<Long>
+            listAlbum = listAlbum.distinct() as ArrayList<Long>
+            val albumList = ArrayList<AlbumModel>()
+
+            var j = 0
+            var k = 0
+            while (listAlbum.size > j) {
+                while (listMusic.size > k) {
+                    if (listMusic[k].albumID == listAlbum[j]) {
+                        albumList.add(
+                            AlbumModel(
+                                listMusic[k].albumID,
+                                listMusic[k].songTitle,
+                                listMusic[k].artist,
+                                listMusic[k].coverImage,
+                            )
+                        )
+
+                        break
+                    }
+                    k++
+                }
+                j++
+            }
+
+
         }
     }
 
@@ -304,10 +314,6 @@ class HomeFragment : Fragment(), SongEventListener, OnSongPosition, CategoryEven
         this.songModel = songModel
         musicService.setSong(songModel)
         updateUi()
-    }
-
-    override fun onItemClickListener(category: Category) {
-        Toast.makeText(requireContext(), category.name, Toast.LENGTH_SHORT).show()
     }
 
     override fun onSongComplete() {

@@ -1,21 +1,20 @@
-package com.example.musicplayer
+package com.example.musicplayer.favorite
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.navigation.findNavController
-import com.example.musicplayer.databinding.FragmentSearchMusicBinding
+import com.example.musicplayer.databinding.FragmentFavoriteBinding
 
-class SearchMusicFragment : Fragment() {
-    lateinit var binding: FragmentSearchMusicBinding
+class FavoriteFragment : Fragment() {
+    lateinit var binding: FragmentFavoriteBinding
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        binding = FragmentSearchMusicBinding.inflate(inflater, container, false)
+        binding = FragmentFavoriteBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -23,7 +22,7 @@ class SearchMusicFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         //go back
         binding.btnBackPage.setOnClickListener {
-            it.findNavController().navigate(R.id.action_searchMusicFragment_to_homeFragment)
+            //     it.findNavController().navigate(R.id.action_favoriteFragment_to_homeFragment)
         }
     }
 }
