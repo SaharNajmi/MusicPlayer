@@ -5,14 +5,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.`interface`.AlbumEventListener
 import com.example.adapter.AlbumAdapter
 import com.example.model.AlbumModel
 import com.example.musicplayer.ReadExternalDate
 import com.example.musicplayer.databinding.FragmentAlbumBinding
+import com.example.musicplayer.main.MainFragmentDirections
 
-class AlbumFragment : Fragment() {
+class AlbumFragment : Fragment(), AlbumEventListener {
     lateinit var binding: FragmentAlbumBinding
     var listAlbum = ArrayList<AlbumModel>()
 
@@ -39,7 +42,12 @@ class AlbumFragment : Fragment() {
     fun showListAlbum() {
         binding.recyclerAlbum.layoutManager =
             GridLayoutManager(requireContext(), 2, RecyclerView.VERTICAL, false)
-        binding.recyclerAlbum.adapter = AlbumAdapter(requireContext(), listAlbum)
+        binding.recyclerAlbum.adapter = AlbumAdapter(requireContext(), listAlbum, this)
+    }
+
+    override fun onSelect(albumModel: AlbumModel) {
+        val directions = MainFragmentDirections.actionMainFragmentToAlbumDetailsFragment(albumModel)
+        findNavController().navigate(directions)
     }
 
 }

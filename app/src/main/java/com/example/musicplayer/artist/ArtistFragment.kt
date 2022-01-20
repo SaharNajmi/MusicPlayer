@@ -5,8 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.findNavController
-import com.example.musicplayer.R
 import com.example.musicplayer.databinding.FragmentArtistBinding
 
 class ArtistFragment : Fragment() {

@@ -7,10 +7,15 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.example.`interface`.AlbumEventListener
 import com.example.model.AlbumModel
 import com.example.musicplayer.databinding.AlbumItemBinding
 
-class AlbumAdapter(val context: Context, val list: ArrayList<AlbumModel>) :
+class AlbumAdapter(
+    val context: Context,
+    val list: ArrayList<AlbumModel>,
+    val albumEventListener: AlbumEventListener
+) :
     RecyclerView.Adapter<AlbumAdapter.Holder>() {
     inner class Holder(val view: AlbumItemBinding) : RecyclerView.ViewHolder(view.root) {
         fun bind(albumModel: AlbumModel) {
@@ -40,7 +45,7 @@ class AlbumAdapter(val context: Context, val list: ArrayList<AlbumModel>) :
         holder.bind(list[position])
         //click item
         holder.itemView.setOnClickListener {
-            //
+            albumEventListener.onSelect(list[position])
         }
     }
 
