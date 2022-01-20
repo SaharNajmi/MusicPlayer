@@ -21,7 +21,7 @@
 
     <TextView
         android:id="@+id/album_title"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginLeft="@dimen/margin"
         android:layout_marginTop="@dimen/margin"
@@ -37,7 +37,7 @@
 
     <TextView
         android:id="@+id/artist"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginLeft="@dimen/margin"
         android:ellipsize="end"

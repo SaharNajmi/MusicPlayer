@@ -7,8 +7,8 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.example.model.AlbumModel
 import com.example.musicplayer.databinding.AlbumItemBinding
-import com.model.AlbumModel
 
 class AlbumAdapter(val context: Context, val list: ArrayList<AlbumModel>) :
     RecyclerView.Adapter<AlbumAdapter.Holder>() {

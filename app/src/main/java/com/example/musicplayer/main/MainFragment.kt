@@ -59,17 +59,6 @@ class MainFragment : Fragment() {
         }.attach()
     }
 
-    /* override fun onOptionsItemSelected(item: MenuItem): Boolean {
-         when (item.itemId) {
-             R.id.action_favorites -> Toast.makeText(requireContext(), "fav", Toast.LENGTH_SHORT)
-                 .show()
-
-             R.id.action_search -> Toast.makeText(requireContext(), "search", Toast.LENGTH_SHORT)
-                 .show()
-         }
-         return super.onOptionsItemSelected(item)
-     }*/
-
     class FragmentAdapter(activity: AppCompatActivity) : FragmentStateAdapter(activity) {
         override fun getItemCount(): Int = 4
 

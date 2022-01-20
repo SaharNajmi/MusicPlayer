@@ -5,14 +5,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.adapter.AlbumAdapter
+import com.example.model.AlbumModel
+import com.example.musicplayer.ReadExternalDate
 import com.example.musicplayer.databinding.FragmentAlbumBinding
-import com.model.AlbumModel
 
 class AlbumFragment : Fragment() {
     lateinit var binding: FragmentAlbumBinding
-    val listAlbum = ArrayList<AlbumModel>()
+    var listAlbum = ArrayList<AlbumModel>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -25,13 +27,18 @@ class AlbumFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        //get array list album
+        val listMusic = ReadExternalDate().readExternalData(requireContext())
+        val listAlbumId = ReadExternalDate().getListAlbumId(listMusic)
+        listAlbum = ReadExternalDate().getListAlbum(listMusic, listAlbumId)
 
         //show list album
-        //showListAlbum()
+        showListAlbum()
     }
 
     fun showListAlbum() {
-        binding.recyclerAlbum.layoutManager = LinearLayoutManager(requireContext())
+        binding.recyclerAlbum.layoutManager =
+            GridLayoutManager(requireContext(), 2, RecyclerView.VERTICAL, false)
         binding.recyclerAlbum.adapter = AlbumAdapter(requireContext(), listAlbum)
     }
 

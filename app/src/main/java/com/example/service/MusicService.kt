@@ -12,7 +12,7 @@ import android.provider.MediaStore
 import android.widget.SeekBar
 import android.widget.TextView
 import com.example.`interface`.OnSongComplete
-import com.model.SongModel
+import com.example.model.SongModel
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 import kotlin.random.Random

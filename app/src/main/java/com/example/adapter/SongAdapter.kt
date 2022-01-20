@@ -9,8 +9,8 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.`interface`.OnSongPosition
 import com.example.`interface`.SongEventListener
+import com.example.model.SongModel
 import com.example.musicplayer.databinding.MusicItemLayoutBinding
-import com.model.SongModel
 
 
 class SongAdapter(

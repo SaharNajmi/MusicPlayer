@@ -2,7 +2,6 @@ package com.example.musicplayer.all
 
 import android.content.*
 import android.graphics.Bitmap
-import android.net.Uri
 import android.os.Bundle
 import android.os.IBinder
 import android.provider.MediaStore
@@ -13,17 +12,19 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.`interface`.OnSongComplete
 import com.example.`interface`.OnSongPosition
 import com.example.`interface`.SongEventListener
 import com.example.adapter.SongAdapter
+import com.example.model.SongModel
 import com.example.musicplayer.R
+import com.example.musicplayer.ReadExternalDate
 import com.example.musicplayer.databinding.FragmentHomeBinding
+import com.example.musicplayer.main.MainFragmentDirections
 import com.example.service.MusicService
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.model.AlbumModel
-import com.model.SongModel
 import kotlin.random.Random
 
 class HomeFragment : Fragment(), SongEventListener, OnSongPosition,
@@ -36,7 +37,7 @@ class HomeFragment : Fragment(), SongEventListener, OnSongPosition,
     var isShuffle = false
     var isRepeat = false
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<ConstraintLayout>
-    val listMusic = ArrayList<SongModel>()
+    var listMusic = ArrayList<SongModel>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -50,7 +51,7 @@ class HomeFragment : Fragment(), SongEventListener, OnSongPosition,
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         //get all songs from phone
-        readExternalData()
+        listMusic = ReadExternalDate().readExternalData(requireContext())
 
         //show list items into recyclerView
         showListMusic()
@@ -108,85 +109,24 @@ class HomeFragment : Fragment(), SongEventListener, OnSongPosition,
         //open or expended
         bottomSheetBehavior = BottomSheetBehavior.from(binding.detailMusicLayout.bottomSheet)
         binding.playMusicLayout.layoutController.setOnClickListener {
-            if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED)
-                bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-            else
-                bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+            /* if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED)
+                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+             else
+                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED*/
+
+            val directions = MainFragmentDirections.actionMainFragmentToDetailFragment(songModel)
+            findNavController().navigate(directions)
+
         }
         //close
         binding.detailMusicLayout.btnDown.setOnClickListener {
-            bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+            //   bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
         }
     }
 
     fun showListMusic() {
         binding.recyclerMusics.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerMusics.adapter = SongAdapter(requireContext(), listMusic, this, this)
-    }
-
-    fun readExternalData() {
-        var musicResolver: ContentResolver = requireContext().contentResolver
-        val musicUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
-        val musicCursor = musicResolver.query(musicUri, null, null, null, null)
-        if (musicCursor != null && musicCursor.moveToFirst()) {
-            val songId = musicCursor.getColumnIndex(MediaStore.Audio.Media._ID)
-            val songArtist = musicCursor.getColumnIndex(MediaStore.Audio.Media.ARTIST)
-            val songTitle = musicCursor.getColumnIndex(MediaStore.Audio.Media.TITLE)
-            val albumId = musicCursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID)
-            val artistId = musicCursor.getColumnIndex(MediaStore.Audio.Media.ARTIST_ID)
-
-            var listArtist = ArrayList<Long>()
-            var listAlbum = ArrayList<Long>()
-            while (musicCursor.moveToNext()) {
-                //get cover image song
-                val IMAGE_URI = Uri.parse("content://media/external/audio/albumart")
-                val album_uri =
-                    ContentUris.withAppendedId(IMAGE_URI, musicCursor.getLong(albumId))
-
-                //add music into array song
-                listMusic.add(
-                    SongModel(
-                        musicCursor.getLong(songId),
-                        musicCursor.getString(songArtist),
-                        musicCursor.getLong(albumId),
-                        musicCursor.getString(songTitle),
-                        album_uri
-                    )
-                )
-
-                listArtist.add(musicCursor.getLong(artistId))
-                listAlbum.add(musicCursor.getLong(albumId))
-
-            }
-
-            //Remove duplicate elements from artist and album
-            listArtist = listArtist.distinct() as ArrayList<Long>
-            listAlbum = listAlbum.distinct() as ArrayList<Long>
-            val albumList = ArrayList<AlbumModel>()
-
-            var j = 0
-            var k = 0
-            while (listAlbum.size > j) {
-                while (listMusic.size > k) {
-                    if (listMusic[k].albumID == listAlbum[j]) {
-                        albumList.add(
-                            AlbumModel(
-                                listMusic[k].albumID,
-                                listMusic[k].songTitle,
-                                listMusic[k].artist,
-                                listMusic[k].coverImage,
-                            )
-                        )
-
-                        break
-                    }
-                    k++
-                }
-                j++
-            }
-
-
-        }
     }
 
     fun updateUi() {

@@ -1,4 +1,4 @@
-package com.model
+package com.example.model
 
 data class ArtistModel(
     val id: Long,
