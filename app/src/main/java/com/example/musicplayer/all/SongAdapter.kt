@@ -1,4 +1,4 @@
-package com.example.adapter
+package com.example.musicplayer.all
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -7,7 +7,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.example.`interface`.OnSongPosition
 import com.example.`interface`.SongEventListener
 import com.example.model.SongModel
 import com.example.musicplayer.databinding.MusicItemLayoutBinding
@@ -16,8 +15,7 @@ import com.example.musicplayer.databinding.MusicItemLayoutBinding
 class SongAdapter(
     val context: Context,
     val list: ArrayList<SongModel>,
-    val eventListener: SongEventListener,
-    val songPosition: OnSongPosition
+    val eventListener: SongEventListener
 ) :
     RecyclerView.Adapter<SongAdapter.Holder>() {
 
@@ -47,8 +45,7 @@ class SongAdapter(
         holder.bind(myList)
 
         holder.itemView.setOnClickListener {
-            eventListener.onSelect(list[position])
-            songPosition.onSongPosition(position)
+            eventListener.onSelect(list[position], position)
         }
     }
 

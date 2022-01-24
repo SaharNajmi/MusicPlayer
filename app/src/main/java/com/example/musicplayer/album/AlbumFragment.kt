@@ -9,7 +9,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.`interface`.AlbumEventListener
-import com.example.adapter.AlbumAdapter
 import com.example.model.AlbumModel
 import com.example.musicplayer.ReadExternalDate
 import com.example.musicplayer.databinding.FragmentAlbumBinding

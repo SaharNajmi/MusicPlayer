@@ -1,4 +1,4 @@
-package com.example.adapter
+package com.example.musicplayer.album
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -27,7 +27,7 @@ class AlbumDetailAdapter(
     override fun onBindViewHolder(holder: Holder, position: Int) {
         holder.bind(list[position])
         holder.itemView.setOnClickListener {
-            songEventListener.onSelect(list[position])
+            songEventListener.onSelect(list[position], position)
         }
     }
 

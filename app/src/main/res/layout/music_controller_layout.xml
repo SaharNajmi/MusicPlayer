@@ -4,8 +4,7 @@
     android:id="@+id/layout_controller"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/myBlack"
-    android:visibility="gone">
+    android:background="@color/myBlack">
 
     <SeekBar
         android:id="@+id/seek_bar"

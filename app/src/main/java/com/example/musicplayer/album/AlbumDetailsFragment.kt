@@ -8,16 +8,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.`interface`.SongEventListener
-import com.example.adapter.AlbumDetailAdapter
 import com.example.model.AlbumModel
 import com.example.model.SongModel
 import com.example.musicplayer.ReadExternalDate
 import com.example.musicplayer.databinding.FragmentAlbumDetailsBinding
-import com.example.musicplayer.main.MainFragmentDirections
+import com.example.musicplayer.player.Player
 
 class AlbumDetailsFragment : Fragment(), SongEventListener {
     lateinit var binding: FragmentAlbumDetailsBinding
@@ -70,8 +68,7 @@ class AlbumDetailsFragment : Fragment(), SongEventListener {
         binding.recyclerDetailAlbum.adapter = AlbumDetailAdapter(listMusic, this)
     }
 
-    override fun onSelect(songModel: SongModel) {
-        val directions = AlbumDetailsFragmentDirections.actionAlbumDetailsFragmentToDetailFragment(songModel)
-        findNavController().navigate(directions)
+    override fun onSelect(songModel: SongModel, posSong: Int) {
+        Player.setSong(songModel, posSong)
     }
 }
