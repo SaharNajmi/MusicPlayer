@@ -27,6 +27,7 @@ object Player {
     lateinit var seekBar: SeekBar
 
     fun getListSong(context: Context): ArrayList<SongModel> {
+        listMusic = ReadExternalDate().readExternalData(context)
         return ReadExternalDate().readExternalData(context)
     }
 
@@ -64,6 +65,7 @@ object Player {
     fun resumeSong() {
         liveDataPlayerState.value = PLAYING
         player.start()
+        progressRunner(player).run()
     }
 
     fun nextSong(context: Context) {
