@@ -69,6 +69,8 @@ class MainActivity : AppCompatActivity(), OnSongComplete {
              mNavController.navigate(directions)*/
         }
 
+        //seekBar
+        Player.setSeekbar(binding.playMusicLayout.seekBar)
     }
 
     override fun onStart() {

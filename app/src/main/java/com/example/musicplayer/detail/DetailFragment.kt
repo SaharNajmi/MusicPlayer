@@ -54,6 +54,9 @@ class DetailFragment : Fragment() {
         if (requireActivity() is MainActivity) {
             (activity as MainActivity?)!!.hideMusicController()
         }
+
+        //seekBar
+        //  Player.setSeekbar(binding.seekBar)
     }
 
     override fun onStop() {

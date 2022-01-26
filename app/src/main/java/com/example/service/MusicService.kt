@@ -17,7 +17,6 @@ class MusicService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnEr
     lateinit var songModel: SongModel
     val musicBind: IBinder = MusicBinder()
     lateinit var onSongComplete: OnSongComplete
-    var listMusic = ArrayList<SongModel>()
 
     override fun onCreate() {
         super.onCreate()
@@ -52,7 +51,10 @@ class MusicService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnEr
 
     override fun onPrepared(mp: MediaPlayer?) {
         try {
-            mp?.start()
+            if (mp != null) {
+                mp.start()
+                Player.updateProgress(mp.duration)
+            }
         } catch (e: Exception) {
             e.printStackTrace()
         }

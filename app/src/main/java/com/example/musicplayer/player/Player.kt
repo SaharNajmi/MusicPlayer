@@ -5,6 +5,7 @@ import android.content.ContentUris
 import android.content.Context
 import android.media.MediaPlayer
 import android.provider.MediaStore
+import android.widget.SeekBar
 import androidx.lifecycle.MutableLiveData
 import com.example.model.SongModel
 import com.example.musicplayer.ReadExternalDate
@@ -23,6 +24,7 @@ object Player {
     val PLAYING = 2
     var isShuffle = false
     var isRepeat = false
+    lateinit var seekBar: SeekBar
 
     fun getListSong(context: Context): ArrayList<SongModel> {
         return ReadExternalDate().readExternalData(context)
@@ -41,6 +43,9 @@ object Player {
         } catch (e: IOException) {
             e.printStackTrace()
         }
+
+        //Run Progressbar seekBar
+        progressRunner(player).run()
 
         player.prepareAsync()
     }
@@ -94,6 +99,29 @@ object Player {
             newSong = Random.nextInt(listMusic.size - 1)
         songPosition = newSong
         liveDataSongModel.value = listMusic[songPosition]
+    }
+
+    fun updateProgress(duration: Int) {
+        seekBar.max = duration
+        val progressRunner = progressRunner(player)
+        seekBar.postDelayed(progressRunner, 1000)
+    }
+
+    fun progressRunner(mp: MediaPlayer): Runnable {
+        this.player = mp
+        val progressRunner: Runnable = object : Runnable {
+            override fun run() {
+                seekBar.progress = mp.currentPosition
+                if (mp.isPlaying) {
+                    seekBar.postDelayed(this, 1000)
+                }
+            }
+        }
+        return progressRunner
+    }
+
+    fun setSeekbar(seekBar: SeekBar) {
+        this.seekBar = seekBar
     }
 
 }
