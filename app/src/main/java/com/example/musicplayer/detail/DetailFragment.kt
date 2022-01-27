@@ -9,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.SeekBar
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.navArgs
 import com.example.model.SongModel
@@ -16,13 +17,13 @@ import com.example.musicplayer.R
 import com.example.musicplayer.databinding.FragmentDetailBinding
 import com.example.musicplayer.main.MainActivity
 import com.example.musicplayer.player.Player
+import java.util.concurrent.TimeUnit
 
 class DetailFragment : Fragment() {
     lateinit var binding: FragmentDetailBinding
     lateinit var songModel: SongModel
     val args: DetailFragmentArgs by navArgs()
     var listMusic = ArrayList<SongModel>()
-    lateinit var player: MediaPlayer
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -37,7 +38,6 @@ class DetailFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         songModel = args.musicDetail
 
-        player = MediaPlayer()
         listMusic = Player.getListSong(requireContext())
 
         updateUi(songModel)
@@ -56,8 +56,54 @@ class DetailFragment : Fragment() {
         }
 
         //seekBar
-        //  Player.setSeekbar(binding.seekBar)
+        setProgressSeekBar(binding.seekBar)
     }
+
+    fun updateProgress(duration: Int) {
+        binding.seekBar.max = duration
+        val progressRunner = progressRunner(Player.player)
+        binding.seekBar.postDelayed(progressRunner, 1000)
+    }
+
+    fun progressRunner(mp: MediaPlayer): Runnable {
+        val progressRunner: Runnable = object : Runnable {
+            override fun run() {
+                binding.seekBar.progress = mp.currentPosition
+                if (mp.isPlaying) {
+                    binding.seekBar.postDelayed(this, 1000)
+                }
+            }
+        }
+        return progressRunner
+    }
+
+    fun setProgressSeekBar(seekBar: SeekBar) {
+        binding.txtEndTime.text = durationPointSeekBar(Player.player.duration)
+        seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
+                if (p2)
+                    Player.player.seekTo(p1)
+
+                binding.txtStartTime.text = durationPointSeekBar(p1)
+            }
+
+            override fun onStartTrackingTouch(p0: SeekBar?) {
+            }
+
+            override fun onStopTrackingTouch(p0: SeekBar?) {
+            }
+
+        })
+
+        updateProgress(Player.player.duration)
+    }
+
+    fun durationPointSeekBar(duration: Int): String = String.format(
+        "%d:%02d",
+        TimeUnit.MILLISECONDS.toMinutes(duration.toLong()),
+        TimeUnit.MILLISECONDS.toSeconds(duration.toLong()) -
+                TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(duration.toLong()))
+    )
 
     override fun onStop() {
         super.onStop()
