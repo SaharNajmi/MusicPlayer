@@ -14,7 +14,7 @@ import com.example.musicplayer.databinding.MusicItemLayoutBinding
 
 class SongAdapter(
     val context: Context,
-    val list: ArrayList<SongModel>,
+    var list: ArrayList<SongModel>,
     val eventListener: SongEventListener
 ) :
     RecyclerView.Adapter<SongAdapter.Holder>() {
@@ -50,5 +50,10 @@ class SongAdapter(
     }
 
     override fun getItemCount(): Int = list.size
+
+    fun updateList(songList: ArrayList<SongModel>) {
+        list = songList
+        notifyDataSetChanged()
+    }
 }
 
