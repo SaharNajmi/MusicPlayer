@@ -13,6 +13,7 @@ import com.example.model.AlbumModel
 import com.example.musicplayer.ReadExternalDate
 import com.example.musicplayer.databinding.FragmentAlbumBinding
 import com.example.musicplayer.main.MainFragmentDirections
+import com.example.musicplayer.player.Player
 
 class AlbumFragment : Fragment(), AlbumEventListener {
     lateinit var binding: FragmentAlbumBinding
@@ -30,7 +31,7 @@ class AlbumFragment : Fragment(), AlbumEventListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         //get array list album
-        val listMusic = ReadExternalDate().readExternalData(requireContext())
+        val listMusic = Player.getListSong(requireContext())
         val listAlbumId = ReadExternalDate().getListAlbumId(listMusic)
         listAlbum = ReadExternalDate().getListAlbum(listMusic, listAlbumId)
 

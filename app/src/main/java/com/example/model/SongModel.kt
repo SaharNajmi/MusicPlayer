@@ -9,6 +9,7 @@ data class SongModel(
     val id: Long,
     val artist: String,
     val albumID: Long,
+    val artistID: Long,
     val songTitle: String,
     val coverImage: Uri,
     val lyrics: String = "",

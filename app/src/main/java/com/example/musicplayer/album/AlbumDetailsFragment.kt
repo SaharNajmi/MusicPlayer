@@ -13,7 +13,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.`interface`.SongEventListener
 import com.example.model.AlbumModel
 import com.example.model.SongModel
-import com.example.musicplayer.ReadExternalDate
 import com.example.musicplayer.databinding.FragmentAlbumDetailsBinding
 import com.example.musicplayer.player.Player
 
@@ -21,8 +20,8 @@ class AlbumDetailsFragment : Fragment(), SongEventListener {
     lateinit var binding: FragmentAlbumDetailsBinding
     lateinit var albumModel: AlbumModel
     val args: AlbumDetailsFragmentArgs by navArgs()
+    var listAlbum = ArrayList<SongModel>()
     var listMusic = ArrayList<SongModel>()
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -35,6 +34,8 @@ class AlbumDetailsFragment : Fragment(), SongEventListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         albumModel = args.albumDetail
+
+        listMusic = Player.getListSong(requireContext())
 
         //set data
         binding.albumTitle.text = albumModel.albumName
@@ -52,12 +53,7 @@ class AlbumDetailsFragment : Fragment(), SongEventListener {
         }
 
         //Get list album items by albumId
-        val listAllMusic = ReadExternalDate().readExternalData(requireContext())
-        val albumId = albumModel.id
-        listAllMusic.forEach {
-            if (albumId == it.albumID)
-                listMusic.add(it)
-        }
+        getListAlbum()
 
         //show items
         initRecycler()
@@ -65,7 +61,16 @@ class AlbumDetailsFragment : Fragment(), SongEventListener {
 
     fun initRecycler() {
         binding.recyclerDetailAlbum.layoutManager = LinearLayoutManager(requireContext())
-        binding.recyclerDetailAlbum.adapter = AlbumDetailAdapter(listMusic, this)
+        binding.recyclerDetailAlbum.adapter = AlbumDetailAdapter(listAlbum, this)
+    }
+
+    fun getListAlbum() {
+        val albumId = albumModel.id
+        listMusic.forEach {
+            if (albumId == it.albumID)
+                listAlbum.add(it)
+        }
+        Player.listMusic = listAlbum
     }
 
     override fun onSelect(songModel: SongModel, posSong: Int) {

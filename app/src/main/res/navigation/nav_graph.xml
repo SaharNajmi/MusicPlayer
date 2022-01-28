@@ -22,6 +22,9 @@
         <action
             android:id="@+id/action_mainFragment_to_albumDetailsFragment"
             app:destination="@id/albumDetailsFragment" />
+        <action
+            android:id="@+id/action_mainFragment_to_artistDetailFragment"
+            app:destination="@id/artistDetailFragment" />
     </fragment>
     <fragment
         android:id="@+id/searchLyricsFragment"
@@ -68,5 +71,14 @@
         <argument
             android:name="albumDetail"
             app:argType="com.example.model.AlbumModel" />
+    </fragment>
+    <fragment
+        android:id="@+id/artistDetailFragment"
+        android:name="com.example.musicplayer.artist.ArtistDetailFragment"
+        android:label="fragment_artist_detail"
+        tools:layout="@layout/fragment_artist_detail">
+        <argument
+            android:name="artistDetail"
+            app:argType="com.example.model.ArtistModel" />
     </fragment>
 </navigation>

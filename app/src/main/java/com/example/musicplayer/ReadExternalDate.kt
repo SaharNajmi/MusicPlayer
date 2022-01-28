@@ -6,12 +6,15 @@ import android.content.Context
 import android.net.Uri
 import android.provider.MediaStore
 import com.example.model.AlbumModel
+import com.example.model.ArtistModel
 import com.example.model.SongModel
 
 class ReadExternalDate {
     val listMusic = ArrayList<SongModel>()
     val listAlbum = ArrayList<AlbumModel>()
     val listAlbumId = ArrayList<Long>()
+    val listArtist = ArrayList<ArtistModel>()
+    val listArtistId = ArrayList<Long>()
 
     fun readExternalData(context: Context): ArrayList<SongModel> {
         var musicResolver: ContentResolver = context.contentResolver
@@ -38,6 +41,7 @@ class ReadExternalDate {
                         musicCursor.getLong(songId),
                         musicCursor.getString(songArtist),
                         musicCursor.getLong(albumId),
+                        musicCursor.getLong(artistId),
                         musicCursor.getString(songTitle),
                         album_uri
                     )
@@ -56,6 +60,13 @@ class ReadExternalDate {
             listAlbumId.add(it.albumID)
         }
         return listAlbumId.distinct()
+    }
+
+    fun getListArtistId(list: ArrayList<SongModel>): List<Long> {
+        list.forEach {
+            listArtistId.add(it.artistID)
+        }
+        return listArtistId.distinct()
     }
 
     fun getListAlbum(
@@ -83,5 +94,29 @@ class ReadExternalDate {
             j++
         }
         return listAlbum
+    }
+
+    fun getListArtist(
+        listMusic: ArrayList<SongModel>,
+        listArtistId: List<Long>
+    ): ArrayList<ArtistModel> {
+        var j = 0
+        var k = 0
+        while (listArtistId.size > j) {
+            while (listMusic.size > k) {
+                if (listMusic[k].artistID == listArtistId[j]) {
+                    listArtist.add(
+                        ArtistModel(
+                            listMusic[k].artistID,
+                            listMusic[k].artist
+                        )
+                    )
+                    break
+                }
+                k++
+            }
+            j++
+        }
+        return listArtist
     }
 }
