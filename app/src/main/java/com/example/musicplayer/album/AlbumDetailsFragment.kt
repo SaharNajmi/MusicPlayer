@@ -20,8 +20,10 @@ class AlbumDetailsFragment : Fragment(), SongEventListener {
     lateinit var binding: FragmentAlbumDetailsBinding
     lateinit var albumModel: AlbumModel
     val args: AlbumDetailsFragmentArgs by navArgs()
-    var listAlbum = ArrayList<SongModel>()
-    var listMusic = ArrayList<SongModel>()
+    var albums = ArrayList<SongModel>()
+    var musics = ArrayList<SongModel>()
+    lateinit var myPlayer: Player
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -35,7 +37,9 @@ class AlbumDetailsFragment : Fragment(), SongEventListener {
         super.onViewCreated(view, savedInstanceState)
         albumModel = args.albumDetail
 
-        listMusic = Player.getListSong(requireContext())
+        myPlayer = Player.getInstance()
+
+        musics = myPlayer.getSongs(requireContext())
 
         //set data
         binding.albumTitle.text = albumModel.albumName
@@ -53,7 +57,7 @@ class AlbumDetailsFragment : Fragment(), SongEventListener {
         }
 
         //Get list album items by albumId
-        getListAlbum()
+        getAlbums()
 
         //show items
         initRecycler()
@@ -61,19 +65,19 @@ class AlbumDetailsFragment : Fragment(), SongEventListener {
 
     fun initRecycler() {
         binding.recyclerDetailAlbum.layoutManager = LinearLayoutManager(requireContext())
-        binding.recyclerDetailAlbum.adapter = AlbumDetailAdapter(listAlbum, this)
+        binding.recyclerDetailAlbum.adapter = AlbumDetailAdapter(albums, this)
     }
 
-    fun getListAlbum() {
+    fun getAlbums() {
         val albumId = albumModel.id
-        listMusic.forEach {
+        musics.forEach {
             if (albumId == it.albumID)
-                listAlbum.add(it)
+                albums.add(it)
         }
-        Player.listMusic = listAlbum
+        myPlayer.musics = albums
     }
 
     override fun onSelect(songModel: SongModel, posSong: Int) {
-        Player.setSong(songModel, posSong)
+        myPlayer.songSelected(songModel, posSong)
     }
 }

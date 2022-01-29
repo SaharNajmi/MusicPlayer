@@ -16,8 +16,9 @@ import com.example.musicplayer.player.Player
 
 class SearchMusicFragment : Fragment(), SongEventListener {
     lateinit var binding: FragmentSearchMusicBinding
-    var listMusic = ArrayList<SongModel>()
+    var musics = ArrayList<SongModel>()
     lateinit var adapter: SongAdapter
+    lateinit var myPlayer: Player
 
 
     override fun onCreateView(
@@ -31,8 +32,11 @@ class SearchMusicFragment : Fragment(), SongEventListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        myPlayer = Player.getInstance()
+
         //get all songs
-        listMusic = Player.getListSong(requireContext())
+        musics = myPlayer.getSongs(requireContext())
 
         //search item
         binding.searchView.addTextChangedListener(object : TextWatcher {
@@ -48,33 +52,33 @@ class SearchMusicFragment : Fragment(), SongEventListener {
         })
 
         //show all song
-        showListMusic()
+        showMusics()
     }
 
-    fun showListMusic() {
-        adapter = SongAdapter(requireContext(), listMusic, this)
+    fun showMusics() {
+        adapter = SongAdapter(requireContext(), musics, this)
         binding.recyclerShowItemSearch.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerShowItemSearch.adapter = adapter
     }
 
     fun searchSong(value: String) {
-        val listFilterSong = ArrayList<SongModel>()
-        for (song in listMusic) {
+        val filterSongs = ArrayList<SongModel>()
+        for (song in musics) {
             var isListAdded = false
             if (song.songTitle.toLowerCase().contains(value.toLowerCase())) {
-                listFilterSong.add(song)
+                filterSongs.add(song)
                 isListAdded = true
             }
             if (song.artist.toLowerCase().contains(value.toLowerCase())) {
                 if (!isListAdded)
-                    listFilterSong.add(song)
+                    filterSongs.add(song)
             }
         }
-        Player.listMusic = listFilterSong
-        adapter.updateList(listFilterSong)
+        myPlayer.musics = filterSongs
+        adapter.updateList(filterSongs)
     }
 
     override fun onSelect(songModel: SongModel, posSong: Int) {
-        Player.setSong(songModel, posSong)
+        myPlayer.songSelected(songModel, posSong)
     }
 }

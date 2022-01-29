@@ -19,8 +19,9 @@ class ArtistDetailFragment : Fragment(), SongEventListener {
     lateinit var binding: FragmentArtistDetailBinding
     lateinit var artistModel: ArtistModel
     val args: ArtistDetailFragmentArgs by navArgs()
-    var listArtist = ArrayList<SongModel>()
-    var listMusic = ArrayList<SongModel>()
+    var artists = ArrayList<SongModel>()
+    var musics = ArrayList<SongModel>()
+    lateinit var myPlayer: Player
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -34,12 +35,14 @@ class ArtistDetailFragment : Fragment(), SongEventListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         artistModel = args.artistDetail
-        listMusic = Player.getListSong(requireContext())
+        myPlayer = Player.getInstance()
+
+        musics = myPlayer.getSongs(requireContext())
 
         binding.artist.text = artistModel.artist
 
         //Get list artist items by artistId
-        getListArtist()
+        getArtists()
 
         //show items
         initRecycler()
@@ -47,20 +50,20 @@ class ArtistDetailFragment : Fragment(), SongEventListener {
 
     fun initRecycler() {
         binding.recyclerDetailArtist.layoutManager = LinearLayoutManager(requireContext())
-        binding.recyclerDetailArtist.adapter = SongAdapter(requireContext(), listArtist, this)
+        binding.recyclerDetailArtist.adapter = SongAdapter(requireContext(), artists, this)
     }
 
-    fun getListArtist() {
+    fun getArtists() {
         val artistId = artistModel.id
-        listMusic.forEach {
+        musics.forEach {
             if (artistId == it.artistID)
-                listArtist.add(it)
+                artists.add(it)
         }
 
-        Player.listMusic = listArtist
+        myPlayer.musics = artists
     }
 
     override fun onSelect(songModel: SongModel, posSong: Int) {
-        Player.setSong(songModel, posSong)
+        myPlayer.songSelected(songModel, posSong)
     }
 }

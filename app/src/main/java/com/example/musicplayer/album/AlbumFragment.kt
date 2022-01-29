@@ -10,14 +10,15 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.`interface`.AlbumEventListener
 import com.example.model.AlbumModel
-import com.example.musicplayer.ReadExternalDate
+import com.example.musicplayer.ReadExternalMusic
 import com.example.musicplayer.databinding.FragmentAlbumBinding
 import com.example.musicplayer.main.MainFragmentDirections
 import com.example.musicplayer.player.Player
 
 class AlbumFragment : Fragment(), AlbumEventListener {
     lateinit var binding: FragmentAlbumBinding
-    var listAlbum = ArrayList<AlbumModel>()
+    var albums = ArrayList<AlbumModel>()
+    lateinit var myPlayer: Player
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -30,19 +31,21 @@ class AlbumFragment : Fragment(), AlbumEventListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        myPlayer = Player.getInstance()
+
         //get array list album
-        val listMusic = Player.getListSong(requireContext())
-        val listAlbumId = ReadExternalDate().getListAlbumId(listMusic)
-        listAlbum = ReadExternalDate().getListAlbum(listMusic, listAlbumId)
+        val musics = myPlayer.getSongs(requireContext())
+        val albumIDs = ReadExternalMusic().getAlbumIDs(musics)
+        albums = ReadExternalMusic().getAlbums(musics, albumIDs)
 
         //show list album
-        showListAlbum()
+        showAlbums()
     }
 
-    fun showListAlbum() {
+    fun showAlbums() {
         binding.recyclerAlbum.layoutManager =
             GridLayoutManager(requireContext(), 2, RecyclerView.VERTICAL, false)
-        binding.recyclerAlbum.adapter = AlbumAdapter(requireContext(), listAlbum, this)
+        binding.recyclerAlbum.adapter = AlbumAdapter(requireContext(), albums, this)
     }
 
     override fun onSelect(albumModel: AlbumModel) {

@@ -51,8 +51,8 @@ class SongAdapter(
 
     override fun getItemCount(): Int = list.size
 
-    fun updateList(songList: ArrayList<SongModel>) {
-        list = songList
+    fun updateList(songs: ArrayList<SongModel>) {
+        list = songs
         notifyDataSetChanged()
     }
 }

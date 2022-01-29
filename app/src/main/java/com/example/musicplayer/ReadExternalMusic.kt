@@ -9,12 +9,12 @@ import com.example.model.AlbumModel
 import com.example.model.ArtistModel
 import com.example.model.SongModel
 
-class ReadExternalDate {
-    val listMusic = ArrayList<SongModel>()
-    val listAlbum = ArrayList<AlbumModel>()
-    val listAlbumId = ArrayList<Long>()
-    val listArtist = ArrayList<ArtistModel>()
-    val listArtistId = ArrayList<Long>()
+class ReadExternalMusic {
+    val musics = ArrayList<SongModel>()
+    val albums = ArrayList<AlbumModel>()
+    val albumIDs = ArrayList<Long>()
+    val artists = ArrayList<ArtistModel>()
+    val artistIDs = ArrayList<Long>()
 
     fun readExternalData(context: Context): ArrayList<SongModel> {
         var musicResolver: ContentResolver = context.contentResolver
@@ -27,8 +27,6 @@ class ReadExternalDate {
             val albumId = musicCursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID)
             val artistId = musicCursor.getColumnIndex(MediaStore.Audio.Media.ARTIST_ID)
 
-            var listArtist = ArrayList<Long>()
-            var listAlbum = ArrayList<Long>()
             while (musicCursor.moveToNext()) {
                 //get cover image song
                 val IMAGE_URI = Uri.parse("content://media/external/audio/albumart")
@@ -36,7 +34,7 @@ class ReadExternalDate {
                     ContentUris.withAppendedId(IMAGE_URI, musicCursor.getLong(albumId))
 
                 //add music into array song
-                listMusic.add(
+                musics.add(
                     SongModel(
                         musicCursor.getLong(songId),
                         musicCursor.getString(songArtist),
@@ -47,43 +45,40 @@ class ReadExternalDate {
                     )
                 )
 
-                listArtist.add(musicCursor.getLong(artistId))
-                listAlbum.add(musicCursor.getLong(albumId))
-
             }
         }
-        return listMusic
+        return musics
     }
 
-    fun getListAlbumId(list: ArrayList<SongModel>): List<Long> {
+    fun getAlbumIDs(list: ArrayList<SongModel>): List<Long> {
         list.forEach {
-            listAlbumId.add(it.albumID)
+            albumIDs.add(it.albumID)
         }
-        return listAlbumId.distinct()
+        return albumIDs.distinct()
     }
 
-    fun getListArtistId(list: ArrayList<SongModel>): List<Long> {
+    fun getArtistIDs(list: ArrayList<SongModel>): List<Long> {
         list.forEach {
-            listArtistId.add(it.artistID)
+            artistIDs.add(it.artistID)
         }
-        return listArtistId.distinct()
+        return artistIDs.distinct()
     }
 
-    fun getListAlbum(
-        listMusic: ArrayList<SongModel>,
-        listAlbumId: List<Long>
+    fun getAlbums(
+        musics: ArrayList<SongModel>,
+        albumIDs: List<Long>
     ): ArrayList<AlbumModel> {
         var j = 0
         var k = 0
-        while (listAlbumId.size > j) {
-            while (listMusic.size > k) {
-                if (listMusic[k].albumID == listAlbumId[j]) {
-                    listAlbum.add(
+        while (albumIDs.size > j) {
+            while (musics.size > k) {
+                if (musics[k].albumID == albumIDs[j]) {
+                    albums.add(
                         AlbumModel(
-                            listMusic[k].albumID,
-                            listMusic[k].songTitle,
-                            listMusic[k].artist,
-                            listMusic[k].coverImage,
+                            musics[k].albumID,
+                            musics[k].songTitle,
+                            musics[k].artist,
+                            musics[k].coverImage,
                         )
                     )
 
@@ -93,22 +88,22 @@ class ReadExternalDate {
             }
             j++
         }
-        return listAlbum
+        return albums
     }
 
-    fun getListArtist(
-        listMusic: ArrayList<SongModel>,
-        listArtistId: List<Long>
+    fun getArtists(
+        music: ArrayList<SongModel>,
+        artistIDs: List<Long>
     ): ArrayList<ArtistModel> {
         var j = 0
         var k = 0
-        while (listArtistId.size > j) {
-            while (listMusic.size > k) {
-                if (listMusic[k].artistID == listArtistId[j]) {
-                    listArtist.add(
+        while (artistIDs.size > j) {
+            while (music.size > k) {
+                if (music[k].artistID == artistIDs[j]) {
+                    artists.add(
                         ArtistModel(
-                            listMusic[k].artistID,
-                            listMusic[k].artist
+                            music[k].artistID,
+                            music[k].artist
                         )
                     )
                     break
@@ -117,6 +112,6 @@ class ReadExternalDate {
             }
             j++
         }
-        return listArtist
+        return artists
     }
 }

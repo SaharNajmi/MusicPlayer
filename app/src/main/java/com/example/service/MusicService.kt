@@ -9,7 +9,6 @@ import android.os.IBinder
 import android.os.PowerManager
 import com.example.`interface`.OnSongComplete
 import com.example.model.SongModel
-import com.example.musicplayer.player.Player
 
 class MusicService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
     MediaPlayer.OnCompletionListener {
@@ -21,8 +20,8 @@ class MusicService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnEr
     override fun onCreate() {
         super.onCreate()
         player = MediaPlayer()
-        Player.player = player
-        Player.liveDataPlayerState.value = Player.PAUSED
+        //  Player.player = player
+        //   Player.liveDataPlayerState.value = Player.PAUSED
         initMusicPlayer()
     }
 
@@ -53,7 +52,7 @@ class MusicService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnEr
         try {
             if (mp != null) {
                 mp.start()
-                Player.updateProgress(mp.duration)
+                //Player.updateProgress(mp.duration)
             }
         } catch (e: Exception) {
             e.printStackTrace()

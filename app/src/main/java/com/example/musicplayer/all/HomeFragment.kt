@@ -13,7 +13,8 @@ import com.example.musicplayer.player.Player
 
 class HomeFragment : Fragment(), SongEventListener {
     lateinit var binding: FragmentHomeBinding
-    var listMusic = ArrayList<SongModel>()
+    var musics = ArrayList<SongModel>()
+    lateinit var myPlayer: Player
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -26,19 +27,21 @@ class HomeFragment : Fragment(), SongEventListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        myPlayer = Player.getInstance()
+
         //get all songs from phone
-        listMusic = Player.getListSong(requireContext())
+        musics = myPlayer.getSongs(requireContext())
 
         //show list items into recyclerView
-        showListMusic()
+        showMusics()
     }
 
-    fun showListMusic() {
+    fun showMusics() {
         binding.recyclerMusics.layoutManager = LinearLayoutManager(requireContext())
-        binding.recyclerMusics.adapter = SongAdapter(requireContext(), listMusic, this)
+        binding.recyclerMusics.adapter = SongAdapter(requireContext(), musics, this)
     }
 
     override fun onSelect(songModel: SongModel, posSong: Int) {
-        Player.setSong(songModel, posSong)
+        myPlayer.songSelected(songModel, posSong)
     }
 }

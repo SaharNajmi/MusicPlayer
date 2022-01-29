@@ -9,14 +9,16 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.`interface`.ArtistEventListener
 import com.example.model.ArtistModel
-import com.example.musicplayer.ReadExternalDate
+import com.example.musicplayer.ReadExternalMusic
 import com.example.musicplayer.databinding.FragmentArtistBinding
 import com.example.musicplayer.main.MainFragmentDirections
 import com.example.musicplayer.player.Player
 
 class ArtistFragment : Fragment(), ArtistEventListener {
     lateinit var binding: FragmentArtistBinding
-    var listArtist = ArrayList<ArtistModel>()
+    var artists = ArrayList<ArtistModel>()
+    lateinit var myPlayer: Player
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -29,18 +31,20 @@ class ArtistFragment : Fragment(), ArtistEventListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        myPlayer = Player.getInstance()
+
         //get array list artist
-        val listMusic = Player.getListSong(requireContext())
-        val listArtistId = ReadExternalDate().getListArtistId(listMusic)
-        listArtist = ReadExternalDate().getListArtist(listMusic, listArtistId)
+        val musics = myPlayer.getSongs(requireContext())
+        val artistIDs = ReadExternalMusic().getArtistIDs(musics)
+        artists = ReadExternalMusic().getArtists(musics, artistIDs)
 
         //show list artist
-        showListArtist()
+        showArtists()
     }
 
-    private fun showListArtist() {
+    private fun showArtists() {
         binding.recyclerAtrist.layoutManager = LinearLayoutManager(requireContext())
-        binding.recyclerAtrist.adapter = ArtistAdapter(requireContext(), listArtist, this)
+        binding.recyclerAtrist.adapter = ArtistAdapter(requireContext(), artists, this)
 
     }
 

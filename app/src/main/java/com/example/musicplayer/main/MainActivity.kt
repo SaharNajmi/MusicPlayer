@@ -1,34 +1,26 @@
 package com.example.musicplayer.main
 
-import android.content.ComponentName
-import android.content.Context
-import android.content.Intent
-import android.content.ServiceConnection
 import android.graphics.Bitmap
 import android.os.Bundle
-import android.os.IBinder
 import android.provider.MediaStore
 import android.util.Log
 import android.view.View
-import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
-import com.example.`interface`.OnSongComplete
 import com.example.model.SongModel
 import com.example.musicplayer.R
 import com.example.musicplayer.databinding.ActivityMainBinding
 import com.example.musicplayer.player.Player
-import com.example.service.MusicService
+import com.example.musicplayer.player.PlayerState
 
-class MainActivity : AppCompatActivity(), OnSongComplete {
+class MainActivity : AppCompatActivity() {
     lateinit var binding: ActivityMainBinding
-    var playIntent: Intent? = null
-    var musicBound = false
     lateinit var songModel: SongModel
-    lateinit var musicService: MusicService
-    var listMusic = ArrayList<SongModel>()
+    var musics = ArrayList<SongModel>()
     private lateinit var mNavController: NavController
+    lateinit var myPlayer: Player
+    var playerState = PlayerState.PAUSED
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,27 +28,27 @@ class MainActivity : AppCompatActivity(), OnSongComplete {
         val view = binding.root
         setContentView(view)
 
-        listMusic = Player.getListSong(this)
+        myPlayer = Player.getInstance()
+
+        musics = myPlayer.getSongs(this)
 
         mNavController = findNavController(R.id.nav_host_fragment)
 
         musicController()
 
-        updateUi(listMusic[Player.songPosition])
+        updateUi(musics[myPlayer.songPosition])
 
         //update ui music controller
-        Player.liveDataSongModel.observe(this, {
+        myPlayer.songModel.observe(this, {
             songModel = it
             updateUi(it)
-            Player.playSong(songModel.id, applicationContext)
+            myPlayer.playSong(songModel.id, applicationContext)
         })
 
-        Player.liveDataPlayerState.observe(this, {
-            if (it == 1) {
-                binding.playMusicLayout.btnPlayPause.setImageResource(R.drawable.ic_play)
-            } else if (it == 2) {
-                binding.playMusicLayout.btnPlayPause.setImageResource(R.drawable.ic_pause)
-            }
+        //update ui button pause or play music
+        myPlayer.playerState.observe(this, {
+            playerState = it
+            updateUiPlayOrPause(it)
         })
 
         //go detail music
@@ -69,23 +61,19 @@ class MainActivity : AppCompatActivity(), OnSongComplete {
              mNavController.navigate(directions)*/
         }
 
-        //seekBar
-        Player.setSeekbar(binding.playMusicLayout.seekBar)
+        //update progressbar
+        myPlayer.progress.observe(this, {
+            updateProgress(it)
+        })
     }
 
-    override fun onStart() {
-        super.onStart()
-        if (playIntent == null) {
-            //bind service
-            playIntent = Intent(this, MusicService::class.java)
-            bindService(
-                playIntent,
-                boundServiceConnection,
-                Context.BIND_AUTO_CREATE
-            )
-            //start service
-            startService(playIntent)
-        }
+    fun updateProgress(progress: Int) {
+        //set progress to seekbar
+        binding.playMusicLayout.seekBar.max = myPlayer.duration
+        binding.playMusicLayout.seekBar.progress = progress
+        //run again after 1 second
+        if (playerState == PlayerState.PLAYING)
+            binding.playMusicLayout.seekBar.postDelayed(myPlayer.progressRunner(), 1000)
     }
 
     fun updateUi(song: SongModel) {
@@ -102,16 +90,20 @@ class MainActivity : AppCompatActivity(), OnSongComplete {
         }
         binding.playMusicLayout.songTitle.text = song.songTitle
         binding.playMusicLayout.artist.text = song.artist
-
-        updateUiPlayOrPause()
     }
 
-    fun updateUiPlayOrPause() {
-        if (Player.liveDataPlayerState.value == 1) {
-            binding.playMusicLayout.btnPlayPause.setImageResource(R.drawable.ic_pause)
-        } else if (Player.liveDataPlayerState.value == 2) {
+    fun updateUiPlayOrPause(playerState: PlayerState) {
+        if (playerState == PlayerState.PAUSED)
             binding.playMusicLayout.btnPlayPause.setImageResource(R.drawable.ic_play)
-        }
+        else if (playerState == PlayerState.PLAYING)
+            binding.playMusicLayout.btnPlayPause.setImageResource(R.drawable.ic_pause)
+    }
+
+    fun playSong() {
+        if (playerState == PlayerState.PAUSED)
+            myPlayer.resumeSong()
+        else if (playerState == PlayerState.PLAYING)
+            myPlayer.pauseSong()
     }
 
     fun hideMusicController() {
@@ -122,68 +114,23 @@ class MainActivity : AppCompatActivity(), OnSongComplete {
         binding.playMusicLayout.layoutController.visibility = View.VISIBLE
     }
 
-    private val boundServiceConnection = object : ServiceConnection {
-        override fun onServiceConnected(componentName: ComponentName?, iBinder: IBinder?) {
-            val binder: MusicService.MusicBinder = iBinder as MusicService.MusicBinder
-            musicService = binder.getService()
-
-            //end song
-            musicService.songComplete(this@MainActivity)
-
-            musicBound = true
-        }
-
-        override fun onServiceDisconnected(p0: ComponentName?) {
-            musicBound = false
-        }
-
-    }
-
-    fun playSong(playBtn: ImageView) {
-        if (Player.liveDataPlayerState.value == 1) {
-            playBtn.setImageResource(R.drawable.ic_pause)
-            Player.resumeSong()
-        } else if (Player.liveDataPlayerState.value == 2) {
-            playBtn.setImageResource(R.drawable.ic_play)
-            Player.pauseSong()
-        }
-    }
-
     fun musicController() {
         //play and pause song
         val btnPlayPause = binding.playMusicLayout.btnPlayPause
 
         btnPlayPause.setOnClickListener {
-            playSong(btnPlayPause)
+            playSong()
         }
 
         //next song
         binding.playMusicLayout.btnNext.setOnClickListener {
-            Player.nextSong(this)
+            myPlayer.nextSong(this)
         }
 
         //previous song
         binding.playMusicLayout.btnBack.setOnClickListener {
-            Player.backSong(this)
+            myPlayer.backSong(this)
         }
     }
 
-    override fun onSongComplete() {
-        when {
-            //repeat is on
-            Player.isRepeat -> Player.repeatSong()
-
-            //shuffle is on
-            Player.isShuffle -> Player.shuffleSong()
-
-            //next song
-            else -> Player.nextSong(this)
-        }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        /* stopService(playIntent)
-         unbindService(boundServiceConnection)*/
-    }
 }
