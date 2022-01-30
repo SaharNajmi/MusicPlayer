@@ -13,7 +13,7 @@ import com.example.musicplayer.album.AlbumFragment
 import com.example.musicplayer.all.HomeFragment
 import com.example.musicplayer.artist.ArtistFragment
 import com.example.musicplayer.databinding.FragmentMainBinding
-import com.example.musicplayer.folder.FolderFragment
+import com.example.musicplayer.file.FileFragment
 import com.google.android.material.tabs.TabLayoutMediator
 
 class MainFragment : Fragment() {
@@ -65,7 +65,7 @@ class MainFragment : Fragment() {
         override fun createFragment(position: Int): Fragment {
             return when (position) {
                 0 -> HomeFragment()
-                1 -> FolderFragment()
+                1 -> FileFragment()
                 2 -> AlbumFragment()
                 else -> ArtistFragment()
             }
