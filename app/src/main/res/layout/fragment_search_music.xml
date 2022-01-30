@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".SearchMusicFragment">
+    tools:context=".search.SearchMusicFragment">
 
     <ImageView
         android:id="@+id/btn_back_page"
@@ -17,13 +17,14 @@
         app:layout_constraintRight_toLeftOf="@id/searchView"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <SearchView
+    <EditText
         android:id="@+id/searchView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/margin"
-        android:iconifiedByDefault="false"
-        android:queryHint="@string/input_text_search"
+        android:drawableEnd="@drawable/ic_search"
+        android:hint="@string/input_text_search"
+        android:paddingBottom="15dp"
         app:layout_constraintBottom_toBottomOf="@id/btn_back_page"
         app:layout_constraintLeft_toRightOf="@id/btn_back_page"
         app:layout_constraintRight_toRightOf="parent"

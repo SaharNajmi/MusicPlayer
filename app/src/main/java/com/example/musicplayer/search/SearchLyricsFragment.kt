@@ -1,4 +1,4 @@
-package com.example.musicplayer
+package com.example.musicplayer.search
 
 import android.os.Bundle
 import android.view.LayoutInflater

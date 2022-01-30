@@ -9,6 +9,7 @@
     <color name="white">#FFFFFFFF</color>
     <color name="myWhite">#eeeeee</color>
     <color name="myBlack">#263238</color>
+    <color name="blackBackground">#99000000</color>
     <color name="transparentDarkBlack">#E8263238</color>
     <color name="transparentLightBlack">#AB000000</color>
 
