@@ -25,6 +25,9 @@
         <action
             android:id="@+id/action_mainFragment_to_artistDetailFragment"
             app:destination="@id/artistDetailFragment" />
+        <action
+            android:id="@+id/action_mainFragment_to_fileDetailFragment"
+            app:destination="@id/fileDetailFragment" />
     </fragment>
     <fragment
         android:id="@+id/searchLyricsFragment"
@@ -44,7 +47,11 @@
         android:id="@+id/searchMusicFragment"
         android:name="com.example.musicplayer.search.SearchMusicFragment"
         android:label="fragment_search_music"
-        tools:layout="@layout/fragment_search_music" />
+        tools:layout="@layout/fragment_search_music">
+        <action
+            android:id="@+id/action_searchMusicFragment_to_detailFragment"
+            app:destination="@id/detailFragment" />
+    </fragment>
     <fragment
         android:id="@+id/detailFragment"
         android:name="com.example.musicplayer.detail.DetailFragment"
@@ -80,5 +87,20 @@
         <argument
             android:name="artistDetail"
             app:argType="com.example.model.ArtistModel" />
+        <action
+            android:id="@+id/action_artistDetailFragment_to_detailFragment"
+            app:destination="@id/detailFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/fileDetailFragment"
+        android:name="com.example.musicplayer.file.FileDetailFragment"
+        android:label="fragment_file_detail"
+        tools:layout="@layout/fragment_file_detail">
+        <argument
+            android:name="fileDetail"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_fileDetailFragment_to_detailFragment"
+            app:destination="@id/detailFragment" />
     </fragment>
 </navigation>

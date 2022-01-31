@@ -5,14 +5,13 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.`interface`.FileEventListener
 import com.example.musicplayer.databinding.FolderItemBinding
-import java.io.File
 
-class FileAdapter(val files: List<File>, val fileItemEventListener: FileEventListener) :
+class FileAdapter(val file: List<String>, val fileItemEventListener: FileEventListener) :
     RecyclerView.Adapter<FileAdapter.FileViewHolder>() {
 
     class FileViewHolder(var view: FolderItemBinding) : RecyclerView.ViewHolder(view.root) {
-        fun bind(file: File) {
-            view.folderName.text = file.name
+        fun bind(list: String) {
+            view.folderName.text = list
         }
     }
 
@@ -22,12 +21,12 @@ class FileAdapter(val files: List<File>, val fileItemEventListener: FileEventLis
     }
 
     override fun onBindViewHolder(holder: FileViewHolder, position: Int) {
-        holder.bind(files[position])
+        holder.bind(file[position])
 
         holder.itemView.setOnClickListener {
-            fileItemEventListener.onFileItemClick(files[position])
+            fileItemEventListener.onFileItemClick(file[position])
         }
     }
 
-    override fun getItemCount(): Int = files.size
+    override fun getItemCount(): Int = file.size
 }

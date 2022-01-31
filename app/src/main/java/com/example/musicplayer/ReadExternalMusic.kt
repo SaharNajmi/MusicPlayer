@@ -1,5 +1,6 @@
 package com.example.musicplayer
 
+import android.annotation.SuppressLint
 import android.content.ContentResolver
 import android.content.ContentUris
 import android.content.Context
@@ -8,14 +9,17 @@ import android.provider.MediaStore
 import com.example.model.AlbumModel
 import com.example.model.ArtistModel
 import com.example.model.SongModel
+import java.io.File
 
 class ReadExternalMusic {
     val musics = ArrayList<SongModel>()
     val albums = ArrayList<AlbumModel>()
+    val folderNames = ArrayList<String>()
     val albumIDs = ArrayList<Long>()
     val artists = ArrayList<ArtistModel>()
     val artistIDs = ArrayList<Long>()
 
+    @SuppressLint("Recycle")
     fun readExternalData(context: Context): ArrayList<SongModel> {
         var musicResolver: ContentResolver = context.contentResolver
         val musicUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
@@ -26,6 +30,8 @@ class ReadExternalMusic {
             val songTitle = musicCursor.getColumnIndex(MediaStore.Audio.Media.TITLE)
             val albumId = musicCursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID)
             val artistId = musicCursor.getColumnIndex(MediaStore.Audio.Media.ARTIST_ID)
+            val path = musicCursor.getColumnIndex(MediaStore.Audio.Media.DATA)
+            val folderName: String = File(musicCursor.getString(path)).parentFile.name
 
             while (musicCursor.moveToNext()) {
                 //get cover image song
@@ -41,13 +47,22 @@ class ReadExternalMusic {
                         musicCursor.getLong(albumId),
                         musicCursor.getLong(artistId),
                         musicCursor.getString(songTitle),
-                        album_uri
+                        album_uri,
+                        folderName = folderName,
+                        path = musicCursor.getString(path)
                     )
                 )
 
             }
         }
         return musics
+    }
+
+    fun getFolderNames(list: ArrayList<SongModel>): List<String> {
+        list.forEach {
+            folderNames.add(it.folderName)
+        }
+        return folderNames.distinct()
     }
 
     fun getAlbumIDs(list: ArrayList<SongModel>): List<Long> {
