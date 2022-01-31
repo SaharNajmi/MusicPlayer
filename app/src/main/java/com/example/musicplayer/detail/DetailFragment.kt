@@ -157,12 +157,12 @@ class DetailFragment : Fragment() {
 
         //next song
         binding.btnNext.setOnClickListener {
-            myPlayer.nextSong(requireContext())
+            myPlayer.nextSong()
         }
 
         //previous song
         binding.btnBack.setOnClickListener {
-            myPlayer.backSong(requireContext())
+            myPlayer.backSong()
         }
 
         //shuffle song
