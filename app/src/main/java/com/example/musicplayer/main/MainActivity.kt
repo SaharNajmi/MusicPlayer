@@ -10,9 +10,17 @@ import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import com.example.model.SongModel
 import com.example.musicplayer.R
+import com.example.musicplayer.album.AlbumDetailsFragment
+import com.example.musicplayer.album.AlbumDetailsFragmentDirections
+import com.example.musicplayer.artist.ArtistDetailFragment
+import com.example.musicplayer.artist.ArtistDetailFragmentDirections
 import com.example.musicplayer.databinding.ActivityMainBinding
+import com.example.musicplayer.file.FileDetailFragment
+import com.example.musicplayer.file.FileDetailFragmentDirections
 import com.example.musicplayer.player.Player
 import com.example.musicplayer.player.PlayerState
+import com.example.musicplayer.search.SearchMusicFragment
+import com.example.musicplayer.search.SearchMusicFragmentDirections
 
 class MainActivity : AppCompatActivity() {
     lateinit var binding: ActivityMainBinding
@@ -53,12 +61,40 @@ class MainActivity : AppCompatActivity() {
 
         //go detail music
         binding.playMusicLayout.layoutController.setOnClickListener {
-            val directions = MainFragmentDirections.actionMainFragmentToDetailFragment(songModel)
-            mNavController.navigate(directions)
+            val fragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment)
+            fragment?.childFragmentManager?.fragments?.forEach { frg ->
+                when (frg) {
+                    //home
+                    is MainFragment -> mNavController.navigate(
+                        MainFragmentDirections.actionMainFragmentToDetailFragment(songModel)
+                    )
+                    //album
+                    is AlbumDetailsFragment -> mNavController.navigate(
+                        AlbumDetailsFragmentDirections.actionAlbumDetailsFragmentToDetailFragment(
+                            songModel
+                        )
+                    )
+                    //artist
+                    is ArtistDetailFragment -> mNavController.navigate(
+                        ArtistDetailFragmentDirections.actionArtistDetailFragmentToDetailFragment(
+                            songModel
+                        )
+                    )
+                    //folder
+                    is FileDetailFragment -> mNavController.navigate(
+                        FileDetailFragmentDirections.actionFileDetailFragmentToDetailFragment(
+                            songModel
+                        )
+                    )
+                    //serach
+                    is SearchMusicFragment -> mNavController.navigate(
+                        SearchMusicFragmentDirections.actionSearchMusicFragmentToDetailFragment(
+                            songModel
+                        )
+                    )
+                }
 
-            /* val directions =
-                 AlbumDetailsFragmentDirections.actionAlbumDetailsFragmentToDetailFragment(songModel)
-             mNavController.navigate(directions)*/
+            }
         }
 
         //update progressbar
