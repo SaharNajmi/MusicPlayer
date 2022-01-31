@@ -50,7 +50,7 @@ class MainActivity : AppCompatActivity() {
         myPlayer.songModel.observe(this, {
             songModel = it
             updateUi(it)
-            myPlayer.playSong(songModel.id, applicationContext)
+            myPlayer.playSong(songModel.id)
         })
 
         //update ui button pause or play music
@@ -160,12 +160,12 @@ class MainActivity : AppCompatActivity() {
 
         //next song
         binding.playMusicLayout.btnNext.setOnClickListener {
-            myPlayer.nextSong(this)
+            myPlayer.nextSong()
         }
 
         //previous song
         binding.playMusicLayout.btnBack.setOnClickListener {
-            myPlayer.backSong(this)
+            myPlayer.backSong()
         }
     }
 

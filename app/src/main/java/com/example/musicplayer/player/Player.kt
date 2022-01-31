@@ -1,10 +1,8 @@
 package com.example.musicplayer.player
 
-import android.content.ContentUris
 import android.content.Context
 import android.media.AudioManager
 import android.media.MediaPlayer
-import android.provider.MediaStore
 import androidx.lifecycle.MutableLiveData
 import com.example.model.SongModel
 import com.example.musicplayer.ReadExternalMusic
@@ -67,7 +65,7 @@ class Player : MediaPlayer.OnPreparedListener,
         mp?.seekTo(newSeekTo)
     }
 
-    fun playSong(index: Long, context: Context) {
+    fun playSong(index: Long) {
         if (mp == null) {
             mp = MediaPlayer()
             initMusicPlayer()
@@ -77,14 +75,8 @@ class Player : MediaPlayer.OnPreparedListener,
 
         playerState.value = PlayerState.PLAYING
 
-        val trackUri =
-            ContentUris.withAppendedId(
-                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                index
-            )
-
         try {
-            mp?.setDataSource(context, trackUri)
+            mp?.setDataSource(musics[songPosition].path)
         } catch (e: IOException) {
             e.printStackTrace()
         }
@@ -113,25 +105,25 @@ class Player : MediaPlayer.OnPreparedListener,
         }
     }
 
-    fun nextSong(context: Context) {
+    fun nextSong() {
         if (isShuffle) {
             shuffleSong()
         } else {
             songPosition++
             if (songPosition >= musics.size) songPosition = 0
-            playSong(musics[songPosition].id, context)
+            playSong(musics[songPosition].id)
 
             songModel.value = musics[songPosition]
         }
     }
 
-    fun backSong(context: Context) {
+    fun backSong() {
         if (isShuffle) {
             shuffleSong()
         } else {
             songPosition--
             if (songPosition < 0) songPosition = musics.size - 1
-            playSong(musics[songPosition].id, context)
+            playSong(musics[songPosition].id)
             songModel.value = musics[songPosition]
         }
     }
@@ -172,7 +164,7 @@ class Player : MediaPlayer.OnPreparedListener,
             isShuffle -> shuffleSong()
 
             //next song
-            // else -> nextSong(context)
+            else -> nextSong()
         }
     }
 }
