@@ -120,6 +120,7 @@ class Player private constructor(val mediaPlayer: MediaPlayer, val repository: R
     fun backSong() {
         if (isShuffle) {
             shuffleSong()
+            playSong()
         } else {
             songPosition--
             if (songPosition < 0) songPosition = musics.size - 1
@@ -130,6 +131,7 @@ class Player private constructor(val mediaPlayer: MediaPlayer, val repository: R
 
     fun repeatSong() {
         songModel.value = musics[songPosition]
+        playSong()
     }
 
     fun shuffleSong() {

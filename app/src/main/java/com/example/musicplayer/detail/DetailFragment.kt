@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.SeekBar
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.Glide
 import com.example.model.SongModel
@@ -20,7 +21,7 @@ class DetailFragment : Fragment() {
     lateinit var binding: FragmentDetailBinding
     lateinit var songModel: SongModel
     val args: DetailFragmentArgs by navArgs()
-    lateinit var myPlayer: Player
+    lateinit var viewModel: DetailViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -34,9 +35,13 @@ class DetailFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         songModel = args.musicDetail
-        myPlayer = Player.getInstance()
 
-        //Call hideMusicController function when user wants to DetailFragment
+        //viewModel
+        viewModel = ViewModelProvider(
+            requireActivity(),
+            DetailViewModelFactory(Player.getInstance())
+        ).get(DetailViewModel::class.java)
+
         if (requireActivity() is MainActivity) {
             (activity as MainActivity?)!!.hideMusicController()
         }
@@ -46,38 +51,38 @@ class DetailFragment : Fragment() {
         musicController()
 
         //update ui music detail controller
-        myPlayer.songModel.observe(requireActivity(), {
+        viewModel.songModel.observe(requireActivity(), {
             songModel = it
             updateUi(it)
         })
 
         //update ui button pause or play music
-        myPlayer.playerState.observe(requireActivity(), {
+        viewModel.playerState.observe(requireActivity(), {
             updateUiPlayOrPause(it)
         })
 
-        //// Seek bar change listener
+        // Seek bar change listener
         seekBarChangeListener(binding.seekBar)
 
         //update progressbar
-        myPlayer.progress.observe(requireActivity(), {
+        viewModel.progress.observe(requireActivity(), {
             updateProgress(it)
         })
     }
 
     fun updateProgress(progress: Int) {
         //set progress to seekbar
-        binding.seekBar.max = myPlayer.duration
+        binding.seekBar.max = viewModel.getNewSongDuration()
         binding.seekBar.progress = progress
     }
 
     fun seekBarChangeListener(seekBar: SeekBar) {
-        binding.txtEndTime.text = durationPointSeekBar(myPlayer.duration)
+        binding.txtEndTime.text = durationPointSeekBar(viewModel.getNewSongDuration())
 
         seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
                 if (p2)
-                    myPlayer.playerSeekTo(p1)
+                    viewModel.playerSeekTo(p1)
 
                 binding.txtStartTime.text = durationPointSeekBar(p1)
             }
@@ -116,9 +121,9 @@ class DetailFragment : Fragment() {
     }
 
     fun updateUiShuffleOrRepeat() {
-        if (myPlayer.isShuffle)
+        if (viewModel.isShuffle)
             binding.shuffle.setImageResource(R.drawable.ic_shuffle_pressed)
-        if (myPlayer.isRepeat)
+        if (viewModel.isRepeat)
             binding.repeat.setImageResource(R.drawable.ic_repeat_pressed)
     }
 
@@ -126,43 +131,37 @@ class DetailFragment : Fragment() {
         //play and pause song
         val btnPlayPauseDetail = binding.btnPlayPause
         btnPlayPauseDetail.setOnClickListener {
-            myPlayer.toggleState()
+            viewModel.toggleState()
         }
 
         //next song
         binding.btnNext.setOnClickListener {
-            myPlayer.nextSong()
+            viewModel.nextSong()
         }
 
         //previous song
         binding.btnBack.setOnClickListener {
-            myPlayer.backSong()
+            viewModel.backSong()
         }
 
         //shuffle song
         binding.shuffle.setOnClickListener {
-            if (myPlayer.isShuffle) {
-                myPlayer.isShuffle = false
+            viewModel.changeIsShuffle(viewModel.isShuffle)
+            if (viewModel.isShuffle)
                 binding.shuffle.setImageResource(R.drawable.ic_shuffle)
-            } else {
-                myPlayer.isShuffle = true
+            else {
                 binding.shuffle.setImageResource(R.drawable.ic_shuffle_pressed)
-
-                myPlayer.isRepeat = false
                 binding.repeat.setImageResource(R.drawable.ic_repeat)
             }
         }
 
         //repeat song
         binding.repeat.setOnClickListener {
-            if (myPlayer.isRepeat) {
-                myPlayer.isRepeat = false
+            viewModel.changeIsRepeat(viewModel.isRepeat)
+            if (viewModel.isRepeat)
                 binding.repeat.setImageResource(R.drawable.ic_repeat)
-            } else {
-                myPlayer.isRepeat = true
+            else {
                 binding.repeat.setImageResource(R.drawable.ic_repeat_pressed)
-
-                myPlayer.isShuffle = false
                 binding.shuffle.setImageResource(R.drawable.ic_shuffle)
             }
         }

@@ -3,6 +3,7 @@ package com.example.musicplayer.main
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import com.bumptech.glide.Glide
 import com.example.model.SongModel
@@ -23,34 +24,46 @@ class MainActivity : AppCompatActivity() {
     lateinit var binding: ActivityMainBinding
     lateinit var songModel: SongModel
     lateinit var myPlayer: Player
-
+    var duration = 0
+    lateinit var viewModel: MainViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
 
+        val mNavController = findNavController(R.id.nav_host_fragment)
+
         myPlayer = Player.getInstance()
 
-        val musics = myPlayer.getSongs(this)
+        //viewModel
+        viewModel = ViewModelProvider(
+            this,
+            MainViewModelFactory(Player.getInstance())
+        ).get(MainViewModel::class.java)
 
-        val mNavController = findNavController(R.id.nav_host_fragment)
+        val musics = viewModel.getMusics(this)
 
         musicController()
 
-        updateUi(musics[myPlayer.songPosition])
+        updateUi(musics[viewModel.songPosition])
 
         //update ui music controller
-        myPlayer.songModel.observe(this, {
+        viewModel.songModel.observe(this, {
             songModel = it
             updateUi(it)
         })
 
         //update ui button pause or play music
-        myPlayer.playerState.observe(this, {
+        viewModel.playerState.observe(this, {
             updateUiPlayOrPause(it)
         })
 
+        //get mediaPlayer duration
+        /*     viewModel.duration.observe(this, {
+                 duration = it
+             })
+     */
         //go detail music
         binding.playMusicLayout.layoutController.setOnClickListener {
             val fragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment)
@@ -90,14 +103,14 @@ class MainActivity : AppCompatActivity() {
         }
 
         //update progressbar
-        myPlayer.progress.observe(this, {
+        viewModel.progress.observe(this, {
             updateProgress(it)
         })
     }
 
     fun updateProgress(progress: Int) {
         //set progress to seekbar
-        binding.playMusicLayout.seekBar.max = myPlayer.duration
+        binding.playMusicLayout.seekBar.max = viewModel.getNewSongDuration()
         binding.playMusicLayout.seekBar.progress = progress
     }
 
@@ -130,17 +143,17 @@ class MainActivity : AppCompatActivity() {
         val btnPlayPause = binding.playMusicLayout.btnPlayPause
 
         btnPlayPause.setOnClickListener {
-            myPlayer.toggleState()
+            viewModel.toggleState()
         }
 
         //next song
         binding.playMusicLayout.btnNext.setOnClickListener {
-            myPlayer.nextSong()
+            viewModel.nextSong()
         }
 
         //previous song
         binding.playMusicLayout.btnBack.setOnClickListener {
-            myPlayer.backSong()
+            viewModel.backSong()
         }
     }
 
