@@ -1,6 +1,7 @@
 package com.example.musicplayer.artist
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,7 +10,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.`interface`.ArtistEventListener
 import com.example.model.ArtistModel
-import com.example.musicplayer.ReadExternalMusic
+import com.example.musicplayer.Repository
 import com.example.musicplayer.databinding.FragmentArtistBinding
 import com.example.musicplayer.main.MainFragmentDirections
 import com.example.musicplayer.player.Player
@@ -32,11 +33,12 @@ class ArtistFragment : Fragment(), ArtistEventListener {
         super.onViewCreated(view, savedInstanceState)
 
         myPlayer = Player.getInstance()
+        Log.d("BBBBBBBBBBBBB", myPlayer.toString())
 
         //get array list artist
         val musics = myPlayer.getSongs(requireContext())
-        val artistIDs = ReadExternalMusic().getArtistIDs(musics)
-        artists = ReadExternalMusic().getArtists(musics, artistIDs)
+        val artistIDs = Repository().getArtistIDs(musics)
+        artists = Repository().getArtists(musics, artistIDs)
 
         //show list artist
         showArtists()

@@ -1,15 +1,13 @@
 package com.example.musicplayer.detail
 
-import android.graphics.Bitmap
 import android.os.Bundle
-import android.provider.MediaStore
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.SeekBar
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.navArgs
+import com.bumptech.glide.Glide
 import com.example.model.SongModel
 import com.example.musicplayer.R
 import com.example.musicplayer.databinding.FragmentDetailBinding
@@ -22,9 +20,7 @@ class DetailFragment : Fragment() {
     lateinit var binding: FragmentDetailBinding
     lateinit var songModel: SongModel
     val args: DetailFragmentArgs by navArgs()
-    var musics = ArrayList<SongModel>()
     lateinit var myPlayer: Player
-    var playerState = PlayerState.PAUSED
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -39,8 +35,6 @@ class DetailFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         songModel = args.musicDetail
         myPlayer = Player.getInstance()
-
-        musics = myPlayer.getSongs(requireContext())
 
         //Call hideMusicController function when user wants to DetailFragment
         if (requireActivity() is MainActivity) {
@@ -59,7 +53,6 @@ class DetailFragment : Fragment() {
 
         //update ui button pause or play music
         myPlayer.playerState.observe(requireActivity(), {
-            playerState = it
             updateUiPlayOrPause(it)
         })
 
@@ -76,9 +69,6 @@ class DetailFragment : Fragment() {
         //set progress to seekbar
         binding.seekBar.max = myPlayer.duration
         binding.seekBar.progress = progress
-        //run again after 1 second
-        if (playerState == PlayerState.PLAYING)
-            binding.seekBar.postDelayed(myPlayer.progressRunner(), 1000)
     }
 
     fun seekBarChangeListener(seekBar: SeekBar) {
@@ -108,21 +98,12 @@ class DetailFragment : Fragment() {
     )
 
     fun updateUi(songModel: SongModel) {
-        var bitmap: Bitmap? = null
-        try {
-            bitmap =
-                MediaStore.Images.Media.getBitmap(
-                    requireContext().contentResolver,
-                    songModel.coverImage
-                )
-            binding.imgCoverSong.setImageBitmap(bitmap)
-        } catch (e: Exception) {
-            Log.e("Error set image!!", e.toString())
-        }
         binding.songTitle.text = songModel.songTitle
         binding.artist.text = songModel.artist
+        Glide.with(this)
+            .load(songModel.coverImage)
+            .into(binding.imgCoverSong)
 
-        updateUiPlayOrPause(playerState)
         updateUiShuffleOrRepeat()
     }
 
@@ -132,13 +113,6 @@ class DetailFragment : Fragment() {
         } else if (playerState == PlayerState.PLAYING) {
             binding.btnPlayPause.setImageResource(R.drawable.ic_pause)
         }
-    }
-
-    fun playSong() {
-        if (playerState == PlayerState.PAUSED)
-            myPlayer.resumeSong()
-        else if (playerState == PlayerState.PLAYING)
-            myPlayer.pauseSong()
     }
 
     fun updateUiShuffleOrRepeat() {
@@ -152,7 +126,7 @@ class DetailFragment : Fragment() {
         //play and pause song
         val btnPlayPauseDetail = binding.btnPlayPause
         btnPlayPauseDetail.setOnClickListener {
-            playSong()
+            myPlayer.toggleState()
         }
 
         //next song

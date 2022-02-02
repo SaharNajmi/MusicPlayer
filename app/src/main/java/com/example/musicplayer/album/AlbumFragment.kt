@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.`interface`.AlbumEventListener
 import com.example.model.AlbumModel
-import com.example.musicplayer.ReadExternalMusic
+import com.example.musicplayer.Repository
 import com.example.musicplayer.databinding.FragmentAlbumBinding
 import com.example.musicplayer.main.MainFragmentDirections
 import com.example.musicplayer.player.Player
@@ -35,8 +35,8 @@ class AlbumFragment : Fragment(), AlbumEventListener {
 
         //get array list album
         val musics = myPlayer.getSongs(requireContext())
-        val albumIDs = ReadExternalMusic().getAlbumIDs(musics)
-        albums = ReadExternalMusic().getAlbums(musics, albumIDs)
+        val albumIDs = Repository().getAlbumIDs(musics)
+        albums = Repository().getAlbums(musics, albumIDs)
 
         //show list album
         showAlbums()

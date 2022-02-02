@@ -8,8 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.`interface`.FileEventListener
-import com.example.model.SongModel
-import com.example.musicplayer.ReadExternalMusic
+import com.example.musicplayer.Repository
 import com.example.musicplayer.databinding.FragmentFileBinding
 import com.example.musicplayer.main.MainFragmentDirections
 import com.example.musicplayer.player.Player
@@ -17,7 +16,6 @@ import com.example.musicplayer.player.Player
 class FileFragment : Fragment(), FileEventListener {
     lateinit var binding: FragmentFileBinding
     lateinit var folders: List<String>
-    lateinit var musics: ArrayList<SongModel>
     lateinit var myPlayer: Player
 
     override fun onCreateView(
@@ -34,8 +32,8 @@ class FileFragment : Fragment(), FileEventListener {
         myPlayer = Player.getInstance()
 
         //get list folders
-        musics = myPlayer.getSongs(requireContext())
-        folders = ReadExternalMusic().getFolderNames(musics)
+        val musics = myPlayer.getSongs(requireContext())
+        folders = Repository().getFolderNames(musics)
 
         //show list folders
         showFolders()

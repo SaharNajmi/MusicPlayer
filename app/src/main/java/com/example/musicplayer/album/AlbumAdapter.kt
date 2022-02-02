@@ -1,12 +1,10 @@
 package com.example.musicplayer.album
 
 import android.content.Context
-import android.graphics.Bitmap
-import android.provider.MediaStore
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.`interface`.AlbumEventListener
 import com.example.model.AlbumModel
 import com.example.musicplayer.databinding.AlbumItemBinding
@@ -21,17 +19,9 @@ class AlbumAdapter(
         fun bind(albumModel: AlbumModel) {
             view.artist.text = albumModel.artist
             view.albumTitle.text = albumModel.albumName
-            var bitmap: Bitmap? = null
-            try {
-                bitmap =
-                    MediaStore.Images.Media.getBitmap(
-                        context.contentResolver,
-                        albumModel.albumImage
-                    )
-                view.coverImage.setImageBitmap(bitmap)
-            } catch (e: Exception) {
-                Log.e("Error set image!!", e.toString())
-            }
+            Glide.with(context)
+                .load(albumModel.albumImage)
+                .into(view.coverImage)
         }
     }
 

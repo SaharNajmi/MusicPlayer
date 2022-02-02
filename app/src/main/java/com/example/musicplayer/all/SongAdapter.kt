@@ -1,12 +1,10 @@
 package com.example.musicplayer.all
 
 import android.content.Context
-import android.graphics.Bitmap
-import android.provider.MediaStore
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.`interface`.SongEventListener
 import com.example.model.SongModel
 import com.example.musicplayer.databinding.MusicItemLayoutBinding
@@ -23,16 +21,22 @@ class SongAdapter(
         fun bind(songModel: SongModel) {
             view.artist.text = songModel.artist
             view.songTitle.text = songModel.songTitle
-            var bitmap: Bitmap? = null
-            try {
-                bitmap =
-                    MediaStore.Images.Media.getBitmap(context.contentResolver, songModel.coverImage)
-                view.coverImage.setImageBitmap(bitmap)
-            } catch (e: Exception) {
-                Log.e("Error set image!!", e.toString())
-            }
+            Glide.with(context)
+                .load(songModel.coverImage)
+                .into(view.coverImage)
         }
     }
+
+    /*fun loadImage(imageView: ImageView, uri: Uri) {
+        var bitmap: Bitmap? = null
+        try {
+            bitmap =
+                MediaStore.Images.Media.getBitmap(context.contentResolver, uri)
+            imageView.setImageBitmap(bitmap)
+        } catch (e: Exception) {
+            Log.e("Error set image!!", e.toString())
+        }
+    }*/
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
         val binding: MusicItemLayoutBinding =

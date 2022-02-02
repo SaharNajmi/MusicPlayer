@@ -1,15 +1,13 @@
 package com.example.musicplayer.album
 
-import android.graphics.Bitmap
 import android.os.Bundle
-import android.provider.MediaStore
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.bumptech.glide.Glide
 import com.example.`interface`.SongEventListener
 import com.example.model.AlbumModel
 import com.example.model.SongModel
@@ -44,17 +42,9 @@ class AlbumDetailsFragment : Fragment(), SongEventListener {
         //set data
         binding.albumTitle.text = albumModel.albumName
         binding.artist.text = albumModel.artist
-        var bitmap: Bitmap? = null
-        try {
-            bitmap =
-                MediaStore.Images.Media.getBitmap(
-                    requireContext().contentResolver,
-                    albumModel.albumImage
-                )
-            binding.imgCoverAlbum.setImageBitmap(bitmap)
-        } catch (e: Exception) {
-            Log.e("Error set image!!", e.toString())
-        }
+        Glide.with(this)
+            .load(albumModel.albumImage)
+            .into(binding.imgCoverAlbum)
 
         //Get list album items by albumId
         getAlbums()

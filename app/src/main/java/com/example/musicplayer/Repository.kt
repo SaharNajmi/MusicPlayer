@@ -11,7 +11,8 @@ import com.example.model.ArtistModel
 import com.example.model.SongModel
 import java.io.File
 
-class ReadExternalMusic {
+
+class Repository {
     val musics = ArrayList<SongModel>()
     val albums = ArrayList<AlbumModel>()
     val folderNames = ArrayList<String>()
@@ -35,9 +36,9 @@ class ReadExternalMusic {
 
             while (musicCursor.moveToNext()) {
                 //get cover image song
-                val IMAGE_URI = Uri.parse("content://media/external/audio/albumart")
+                val image_uri = Uri.parse("content://media/external/audio/albumart")
                 val album_uri =
-                    ContentUris.withAppendedId(IMAGE_URI, musicCursor.getLong(albumId))
+                    ContentUris.withAppendedId(image_uri, musicCursor.getLong(albumId))
 
                 //add music into array song
                 musics.add(
