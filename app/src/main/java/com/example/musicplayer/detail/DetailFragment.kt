@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.SeekBar
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.Glide
 import com.example.model.SongModel
@@ -157,6 +158,15 @@ class DetailFragment : Fragment() {
                 binding.shuffle.setImageResource(R.drawable.ic_shuffle)
             } else
                 binding.repeat.setImageResource(R.drawable.ic_repeat)
+        }
+
+        //search lyrics
+        binding.btnSearchLyrics.setOnClickListener {
+            findNavController().navigate(
+                DetailFragmentDirections.actionDetailFragmentToSearchLyricsFragment(
+                    viewModel.songModel.value!!
+                )
+            )
         }
     }
 
