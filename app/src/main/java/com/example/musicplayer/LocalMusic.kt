@@ -11,16 +11,16 @@ import com.example.model.ArtistModel
 import com.example.model.SongModel
 import java.io.File
 
-class ReadExternalMusic {
-    val musics = ArrayList<SongModel>()
+class LocalMusic {
     val albums = ArrayList<AlbumModel>()
     val folderNames = ArrayList<String>()
     val albumIDs = ArrayList<Long>()
     val artists = ArrayList<ArtistModel>()
     val artistIDs = ArrayList<Long>()
 
-    @SuppressLint("Recycle")
+    @SuppressLint("Recycle", "InlinedApi")
     fun readExternalData(context: Context): ArrayList<SongModel> {
+        val musics = ArrayList<SongModel>()
         var musicResolver: ContentResolver = context.contentResolver
         val musicUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
         val musicCursor = musicResolver.query(musicUri, null, null, null, null)
@@ -31,13 +31,16 @@ class ReadExternalMusic {
             val albumId = musicCursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID)
             val artistId = musicCursor.getColumnIndex(MediaStore.Audio.Media.ARTIST_ID)
             val path = musicCursor.getColumnIndex(MediaStore.Audio.Media.DATA)
+            val duration = musicCursor.getColumnIndex(MediaStore.Audio.Media.DURATION)
             val folderName: String = File(musicCursor.getString(path)).parentFile.name
+            //val folderName = musicCursor.getColumnIndex(MediaStore.Audio.Media.BUCKET_DISPLAY_NAME)
+            //val folderId = musicCursor.getColumnIndex(MediaStore.Audio.Media.BUCKET_ID)
 
             while (musicCursor.moveToNext()) {
                 //get cover image song
-                val IMAGE_URI = Uri.parse("content://media/external/audio/albumart")
+                val image_uri = Uri.parse("content://media/external/audio/albumart")
                 val album_uri =
-                    ContentUris.withAppendedId(IMAGE_URI, musicCursor.getLong(albumId))
+                    ContentUris.withAppendedId(image_uri, musicCursor.getLong(albumId))
 
                 //add music into array song
                 musics.add(
@@ -49,7 +52,8 @@ class ReadExternalMusic {
                         musicCursor.getString(songTitle),
                         album_uri,
                         folderName = folderName,
-                        path = musicCursor.getString(path)
+                        path = musicCursor.getString(path),
+                        duration = musicCursor.getInt(duration)
                     )
                 )
 

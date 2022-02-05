@@ -5,16 +5,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.`interface`.SongEventListener
 import com.example.model.SongModel
 import com.example.musicplayer.databinding.FragmentHomeBinding
+import com.example.musicplayer.main.ViewModelFactory
 import com.example.musicplayer.player.Player
 
 class HomeFragment : Fragment(), SongEventListener {
     lateinit var binding: FragmentHomeBinding
-    var musics = ArrayList<SongModel>()
-    lateinit var myPlayer: Player
+    lateinit var viewModel: HomeViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -27,21 +28,27 @@ class HomeFragment : Fragment(), SongEventListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        myPlayer = Player.getInstance()
 
-        //get all songs from phone
-        musics = myPlayer.getSongs(requireContext())
+        //viewModel
+        viewModel = ViewModelProvider(
+            requireActivity(),
+            ViewModelFactory()
+        ).get(HomeViewModel::class.java)
+    }
 
-        //show list items into recyclerView
+    override fun onResume() {
+        super.onResume()
+        //show list musics
         showMusics()
     }
 
     fun showMusics() {
+        val musics = viewModel.getMusics(requireContext())
         binding.recyclerMusics.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerMusics.adapter = SongAdapter(requireContext(), musics, this)
     }
 
     override fun onSelect(songModel: SongModel, posSong: Int) {
-        myPlayer.songSelected(songModel, posSong)
+        Player.getInstance().songSelected(songModel, posSong)
     }
 }
