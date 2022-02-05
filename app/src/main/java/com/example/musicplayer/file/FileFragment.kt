@@ -5,19 +5,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.`interface`.FileEventListener
-import com.example.musicplayer.Repository
 import com.example.musicplayer.databinding.FragmentFileBinding
 import com.example.musicplayer.main.MainFragmentDirections
-import com.example.musicplayer.player.Player
+import com.example.musicplayer.main.ViewModelFactory
 
 class FileFragment : Fragment(), FileEventListener {
     lateinit var binding: FragmentFileBinding
-    lateinit var folders: List<String>
-    lateinit var myPlayer: Player
-
+    lateinit var viewModel: FileViewModel
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -29,11 +27,12 @@ class FileFragment : Fragment(), FileEventListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        myPlayer = Player.getInstance()
 
-        //get list folders
-        val musics = myPlayer.getSongs(requireContext())
-        folders = Repository().getFolderNames(musics)
+        //viewModel
+        viewModel = ViewModelProvider(
+            requireActivity(),
+            ViewModelFactory()
+        ).get(FileViewModel::class.java)
 
         //show list folders
         showFolders()
@@ -41,7 +40,7 @@ class FileFragment : Fragment(), FileEventListener {
 
     private fun showFolders() {
         binding.recyclerFile.layoutManager = LinearLayoutManager(requireContext())
-        binding.recyclerFile.adapter = FileAdapter(folders, this)
+        binding.recyclerFile.adapter = FileAdapter(viewModel.getFiles(requireContext()), this)
     }
 
     override fun onFileItemClick(fileName: String) {

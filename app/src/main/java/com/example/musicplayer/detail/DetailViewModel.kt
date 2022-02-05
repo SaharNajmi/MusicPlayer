@@ -4,28 +4,22 @@ import androidx.lifecycle.ViewModel
 import com.example.musicplayer.player.Player
 
 class DetailViewModel(val player: Player) : ViewModel() {
-    var isRepeat: Boolean = player.isRepeat
-    val isShuffle: Boolean = player.isShuffle
     var songModel = player.songModel
     var playerState = player.playerState
     var progress = player.progress
 
-    fun changeIsRepeat(isRepeat: Boolean) {
-        if (isRepeat)
-            player.isRepeat = false
-        else {
-            player.isRepeat = true
-            player.isShuffle = false
-        }
+    fun getRepeat() = player.isRepeat
+
+    fun getShuffle() = player.isShuffle
+
+    fun changeIsRepeat(): Boolean {
+        player.isRepeat = !player.isRepeat
+        return player.isRepeat
     }
 
-    fun changeIsShuffle(isShuffle: Boolean) {
-        if (isShuffle)
-            player.isShuffle = false
-        else {
-            player.isShuffle = true
-            player.isRepeat = false
-        }
+    fun changeIsShuffle(): Boolean {
+        player.isShuffle = !player.isShuffle
+        return player.isShuffle
     }
 
     fun getNewSongDuration() = player.duration

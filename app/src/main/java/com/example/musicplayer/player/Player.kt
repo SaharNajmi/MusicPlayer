@@ -7,11 +7,11 @@ import android.os.Handler
 import android.os.Looper
 import androidx.lifecycle.MutableLiveData
 import com.example.model.SongModel
-import com.example.musicplayer.Repository
+import com.example.musicplayer.LocalMusic
 import java.io.IOException
 import kotlin.random.Random
 
-class Player private constructor(val mediaPlayer: MediaPlayer, val repository: Repository) :
+class Player private constructor(val mediaPlayer: MediaPlayer, val localMusic: LocalMusic) :
     MediaPlayer.OnPreparedListener,
     MediaPlayer.OnErrorListener,
     MediaPlayer.OnCompletionListener {
@@ -20,7 +20,17 @@ class Player private constructor(val mediaPlayer: MediaPlayer, val repository: R
     var progress = MutableLiveData<Int>()
     var musics = ArrayList<SongModel>()
     var isShuffle = false
+        set(value) {
+            if (value)
+                isRepeat = false
+            field = value
+        }
     var isRepeat = false
+        set(value) {
+            if (value)
+                isShuffle = false
+            field = value
+        }
     var duration = 0
     var songPosition = 0
 
@@ -28,7 +38,7 @@ class Player private constructor(val mediaPlayer: MediaPlayer, val repository: R
         var INSTANCE: Player? = null
         fun getInstance(): Player {
             if (INSTANCE == null)
-                INSTANCE = Player(MediaPlayer(), Repository())
+                INSTANCE = Player(MediaPlayer(), LocalMusic())
             return INSTANCE!!
         }
     }
@@ -41,8 +51,8 @@ class Player private constructor(val mediaPlayer: MediaPlayer, val repository: R
     }
 
     fun getSongs(context: Context): ArrayList<SongModel> {
-        musics = repository.readExternalData(context)
-        return repository.readExternalData(context)
+        musics = localMusic.readExternalData(context)
+        return musics
     }
 
     fun songSelected(song: SongModel, posSong: Int) {
@@ -120,7 +130,6 @@ class Player private constructor(val mediaPlayer: MediaPlayer, val repository: R
     fun backSong() {
         if (isShuffle) {
             shuffleSong()
-            playSong()
         } else {
             songPosition--
             if (songPosition < 0) songPosition = musics.size - 1
@@ -135,17 +144,20 @@ class Player private constructor(val mediaPlayer: MediaPlayer, val repository: R
     }
 
     fun shuffleSong() {
-        var newSong = songPosition
-        while (newSong == songPosition)
-            newSong = Random.nextInt(musics.size - 1)
-        songPosition = newSong
+        if (musics.size != 1) {
+            var newSong = songPosition
+            while (newSong == songPosition)
+                newSong = Random.nextInt(musics.size - 1)
+            songPosition = newSong
+        }
         songModel.value = musics[songPosition]
+        playSong()
     }
 
     override fun onPrepared(p0: MediaPlayer?) {
         try {
             mediaPlayer.start()
-            duration = mediaPlayer.duration
+            duration = musics[songPosition].duration
         } catch (e: Exception) {
             e.printStackTrace()
         }

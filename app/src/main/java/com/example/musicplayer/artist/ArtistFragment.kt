@@ -1,25 +1,23 @@
 package com.example.musicplayer.artist
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.`interface`.ArtistEventListener
 import com.example.model.ArtistModel
-import com.example.musicplayer.Repository
 import com.example.musicplayer.databinding.FragmentArtistBinding
 import com.example.musicplayer.main.MainFragmentDirections
-import com.example.musicplayer.player.Player
+import com.example.musicplayer.main.ViewModelFactory
 
 class ArtistFragment : Fragment(), ArtistEventListener {
     lateinit var binding: FragmentArtistBinding
-    var artists = ArrayList<ArtistModel>()
-    lateinit var myPlayer: Player
-
+    lateinit var viewModel: ArtistViewModel
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -32,13 +30,11 @@ class ArtistFragment : Fragment(), ArtistEventListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        myPlayer = Player.getInstance()
-        Log.d("BBBBBBBBBBBBB", myPlayer.toString())
-
-        //get array list artist
-        val musics = myPlayer.getSongs(requireContext())
-        val artistIDs = Repository().getArtistIDs(musics)
-        artists = Repository().getArtists(musics, artistIDs)
+        //viewModel
+        viewModel = ViewModelProvider(
+            requireActivity(),
+            ViewModelFactory()
+        ).get(ArtistViewModel::class.java)
 
         //show list artist
         showArtists()
@@ -46,8 +42,8 @@ class ArtistFragment : Fragment(), ArtistEventListener {
 
     private fun showArtists() {
         binding.recyclerAtrist.layoutManager = LinearLayoutManager(requireContext())
-        binding.recyclerAtrist.adapter = ArtistAdapter(requireContext(), artists, this)
-
+        binding.recyclerAtrist.adapter =
+            ArtistAdapter(requireContext(), viewModel.getArtists(requireContext()), this)
     }
 
     override fun onSelect(artistModel: ArtistModel) {

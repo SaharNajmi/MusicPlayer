@@ -13,14 +13,14 @@ import com.example.model.SongModel
 import com.example.musicplayer.R
 import com.example.musicplayer.databinding.FragmentDetailBinding
 import com.example.musicplayer.main.MainActivity
-import com.example.musicplayer.player.Player
+import com.example.musicplayer.main.ViewModelFactory
 import com.example.musicplayer.player.PlayerState
 import java.util.concurrent.TimeUnit
+
 
 class DetailFragment : Fragment() {
     lateinit var binding: FragmentDetailBinding
     lateinit var songModel: SongModel
-    val args: DetailFragmentArgs by navArgs()
     lateinit var viewModel: DetailViewModel
 
     override fun onCreateView(
@@ -34,12 +34,13 @@ class DetailFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        val args: DetailFragmentArgs by navArgs()
         songModel = args.musicDetail
 
         //viewModel
         viewModel = ViewModelProvider(
             requireActivity(),
-            DetailViewModelFactory(Player.getInstance())
+            ViewModelFactory()
         ).get(DetailViewModel::class.java)
 
         if (requireActivity() is MainActivity) {
@@ -65,20 +66,12 @@ class DetailFragment : Fragment() {
         seekBarChangeListener(binding.seekBar)
 
         //update progressbar
-        viewModel.progress.observe(requireActivity(), {
-            updateProgress(it)
+        viewModel.progress.observe(requireActivity(), { progress ->
+            binding.seekBar.progress = progress
         })
     }
 
-    fun updateProgress(progress: Int) {
-        //set progress to seekbar
-        binding.seekBar.max = viewModel.getNewSongDuration()
-        binding.seekBar.progress = progress
-    }
-
     fun seekBarChangeListener(seekBar: SeekBar) {
-        binding.txtEndTime.text = durationPointSeekBar(viewModel.getNewSongDuration())
-
         seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
                 if (p2)
@@ -105,9 +98,13 @@ class DetailFragment : Fragment() {
     fun updateUi(songModel: SongModel) {
         binding.songTitle.text = songModel.songTitle
         binding.artist.text = songModel.artist
-        Glide.with(this)
-            .load(songModel.coverImage)
-            .into(binding.imgCoverSong)
+        binding.seekBar.max = viewModel.getNewSongDuration()
+        binding.txtEndTime.text = durationPointSeekBar(viewModel.getNewSongDuration())
+        if (activity != null) {
+            Glide.with(this)
+                .load(songModel.coverImage)
+                .into(binding.imgCoverSong)
+        }
 
         updateUiShuffleOrRepeat()
     }
@@ -121,9 +118,9 @@ class DetailFragment : Fragment() {
     }
 
     fun updateUiShuffleOrRepeat() {
-        if (viewModel.isShuffle)
+        if (viewModel.getShuffle())
             binding.shuffle.setImageResource(R.drawable.ic_shuffle_pressed)
-        if (viewModel.isRepeat)
+        if (viewModel.getRepeat())
             binding.repeat.setImageResource(R.drawable.ic_repeat_pressed)
     }
 
@@ -146,24 +143,20 @@ class DetailFragment : Fragment() {
 
         //shuffle song
         binding.shuffle.setOnClickListener {
-            viewModel.changeIsShuffle(viewModel.isShuffle)
-            if (viewModel.isShuffle)
-                binding.shuffle.setImageResource(R.drawable.ic_shuffle)
-            else {
+            if (viewModel.changeIsShuffle()) {
                 binding.shuffle.setImageResource(R.drawable.ic_shuffle_pressed)
                 binding.repeat.setImageResource(R.drawable.ic_repeat)
-            }
+            } else
+                binding.shuffle.setImageResource(R.drawable.ic_shuffle)
         }
 
         //repeat song
         binding.repeat.setOnClickListener {
-            viewModel.changeIsRepeat(viewModel.isRepeat)
-            if (viewModel.isRepeat)
-                binding.repeat.setImageResource(R.drawable.ic_repeat)
-            else {
+            if (viewModel.changeIsRepeat()) {
                 binding.repeat.setImageResource(R.drawable.ic_repeat_pressed)
                 binding.shuffle.setImageResource(R.drawable.ic_shuffle)
-            }
+            } else
+                binding.repeat.setImageResource(R.drawable.ic_repeat)
         }
     }
 

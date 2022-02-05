@@ -8,22 +8,19 @@ import androidx.navigation.findNavController
 import com.bumptech.glide.Glide
 import com.example.model.SongModel
 import com.example.musicplayer.R
-import com.example.musicplayer.album.AlbumDetailsFragment
-import com.example.musicplayer.album.AlbumDetailsFragmentDirections
+import com.example.musicplayer.album.AlbumDetailFragment
+import com.example.musicplayer.album.AlbumDetailFragmentDirections
 import com.example.musicplayer.artist.ArtistDetailFragment
 import com.example.musicplayer.artist.ArtistDetailFragmentDirections
 import com.example.musicplayer.databinding.ActivityMainBinding
 import com.example.musicplayer.file.FileDetailFragment
 import com.example.musicplayer.file.FileDetailFragmentDirections
-import com.example.musicplayer.player.Player
 import com.example.musicplayer.player.PlayerState
 import com.example.musicplayer.search.SearchMusicFragment
 import com.example.musicplayer.search.SearchMusicFragmentDirections
 
 class MainActivity : AppCompatActivity() {
     lateinit var binding: ActivityMainBinding
-    lateinit var songModel: SongModel
-    lateinit var myPlayer: Player
     var duration = 0
     lateinit var viewModel: MainViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,12 +31,10 @@ class MainActivity : AppCompatActivity() {
 
         val mNavController = findNavController(R.id.nav_host_fragment)
 
-        myPlayer = Player.getInstance()
-
         //viewModel
         viewModel = ViewModelProvider(
             this,
-            MainViewModelFactory(Player.getInstance())
+            ViewModelFactory()
         ).get(MainViewModel::class.java)
 
         val musics = viewModel.getMusics(this)
@@ -50,7 +45,6 @@ class MainActivity : AppCompatActivity() {
 
         //update ui music controller
         viewModel.songModel.observe(this, {
-            songModel = it
             updateUi(it)
         })
 
@@ -59,11 +53,6 @@ class MainActivity : AppCompatActivity() {
             updateUiPlayOrPause(it)
         })
 
-        //get mediaPlayer duration
-        /*     viewModel.duration.observe(this, {
-                 duration = it
-             })
-     */
         //go detail music
         binding.playMusicLayout.layoutController.setOnClickListener {
             val fragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment)
@@ -71,30 +60,30 @@ class MainActivity : AppCompatActivity() {
                 when (frg) {
                     //home
                     is MainFragment -> mNavController.navigate(
-                        MainFragmentDirections.actionMainFragmentToDetailFragment(songModel)
+                        MainFragmentDirections.actionMainFragmentToDetailFragment(viewModel.songModel.value!!)
                     )
                     //album
-                    is AlbumDetailsFragment -> mNavController.navigate(
-                        AlbumDetailsFragmentDirections.actionAlbumDetailsFragmentToDetailFragment(
-                            songModel
+                    is AlbumDetailFragment -> mNavController.navigate(
+                        AlbumDetailFragmentDirections.actionAlbumDetailsFragmentToDetailFragment(
+                            viewModel.songModel.value!!
                         )
                     )
                     //artist
                     is ArtistDetailFragment -> mNavController.navigate(
                         ArtistDetailFragmentDirections.actionArtistDetailFragmentToDetailFragment(
-                            songModel
+                            viewModel.songModel.value!!
                         )
                     )
                     //folder
                     is FileDetailFragment -> mNavController.navigate(
                         FileDetailFragmentDirections.actionFileDetailFragmentToDetailFragment(
-                            songModel
+                            viewModel.songModel.value!!
                         )
                     )
                     //search
                     is SearchMusicFragment -> mNavController.navigate(
                         SearchMusicFragmentDirections.actionSearchMusicFragmentToDetailFragment(
-                            songModel
+                            viewModel.songModel.value!!
                         )
                     )
                 }

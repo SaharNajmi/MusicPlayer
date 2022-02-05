@@ -5,20 +5,19 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.`interface`.AlbumEventListener
 import com.example.model.AlbumModel
-import com.example.musicplayer.Repository
 import com.example.musicplayer.databinding.FragmentAlbumBinding
 import com.example.musicplayer.main.MainFragmentDirections
-import com.example.musicplayer.player.Player
+import com.example.musicplayer.main.ViewModelFactory
 
 class AlbumFragment : Fragment(), AlbumEventListener {
     lateinit var binding: FragmentAlbumBinding
-    var albums = ArrayList<AlbumModel>()
-    lateinit var myPlayer: Player
+    lateinit var viewModel: AlbumViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -31,12 +30,12 @@ class AlbumFragment : Fragment(), AlbumEventListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        myPlayer = Player.getInstance()
 
-        //get array list album
-        val musics = myPlayer.getSongs(requireContext())
-        val albumIDs = Repository().getAlbumIDs(musics)
-        albums = Repository().getAlbums(musics, albumIDs)
+        //viewModel
+        viewModel = ViewModelProvider(
+            requireActivity(),
+            ViewModelFactory()
+        ).get(AlbumViewModel::class.java)
 
         //show list album
         showAlbums()
@@ -45,7 +44,8 @@ class AlbumFragment : Fragment(), AlbumEventListener {
     fun showAlbums() {
         binding.recyclerAlbum.layoutManager =
             GridLayoutManager(requireContext(), 2, RecyclerView.VERTICAL, false)
-        binding.recyclerAlbum.adapter = AlbumAdapter(requireContext(), albums, this)
+        binding.recyclerAlbum.adapter =
+            AlbumAdapter(requireContext(), viewModel.getAlbums(requireContext()), this)
     }
 
     override fun onSelect(albumModel: AlbumModel) {
