@@ -12,7 +12,7 @@ data class SongModel(
     val artistID: Long,
     val songTitle: String,
     val coverImage: Uri,
-    val lyrics: String = "",
+    var lyrics: String = "",
     val folderName: String,
     val path: String,
     val duration: Int,

@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.example.model.SongModel
 import com.example.musicplayer.databinding.FragmentLyricsSearchBinding
@@ -40,8 +41,24 @@ class SearchLyricsFragment : Fragment() {
         binding.edtTitle.setText(songModel.songTitle)
 
 
+        //show lyrics in textView
         viewModel.lyrics.observe(requireActivity(), {
-            binding.txtLyrics.text = it.lyrics
+            if (it.lyrics != null) {
+                binding.txtLyrics.text = it.lyrics
+                songModel.lyrics = it.lyrics.toString()
+            } else
+                binding.txtLyrics.text = it.error
+        })
+
+        //find lyrics
+        viewModel.findLyrics.observe(requireActivity(), { find ->
+            if (find) {
+                binding.btnSearch.visibility = View.GONE
+                binding.btnApply.visibility = View.VISIBLE
+            } else {
+                binding.btnSearch.visibility = View.VISIBLE
+                binding.btnApply.visibility = View.GONE
+            }
         })
 
         //search lyrics
@@ -55,6 +72,20 @@ class SearchLyricsFragment : Fragment() {
                 )
             }
         }
+
+        //apply lyrics
+        binding.btnApply.setOnClickListener {
+            findNavController().navigate(
+                SearchLyricsFragmentDirections.actionSearchLyricsFragmentToDetailFragment(
+                    songModel
+                )
+            )
+        }
     }
 
+    override fun onResume() {
+        super.onResume()
+        binding.btnSearch.visibility = View.VISIBLE
+        binding.btnApply.visibility = View.GONE
+    }
 }

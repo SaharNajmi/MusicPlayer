@@ -16,13 +16,14 @@ import com.example.musicplayer.databinding.FragmentDetailBinding
 import com.example.musicplayer.main.MainActivity
 import com.example.musicplayer.main.ViewModelFactory
 import com.example.musicplayer.player.PlayerState
+import com.example.musicplayer.search.LyricsViewModel
 import java.util.concurrent.TimeUnit
-
 
 class DetailFragment : Fragment() {
     lateinit var binding: FragmentDetailBinding
     lateinit var songModel: SongModel
     lateinit var viewModel: DetailViewModel
+    lateinit var lyricsViewModel: LyricsViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -43,6 +44,12 @@ class DetailFragment : Fragment() {
             requireActivity(),
             ViewModelFactory()
         ).get(DetailViewModel::class.java)
+
+        //search lyrics viewModel
+        lyricsViewModel = ViewModelProvider(
+            requireActivity(),
+            ViewModelFactory()
+        ).get(LyricsViewModel::class.java)
 
         if (requireActivity() is MainActivity) {
             (activity as MainActivity?)!!.hideMusicController()
@@ -69,6 +76,14 @@ class DetailFragment : Fragment() {
         //update progressbar
         viewModel.progress.observe(requireActivity(), { progress ->
             binding.seekBar.progress = progress
+        })
+
+        //show lyrics
+        lyricsViewModel.findLyrics.observe(requireActivity(), { find ->
+            if (find)
+                binding.txtLyrics.text = songModel.lyrics
+            else
+                binding.txtLyrics.visibility = View.GONE
         })
     }
 

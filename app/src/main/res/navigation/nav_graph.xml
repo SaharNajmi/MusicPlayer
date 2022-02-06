@@ -40,6 +40,9 @@
         <argument
             android:name="lyricsDetail"
             app:argType="com.example.model.SongModel" />
+        <action
+            android:id="@+id/action_searchLyricsFragment_to_detailFragment2"
+            app:destination="@id/detailFragment" />
     </fragment>
     <fragment
         android:id="@+id/favoriteFragment"
