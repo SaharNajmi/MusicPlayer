@@ -18,11 +18,15 @@ import com.example.musicplayer.file.FileDetailFragmentDirections
 import com.example.musicplayer.player.PlayerState
 import com.example.musicplayer.search.SearchMusicFragment
 import com.example.musicplayer.search.SearchMusicFragmentDirections
+import com.example.room.MusicDatabase
+import com.example.room.MusicViewModel
 
 class MainActivity : AppCompatActivity() {
     lateinit var binding: ActivityMainBinding
     var duration = 0
     lateinit var viewModel: MainViewModel
+    lateinit var musicViewModel: MusicViewModel
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -31,17 +35,27 @@ class MainActivity : AppCompatActivity() {
 
         val mNavController = findNavController(R.id.nav_host_fragment)
 
-        //viewModel
+        //main viewModel
         viewModel = ViewModelProvider(
             this,
             ViewModelFactory()
         ).get(MainViewModel::class.java)
 
+        //music viewModel
+        val dao = MusicDatabase.getInstance(this).musicDao()
+        /*  val dao = MusicDatabase.getInstance(this).musicDao()
+                 musicViewModel =
+                     ViewModelProvider(
+                         this,
+                         MusicViewModelFactory(MusicRepository(dao))
+                     ).get(MusicViewModel::class.java)*/
+
         val musics = viewModel.getMusics(this)
 
-        musicController()
+        if (musics.size != 0)
+            updateUi(musics[viewModel.songPosition])
 
-        updateUi(musics[viewModel.songPosition])
+        musicController()
 
         //update ui music controller
         viewModel.songModel.observe(this, {
