@@ -90,6 +90,11 @@ class DetailFragment : Fragment() {
             else
                 binding.txtLyrics.visibility = View.GONE
         })
+
+        //go back
+        binding.btnBackPage.setOnClickListener {
+            requireActivity().onBackPressed()
+        }
     }
 
     private fun showOldProgressSeekBar() {

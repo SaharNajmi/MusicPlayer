@@ -10,6 +10,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.example.model.SongModel
 import com.example.musicplayer.databinding.FragmentLyricsSearchBinding
+import com.example.musicplayer.main.MainActivity
 import com.example.musicplayer.main.ViewModelFactory
 
 class SearchLyricsFragment : Fragment() {
@@ -29,6 +30,10 @@ class SearchLyricsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         val args: SearchLyricsFragmentArgs by navArgs()
         songModel = args.lyricsDetail
+        // hide music controller
+        if (requireActivity() is MainActivity) {
+            (activity as MainActivity?)!!.hideMusicController()
+        }
 
         //viewModel
         viewModel = ViewModelProvider(
@@ -80,6 +85,11 @@ class SearchLyricsFragment : Fragment() {
                     songModel
                 )
             )
+        }
+
+        //go back
+        binding.btnBackPage.setOnClickListener {
+            requireActivity().onBackPressed()
         }
     }
 

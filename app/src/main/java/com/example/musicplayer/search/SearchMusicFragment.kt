@@ -55,6 +55,11 @@ SearchMusicFragment : Fragment(), SongEventListener {
                 viewModel.searchSong(p0.toString(), requireContext(), adapter)
             }
         })
+
+        // go back
+        binding.btnBackPage.setOnClickListener {
+            requireActivity().onBackPressed()
+        }
     }
 
     fun showMusics() {
