@@ -6,8 +6,9 @@ import android.media.MediaPlayer
 import android.os.Handler
 import android.os.Looper
 import androidx.lifecycle.MutableLiveData
-import com.example.model.SongModel
-import com.example.musicplayer.LocalMusic
+import com.example.musicplayer.data.model.SongModel
+import com.example.musicplayer.data.repository.LocalMusic
+import com.example.musicplayer.utils.PlayerState
 import java.io.IOException
 import kotlin.random.Random
 
