@@ -5,9 +5,9 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.example.`interface`.AlbumEventListener
 import com.example.model.AlbumModel
 import com.example.musicplayer.databinding.AlbumItemBinding
+import com.example.myInterface.AlbumEventListener
 
 class AlbumAdapter(
     val context: Context,

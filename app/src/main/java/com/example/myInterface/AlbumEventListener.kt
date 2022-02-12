@@ -1,4 +1,4 @@
-package com.example.`interface`
+package com.example.myInterface
 
 import com.example.model.AlbumModel
 

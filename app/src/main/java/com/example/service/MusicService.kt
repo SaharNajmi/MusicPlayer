@@ -7,8 +7,8 @@ import android.media.MediaPlayer
 import android.os.Binder
 import android.os.IBinder
 import android.os.PowerManager
-import com.example.`interface`.OnSongComplete
 import com.example.model.SongModel
+import com.example.myInterface.OnSongComplete
 
 class MusicService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
     MediaPlayer.OnCompletionListener {

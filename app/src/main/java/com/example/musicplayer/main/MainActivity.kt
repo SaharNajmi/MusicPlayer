@@ -19,6 +19,7 @@ import com.example.musicplayer.file.FileDetailFragmentDirections
 import com.example.musicplayer.player.PlayerState
 import com.example.musicplayer.search.SearchMusicFragment
 import com.example.musicplayer.search.SearchMusicFragmentDirections
+import com.example.room.MusicDatabase
 import com.example.room.MusicViewModel
 
 class MainActivity : AppCompatActivity() {
@@ -47,8 +48,10 @@ class MainActivity : AppCompatActivity() {
             ViewModelFactory()
         ).get(MainViewModel::class.java)
 
+        val dao = MusicDatabase.getInstance(this).musicDao()
+
         //music viewModel
-        /*  val dao = MusicDatabase.getInstance(this).musicDao()
+/*          val dao = MusicDatabase.getInstance(this).musicDao()
                  musicViewModel =
                      ViewModelProvider(
                          this,

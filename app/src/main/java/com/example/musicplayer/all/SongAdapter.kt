@@ -5,9 +5,9 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.example.`interface`.SongEventListener
 import com.example.model.SongModel
 import com.example.musicplayer.databinding.MusicItemLayoutBinding
+import com.example.myInterface.SongEventListener
 
 
 class SongAdapter(

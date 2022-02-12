@@ -9,12 +9,12 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.`interface`.SongEventListener
 import com.example.model.SongModel
 import com.example.musicplayer.all.SongAdapter
 import com.example.musicplayer.databinding.FragmentSearchMusicBinding
 import com.example.musicplayer.main.ViewModelFactory
 import com.example.musicplayer.player.Player
+import com.example.myInterface.SongEventListener
 
 class
 SearchMusicFragment : Fragment(), SongEventListener {

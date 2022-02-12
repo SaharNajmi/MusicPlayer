@@ -8,11 +8,11 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.`interface`.ArtistEventListener
 import com.example.model.ArtistModel
 import com.example.musicplayer.databinding.FragmentArtistBinding
 import com.example.musicplayer.main.MainFragmentDirections
 import com.example.musicplayer.main.ViewModelFactory
+import com.example.myInterface.ArtistEventListener
 
 class ArtistFragment : Fragment(), ArtistEventListener {
     lateinit var binding: FragmentArtistBinding

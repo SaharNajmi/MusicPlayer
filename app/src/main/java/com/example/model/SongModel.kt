@@ -1,6 +1,5 @@
 package com.example.model
 
-import android.net.Uri
 import android.os.Parcelable
 import androidx.room.Entity
 import androidx.room.PrimaryKey
@@ -15,7 +14,7 @@ data class SongModel(
     val albumID: Long,
     val artistID: Long,
     val songTitle: String,
-    val coverImage: Uri,
+    val coverImage: String,
     var lyrics: String = "",
     val folderName: String,
     val path: String,

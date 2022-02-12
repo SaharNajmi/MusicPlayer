@@ -9,12 +9,12 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
-import com.example.`interface`.SongEventListener
 import com.example.model.AlbumModel
 import com.example.model.SongModel
 import com.example.musicplayer.databinding.FragmentAlbumDetailBinding
 import com.example.musicplayer.main.ViewModelFactory
 import com.example.musicplayer.player.Player
+import com.example.myInterface.SongEventListener
 
 class AlbumDetailFragment : Fragment(), SongEventListener {
     lateinit var binding: FragmentAlbumDetailBinding

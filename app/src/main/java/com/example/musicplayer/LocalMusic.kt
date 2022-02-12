@@ -50,7 +50,7 @@ class LocalMusic {
                         musicCursor.getLong(albumId),
                         musicCursor.getLong(artistId),
                         musicCursor.getString(songTitle),
-                        album_uri,
+                        album_uri.toString(),
                         folderName = folderName,
                         path = musicCursor.getString(path),
                         duration = musicCursor.getInt(duration)
