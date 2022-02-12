@@ -17,14 +17,14 @@
         android:screenOrientation="portrait"
         android:supportsRtl="true"
         android:theme="@style/Theme.MusicPlayer">
-        <activity android:name=".main.MainActivity">
+        <activity android:name="com.example.musicplayer.view.main.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <service android:name="com.example.service.MusicService" />
+        <service android:name="com.example.musicplayer.service.MusicService" />
     </application>
 
 </manifest>
