@@ -34,6 +34,12 @@ class Player private constructor(val mediaPlayer: MediaPlayer, val localMusic: L
     var duration = 0
     var songPosition = 0
 
+    init {
+        // progress.value = 0
+        playerState.value = PlayerState.PAUSED
+        initMusicPlayer()
+    }
+
     companion object {
         var INSTANCE: Player? = null
         fun getInstance(): Player {
@@ -74,7 +80,9 @@ class Player private constructor(val mediaPlayer: MediaPlayer, val localMusic: L
             override fun run() {
                 progress.value = mediaPlayer.currentPosition
                 //run again after 1 second
-                postDelayed()
+                // if (mediaPlayer.isPlaying)
+                if (playerState.value == PlayerState.PLAYING)
+                    postDelayed()
             }
         }
         return progressRunner

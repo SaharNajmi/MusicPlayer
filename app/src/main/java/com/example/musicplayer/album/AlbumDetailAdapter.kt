@@ -3,9 +3,9 @@ package com.example.musicplayer.album
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.example.`interface`.SongEventListener
 import com.example.model.SongModel
 import com.example.musicplayer.databinding.AlbumDetailsItemBinding
+import com.example.myInterface.SongEventListener
 
 class AlbumDetailAdapter(
     val list: ArrayList<SongModel>,

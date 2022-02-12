@@ -3,8 +3,8 @@ package com.example.musicplayer.file
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.example.`interface`.FileEventListener
 import com.example.musicplayer.databinding.FolderItemBinding
+import com.example.myInterface.FileEventListener
 
 class FileAdapter(val file: List<String>, val fileItemEventListener: FileEventListener) :
     RecyclerView.Adapter<FileAdapter.FileViewHolder>() {

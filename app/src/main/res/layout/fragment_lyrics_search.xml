@@ -46,21 +46,51 @@
         android:layout_height="wrap_content"
         android:layout_margin="12dp"
         android:hint="@string/song_title"
+        app:layout_constraintBottom_toTopOf="@id/txt_lyrics"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/edt_song" />
 
-    <Button
-        android:id="@+id/btn_search"
+    <TextView
+        android:id="@+id/txt_lyrics"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_margin="12dp"
+        android:scrollbars="vertical"
+        app:layout_constraintBottom_toTopOf="@id/bottom_btn"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/edt_title"
+        tools:text="Lyrics" />
+
+    <FrameLayout
+        android:id="@+id/bottom_btn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/myBlack"
-        android:text="@string/search_lyrics"
-        android:textAllCaps="false"
-        android:textColor="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent" />
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/txt_lyrics">
+
+        <Button
+            android:id="@+id/btn_search"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/myBlack"
+            android:text="@string/search_lyrics"
+            android:textAllCaps="false"
+            android:textColor="@color/white" />
+
+        <Button
+            android:visibility="gone"
+            android:id="@+id/btn_apply"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/myBlack"
+            android:text="@string/apply_lyrics"
+            android:textAllCaps="false"
+            android:textColor="@color/white" />
+    </FrameLayout>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

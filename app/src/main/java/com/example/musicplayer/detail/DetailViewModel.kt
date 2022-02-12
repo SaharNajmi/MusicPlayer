@@ -22,8 +22,6 @@ class DetailViewModel(val player: Player) : ViewModel() {
         return player.isShuffle
     }
 
-    fun getNewSongDuration() = player.duration
-
     fun toggleState() = player.toggleState()
 
     fun nextSong() = player.nextSong()

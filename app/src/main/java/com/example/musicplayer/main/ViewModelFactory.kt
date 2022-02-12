@@ -12,6 +12,7 @@ import com.example.musicplayer.detail.DetailViewModel
 import com.example.musicplayer.file.FileDetailViewModel
 import com.example.musicplayer.file.FileViewModel
 import com.example.musicplayer.player.Player
+import com.example.musicplayer.search.LyricsViewModel
 import com.example.musicplayer.search.SearchMusicViewModel
 
 class ViewModelFactory : ViewModelProvider.Factory {
@@ -57,6 +58,10 @@ class ViewModelFactory : ViewModelProvider.Factory {
             modelClass.isAssignableFrom(SearchMusicViewModel::class.java) -> {
                 @Suppress("UNCHECKED_CAST")
                 return SearchMusicViewModel(instance) as T
+            }
+            modelClass.isAssignableFrom(LyricsViewModel::class.java) -> {
+                @Suppress("UNCHECKED_CAST")
+                return LyricsViewModel() as T
             }
         }
         throw IllegalArgumentException("Unknown ViewModel class")

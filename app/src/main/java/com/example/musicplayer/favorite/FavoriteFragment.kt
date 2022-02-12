@@ -22,7 +22,7 @@ class FavoriteFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         //go back
         binding.btnBackPage.setOnClickListener {
-            //     it.findNavController().navigate(R.id.action_favoriteFragment_to_homeFragment)
+            requireActivity().onBackPressed()
         }
     }
 }

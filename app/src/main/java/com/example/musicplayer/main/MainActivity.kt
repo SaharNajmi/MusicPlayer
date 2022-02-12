@@ -1,5 +1,6 @@
 package com.example.musicplayer.main
 
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
@@ -18,11 +19,17 @@ import com.example.musicplayer.file.FileDetailFragmentDirections
 import com.example.musicplayer.player.PlayerState
 import com.example.musicplayer.search.SearchMusicFragment
 import com.example.musicplayer.search.SearchMusicFragmentDirections
+import com.example.room.MusicDatabase
+import com.example.room.MusicViewModel
 
 class MainActivity : AppCompatActivity() {
     lateinit var binding: ActivityMainBinding
     var duration = 0
     lateinit var viewModel: MainViewModel
+    lateinit var musicViewModel: MusicViewModel
+    lateinit var editer: SharedPreferences.Editor
+    lateinit var sharedPreferences: SharedPreferences
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -31,17 +38,30 @@ class MainActivity : AppCompatActivity() {
 
         val mNavController = findNavController(R.id.nav_host_fragment)
 
-        //viewModel
+        //sharedPreferences
+        sharedPreferences = getSharedPreferences("sharedPreferences", MODE_PRIVATE)
+        editer = sharedPreferences.edit()
+
+        //main viewModel
         viewModel = ViewModelProvider(
             this,
             ViewModelFactory()
         ).get(MainViewModel::class.java)
 
-        val musics = viewModel.getMusics(this)
+        val dao = MusicDatabase.getInstance(this).musicDao()
+
+        //music viewModel
+/*          val dao = MusicDatabase.getInstance(this).musicDao()
+                 musicViewModel =
+                     ViewModelProvider(
+                         this,
+                         MusicViewModelFactory(MusicRepository(dao))
+                     ).get(MusicViewModel::class.java)*/
+
+        //save old data with sharedPreferences
+        shaowSaveState()
 
         musicController()
-
-        updateUi(musics[viewModel.songPosition])
 
         //update ui music controller
         viewModel.songModel.observe(this, {
@@ -49,6 +69,7 @@ class MainActivity : AppCompatActivity() {
         })
 
         //update ui button pause or play music
+        updateUiPlayOrPause(PlayerState.PAUSED)
         viewModel.playerState.observe(this, {
             updateUiPlayOrPause(it)
         })
@@ -97,9 +118,47 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
+    private fun shaowSaveState() {
+        var oldPositionSong = sharedPreferences.getInt("position", 0)
+        //when first play application
+        if (oldPositionSong < 0)
+            oldPositionSong = 0
+
+        //update ui music controller
+        val musics = viewModel.getMusics(this)
+        if (musics.size != 0 && oldPositionSong != 0)
+            updateUi(musics[oldPositionSong])
+
+        //update progress
+        //get old progress/duration song
+        val oldProgressSong = sharedPreferences.getInt("progress", 0)
+        val oldDurationSong = sharedPreferences.getInt("duration", 0)
+        updateProgress(oldProgressSong, oldDurationSong)
+
+        //Change default values in Player
+        viewModel.changeSongModel(musics[oldPositionSong])
+        viewModel.changeSongPosition(oldPositionSong)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        //save values
+        editer.apply {
+            putInt("position", viewModel.getSongPosition())
+            putInt("progress", viewModel.getValueProgress()!!)
+            putInt("duration", viewModel.getDuration())
+            commit()
+        }
+    }
+
     fun updateProgress(progress: Int) {
         //set progress to seekbar
         binding.playMusicLayout.seekBar.max = viewModel.getNewSongDuration()
+        binding.playMusicLayout.seekBar.progress = progress
+    }
+
+    fun updateProgress(progress: Int, duration: Int) {
+        binding.playMusicLayout.seekBar.max = duration
         binding.playMusicLayout.seekBar.progress = progress
     }
 
@@ -129,9 +188,7 @@ class MainActivity : AppCompatActivity() {
 
     fun musicController() {
         //play and pause song
-        val btnPlayPause = binding.playMusicLayout.btnPlayPause
-
-        btnPlayPause.setOnClickListener {
+        binding.playMusicLayout.btnPlayPause.setOnClickListener {
             viewModel.toggleState()
         }
 

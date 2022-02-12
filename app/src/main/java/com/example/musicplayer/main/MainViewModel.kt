@@ -2,13 +2,27 @@ package com.example.musicplayer.main
 
 import android.content.Context
 import androidx.lifecycle.ViewModel
+import com.example.model.SongModel
 import com.example.musicplayer.player.Player
 
 class MainViewModel(val player: Player) : ViewModel() {
     var songModel = player.songModel
     var playerState = player.playerState
     var progress = player.progress
-    val songPosition = player.songPosition
+
+    fun changeSongPosition(position: Int) {
+        player.songPosition = position
+    }
+
+    fun changeSongModel(songModel: SongModel) {
+        player.songModel.value = songModel
+    }
+
+    fun getSongPosition() = player.songPosition
+
+    fun getValueProgress() = player.progress.value
+
+    fun getDuration() = player.duration
 
     fun getMusics(context: Context) = player.getSongs(context)
 

@@ -4,9 +4,9 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.example.`interface`.ArtistEventListener
 import com.example.model.ArtistModel
 import com.example.musicplayer.databinding.ArtistItemBinding
+import com.example.myInterface.ArtistEventListener
 
 class ArtistAdapter(
     val context: Context,

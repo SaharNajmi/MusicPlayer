@@ -1,6 +1,5 @@
 package com.example.model
 
-import android.net.Uri
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
@@ -9,5 +8,5 @@ class AlbumModel(
     val id: Long,
     val albumName: String,
     val artist: String,
-    val albumImage: Uri
+    val albumImage: String
 ) : Parcelable

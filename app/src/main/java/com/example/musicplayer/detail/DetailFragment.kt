@@ -5,8 +5,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.SeekBar
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.Glide
 import com.example.model.SongModel
@@ -15,13 +17,14 @@ import com.example.musicplayer.databinding.FragmentDetailBinding
 import com.example.musicplayer.main.MainActivity
 import com.example.musicplayer.main.ViewModelFactory
 import com.example.musicplayer.player.PlayerState
+import com.example.musicplayer.search.LyricsViewModel
 import java.util.concurrent.TimeUnit
-
 
 class DetailFragment : Fragment() {
     lateinit var binding: FragmentDetailBinding
     lateinit var songModel: SongModel
     lateinit var viewModel: DetailViewModel
+    lateinit var lyricsViewModel: LyricsViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -43,6 +46,12 @@ class DetailFragment : Fragment() {
             ViewModelFactory()
         ).get(DetailViewModel::class.java)
 
+        //search lyrics viewModel
+        lyricsViewModel = ViewModelProvider(
+            requireActivity(),
+            ViewModelFactory()
+        ).get(LyricsViewModel::class.java)
+
         if (requireActivity() is MainActivity) {
             (activity as MainActivity?)!!.hideMusicController()
         }
@@ -58,9 +67,13 @@ class DetailFragment : Fragment() {
         })
 
         //update ui button pause or play music
+        updateUiPlayOrPause(PlayerState.PAUSED)
         viewModel.playerState.observe(requireActivity(), {
             updateUiPlayOrPause(it)
         })
+
+        // show old progress seekBar
+        showOldProgressSeekBar()
 
         // Seek bar change listener
         seekBarChangeListener(binding.seekBar)
@@ -69,6 +82,35 @@ class DetailFragment : Fragment() {
         viewModel.progress.observe(requireActivity(), { progress ->
             binding.seekBar.progress = progress
         })
+
+        //show lyrics
+        lyricsViewModel.findLyrics.observe(requireActivity(), { find ->
+            if (find)
+                binding.txtLyrics.text = songModel.lyrics
+            else
+                binding.txtLyrics.visibility = View.GONE
+        })
+
+        //go back
+        binding.btnBackPage.setOnClickListener {
+            requireActivity().onBackPressed()
+        }
+    }
+
+    private fun showOldProgressSeekBar() {
+        val sharedPreferences = requireContext().getSharedPreferences(
+            "sharedPreferences",
+            AppCompatActivity.MODE_PRIVATE
+        )
+        val oldProgressSong = sharedPreferences.getInt("progress", 0)
+        updateProgress(oldProgressSong, songModel.duration)
+    }
+
+    fun updateProgress(progress: Int, duration: Int) {
+        binding.seekBar.max = duration
+        binding.seekBar.progress = progress
+        binding.txtStartTime.text = durationPointSeekBar(progress)
+        binding.txtEndTime.text = durationPointSeekBar(duration)
     }
 
     fun seekBarChangeListener(seekBar: SeekBar) {
@@ -98,8 +140,8 @@ class DetailFragment : Fragment() {
     fun updateUi(songModel: SongModel) {
         binding.songTitle.text = songModel.songTitle
         binding.artist.text = songModel.artist
-        binding.seekBar.max = viewModel.getNewSongDuration()
-        binding.txtEndTime.text = durationPointSeekBar(viewModel.getNewSongDuration())
+        binding.seekBar.max = songModel.duration
+        binding.txtEndTime.text = durationPointSeekBar(songModel.duration)
         if (activity != null) {
             Glide.with(this)
                 .load(songModel.coverImage)
@@ -126,8 +168,7 @@ class DetailFragment : Fragment() {
 
     fun musicController() {
         //play and pause song
-        val btnPlayPauseDetail = binding.btnPlayPause
-        btnPlayPauseDetail.setOnClickListener {
+        binding.btnPlayPause.setOnClickListener {
             viewModel.toggleState()
         }
 
@@ -157,6 +198,15 @@ class DetailFragment : Fragment() {
                 binding.shuffle.setImageResource(R.drawable.ic_shuffle)
             } else
                 binding.repeat.setImageResource(R.drawable.ic_repeat)
+        }
+
+        //search lyrics
+        binding.btnSearchLyrics.setOnClickListener {
+            findNavController().navigate(
+                DetailFragmentDirections.actionDetailFragmentToSearchLyricsFragment(
+                    viewModel.songModel.value!!
+                )
+            )
         }
     }
 
