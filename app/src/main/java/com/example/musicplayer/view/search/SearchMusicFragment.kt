@@ -36,7 +36,7 @@ SearchMusicFragment : Fragment(), SongAdapter.SongEventListener {
         //viewModel
         viewModel = ViewModelProvider(
             requireActivity(),
-            BaseViewModelFactory()
+            BaseViewModelFactory(requireContext())
         ).get(SearchMusicViewModel::class.java)
 
         //show all song
@@ -68,6 +68,6 @@ SearchMusicFragment : Fragment(), SongAdapter.SongEventListener {
     }
 
     override fun onSelect(songModel: SongModel, posSong: Int) {
-        Player.getInstance().songSelected(songModel, posSong)
+        Player.getInstance(requireContext()).songSelected(songModel, posSong)
     }
 }

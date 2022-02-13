@@ -8,11 +8,15 @@ import android.os.Looper
 import androidx.lifecycle.MutableLiveData
 import com.example.musicplayer.data.model.SongModel
 import com.example.musicplayer.data.repository.LocalMusic
+import com.example.musicplayer.data.repository.LocalMusicRepository
 import com.example.musicplayer.utils.PlayerState
 import java.io.IOException
 import kotlin.random.Random
 
-class Player private constructor(val mediaPlayer: MediaPlayer, val localMusic: LocalMusic) :
+class Player private constructor(
+    val mediaPlayer: MediaPlayer,
+    val musicRepository: LocalMusicRepository
+) :
     MediaPlayer.OnPreparedListener,
     MediaPlayer.OnErrorListener,
     MediaPlayer.OnCompletionListener {
@@ -43,9 +47,12 @@ class Player private constructor(val mediaPlayer: MediaPlayer, val localMusic: L
 
     companion object {
         var INSTANCE: Player? = null
-        fun getInstance(): Player {
+        fun getInstance(context: Context): Player {
             if (INSTANCE == null)
-                INSTANCE = Player(MediaPlayer(), LocalMusic())
+                INSTANCE = Player(
+                    MediaPlayer(),
+                    LocalMusicRepository(LocalMusic(), context)
+                )
             return INSTANCE!!
         }
     }
@@ -58,7 +65,7 @@ class Player private constructor(val mediaPlayer: MediaPlayer, val localMusic: L
     }
 
     fun getSongs(context: Context): ArrayList<SongModel> {
-        musics = localMusic.readExternalData(context)
+        musics = musicRepository.getMusics(context)
         return musics
     }
 

@@ -33,7 +33,7 @@ class AlbumFragment : Fragment(), AlbumAdapter.AlbumEventListener {
         //viewModel
         viewModel = ViewModelProvider(
             requireActivity(),
-            BaseViewModelFactory()
+            BaseViewModelFactory(requireContext())
         ).get(AlbumViewModel::class.java)
 
         //show list album

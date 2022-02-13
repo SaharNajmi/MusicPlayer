@@ -16,6 +16,7 @@ import com.example.musicplayer.data.model.SongModel
 import com.example.musicplayer.databinding.FragmentDetailBinding
 import com.example.musicplayer.factory.BaseViewModelFactory
 import com.example.musicplayer.utils.PlayerState
+import com.example.musicplayer.view.favorite.FavoriteViewModel
 import com.example.musicplayer.view.main.MainActivity
 import com.example.musicplayer.view.search.LyricsViewModel
 import java.util.concurrent.TimeUnit
@@ -25,6 +26,9 @@ class DetailFragment : Fragment() {
     lateinit var songModel: SongModel
     lateinit var viewModel: DetailViewModel
     lateinit var lyricsViewModel: LyricsViewModel
+    lateinit var musicViewModel: LyricsViewModel
+    lateinit var favoriteViewModel: FavoriteViewModel
+    var favorite: Boolean = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -40,21 +44,36 @@ class DetailFragment : Fragment() {
         val args: DetailFragmentArgs by navArgs()
         songModel = args.musicDetail
 
-        //viewModel
-        viewModel = ViewModelProvider(
-            requireActivity(),
-            BaseViewModelFactory()
-        ).get(DetailViewModel::class.java)
-
-        //search lyrics viewModel
-        lyricsViewModel = ViewModelProvider(
-            requireActivity(),
-            BaseViewModelFactory()
-        ).get(LyricsViewModel::class.java)
-
         if (requireActivity() is MainActivity) {
             (activity as MainActivity?)!!.hideMusicController()
         }
+
+        //viewModel
+        viewModel = ViewModelProvider(
+            requireActivity(),
+            BaseViewModelFactory(requireContext())
+        ).get(DetailViewModel::class.java)
+
+        //search lyrics viewModel
+        lyricsViewModel =
+            ViewModelProvider(
+                this,
+                ViewModelProvider.AndroidViewModelFactory.getInstance(activity?.application!!)
+            ).get(LyricsViewModel::class.java)
+
+        //music viewModel
+        musicViewModel =
+            ViewModelProvider(
+                this,
+                ViewModelProvider.AndroidViewModelFactory.getInstance(activity?.application!!)
+            ).get(LyricsViewModel::class.java)
+
+        //favorite ViewModel
+        favoriteViewModel =
+            ViewModelProvider(
+                this,
+                ViewModelProvider.AndroidViewModelFactory.getInstance(activity?.application!!)
+            ).get(FavoriteViewModel::class.java)
 
         updateUi(songModel)
 
@@ -84,16 +103,39 @@ class DetailFragment : Fragment() {
         })
 
         //show lyrics
-        lyricsViewModel.findLyrics.observe(requireActivity(), { find ->
-            if (find)
-                binding.txtLyrics.text = songModel.lyrics
-            else
-                binding.txtLyrics.visibility = View.GONE
-        })
+        if (songModel.isLyrics)
+            binding.txtLyrics.text = songModel.lyrics
+        else
+            binding.txtLyrics.visibility = View.GONE
+
+        //favorite
+        favorite = songModel.favorite
+        changeFavorite()
 
         //go back
         binding.btnBackPage.setOnClickListener {
             requireActivity().onBackPressed()
+        }
+    }
+
+    fun checkFavorite(isFavorite: Boolean) {
+        if (isFavorite)
+            binding.favorite.setImageResource(R.drawable.ic_favorite)
+        else
+            binding.favorite.setImageResource(R.drawable.ic_not_favorite)
+    }
+
+    fun changeFavorite() {
+        binding.favorite.setOnClickListener {
+            favorite = if (favorite) {
+                binding.favorite.setImageResource(R.drawable.ic_not_favorite)
+                favoriteViewModel.delete(songModel)
+                false
+            } else {
+                binding.favorite.setImageResource(R.drawable.ic_favorite)
+                favoriteViewModel.insert(songModel)
+                true
+            }
         }
     }
 
@@ -149,6 +191,7 @@ class DetailFragment : Fragment() {
         }
 
         updateUiShuffleOrRepeat()
+        checkFavorite(songModel.favorite)
     }
 
     fun updateUiPlayOrPause(playerState: PlayerState) {

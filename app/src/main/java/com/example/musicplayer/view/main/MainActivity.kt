@@ -8,7 +8,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import com.bumptech.glide.Glide
 import com.example.musicplayer.R
-import com.example.musicplayer.data.db.MusicDatabase
 import com.example.musicplayer.data.model.SongModel
 import com.example.musicplayer.databinding.ActivityMainBinding
 import com.example.musicplayer.factory.BaseViewModelFactory
@@ -17,6 +16,8 @@ import com.example.musicplayer.view.album.AlbumDetailFragment
 import com.example.musicplayer.view.album.AlbumDetailFragmentDirections
 import com.example.musicplayer.view.artist.ArtistDetailFragment
 import com.example.musicplayer.view.artist.ArtistDetailFragmentDirections
+import com.example.musicplayer.view.favorite.FavoriteFragment
+import com.example.musicplayer.view.favorite.FavoriteFragmentDirections
 import com.example.musicplayer.view.file.FileDetailFragment
 import com.example.musicplayer.view.file.FileDetailFragmentDirections
 import com.example.musicplayer.view.search.SearchMusicFragment
@@ -26,8 +27,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var binding: ActivityMainBinding
     var duration = 0
     lateinit var viewModel: MainViewModel
-    lateinit var musicViewModel: MusicViewModel
-    lateinit var editer: SharedPreferences.Editor
+    lateinit var editor: SharedPreferences.Editor
     lateinit var sharedPreferences: SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,23 +40,13 @@ class MainActivity : AppCompatActivity() {
 
         //sharedPreferences
         sharedPreferences = getSharedPreferences("sharedPreferences", MODE_PRIVATE)
-        editer = sharedPreferences.edit()
+        editor = sharedPreferences.edit()
 
         //main viewModel
         viewModel = ViewModelProvider(
             this,
-            BaseViewModelFactory()
+            BaseViewModelFactory(this)
         ).get(MainViewModel::class.java)
-
-        val dao = MusicDatabase.getInstance(this).musicDao()
-
-        //music viewModel
-/*          val dao = MusicDatabase.getInstance(this).musicDao()
-                 musicViewModel =
-                     ViewModelProvider(
-                         this,
-                         MusicViewModelFactory(MusicRepository(dao))
-                     ).get(MusicViewModel::class.java)*/
 
         //save old data with sharedPreferences
         shaowSaveState()
@@ -107,6 +97,12 @@ class MainActivity : AppCompatActivity() {
                             viewModel.songModel.value!!
                         )
                     )
+                    //favorite
+                    is FavoriteFragment -> mNavController.navigate(
+                        FavoriteFragmentDirections.actionFavoriteFragmentToDetailFragment(
+                            viewModel.songModel.value!!
+                        )
+                    )
                 }
 
             }
@@ -143,7 +139,7 @@ class MainActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         //save values
-        editer.apply {
+        editor.apply {
             putInt("position", viewModel.getSongPosition())
             putInt("progress", viewModel.getValueProgress()!!)
             putInt("duration", viewModel.getDuration())

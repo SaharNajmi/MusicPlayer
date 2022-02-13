@@ -37,7 +37,7 @@ class ArtistDetailFragment : Fragment(), SongAdapter.SongEventListener {
         //viewModel
         viewModel = ViewModelProvider(
             requireActivity(),
-            BaseViewModelFactory()
+            BaseViewModelFactory(requireContext())
         ).get(ArtistDetailViewModel::class.java)
 
         //set title
@@ -55,6 +55,6 @@ class ArtistDetailFragment : Fragment(), SongAdapter.SongEventListener {
     }
 
     override fun onSelect(songModel: SongModel, posSong: Int) {
-        Player.getInstance().songSelected(songModel, posSong)
+        Player.getInstance(requireContext()).songSelected(songModel, posSong)
     }
 }

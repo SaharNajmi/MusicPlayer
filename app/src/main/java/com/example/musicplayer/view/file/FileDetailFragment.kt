@@ -36,7 +36,7 @@ class FileDetailFragment : Fragment(), SongAdapter.SongEventListener {
         //viewModel
         viewModel = ViewModelProvider(
             requireActivity(),
-            BaseViewModelFactory()
+            BaseViewModelFactory(requireContext())
         ).get(FileDetailViewModel::class.java)
 
         //show items
@@ -54,6 +54,6 @@ class FileDetailFragment : Fragment(), SongAdapter.SongEventListener {
     }
 
     override fun onSelect(songModel: SongModel, posSong: Int) {
-        Player.getInstance().songSelected(songModel, posSong)
+        Player.getInstance(requireContext()).songSelected(songModel, posSong)
     }
 }

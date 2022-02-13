@@ -1,5 +1,6 @@
 package com.example.musicplayer.factory
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.musicplayer.data.repository.LocalMusic
@@ -16,9 +17,9 @@ import com.example.musicplayer.view.main.MainViewModel
 import com.example.musicplayer.view.search.LyricsViewModel
 import com.example.musicplayer.view.search.SearchMusicViewModel
 
-class BaseViewModelFactory : ViewModelProvider.Factory {
+class BaseViewModelFactory(val context: Context) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        val instance = Player.getInstance()
+        val instance = Player.getInstance(context)
         when {
             modelClass.isAssignableFrom(MainViewModel::class.java) -> {
                 @Suppress("UNCHECKED_CAST")
@@ -59,10 +60,6 @@ class BaseViewModelFactory : ViewModelProvider.Factory {
             modelClass.isAssignableFrom(SearchMusicViewModel::class.java) -> {
                 @Suppress("UNCHECKED_CAST")
                 return SearchMusicViewModel(instance) as T
-            }
-            modelClass.isAssignableFrom(LyricsViewModel::class.java) -> {
-                @Suppress("UNCHECKED_CAST")
-                return LyricsViewModel() as T
             }
         }
         throw IllegalArgumentException("Unknown ViewModel class")

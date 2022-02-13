@@ -31,7 +31,7 @@ class ArtistFragment : Fragment(), ArtistAdapter.ArtistEventListener {
         //viewModel
         viewModel = ViewModelProvider(
             requireActivity(),
-            BaseViewModelFactory()
+            BaseViewModelFactory(requireContext())
         ).get(ArtistViewModel::class.java)
 
         //show list artist
