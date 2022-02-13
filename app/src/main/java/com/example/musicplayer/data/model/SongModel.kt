@@ -16,8 +16,9 @@ data class SongModel(
     val songTitle: String,
     val coverImage: String,
     var lyrics: String = "",
+    var isLyrics: Boolean = false,
     val folderName: String,
     val path: String,
     val duration: Int,
-    val favorite: Boolean = false
+    var favorite: Boolean = false
 ) : Parcelable

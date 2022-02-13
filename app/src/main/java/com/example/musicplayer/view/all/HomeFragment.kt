@@ -31,7 +31,7 @@ class HomeFragment : Fragment(), SongAdapter.SongEventListener {
         //viewModel
         viewModel = ViewModelProvider(
             requireActivity(),
-            BaseViewModelFactory()
+            BaseViewModelFactory(requireContext())
         ).get(HomeViewModel::class.java)
     }
 
@@ -48,6 +48,7 @@ class HomeFragment : Fragment(), SongAdapter.SongEventListener {
     }
 
     override fun onSelect(songModel: SongModel, posSong: Int) {
-        Player.getInstance().songSelected(songModel, posSong)
+        viewModel.getMusics(requireContext())
+        Player.getInstance(requireContext()).songSelected(songModel, posSong)
     }
 }

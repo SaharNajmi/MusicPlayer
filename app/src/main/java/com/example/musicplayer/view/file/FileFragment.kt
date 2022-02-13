@@ -30,7 +30,7 @@ class FileFragment : Fragment(), FileAdapter.FileEventListener {
         //viewModel
         viewModel = ViewModelProvider(
             requireActivity(),
-            BaseViewModelFactory()
+            BaseViewModelFactory(requireContext())
         ).get(FileViewModel::class.java)
 
         //show list folders

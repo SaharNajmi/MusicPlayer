@@ -38,7 +38,7 @@ class AlbumDetailFragment : Fragment(), SongAdapter.SongEventListener {
         //viewModel
         viewModel = ViewModelProvider(
             requireActivity(),
-            BaseViewModelFactory()
+            BaseViewModelFactory(requireContext())
         ).get(AlbumDetailViewModel::class.java)
 
         //set data
@@ -64,6 +64,6 @@ class AlbumDetailFragment : Fragment(), SongAdapter.SongEventListener {
     }
 
     override fun onSelect(songModel: SongModel, posSong: Int) {
-        Player.getInstance().songSelected(songModel, posSong)
+        Player.getInstance(requireContext()).songSelected(songModel, posSong)
     }
 }

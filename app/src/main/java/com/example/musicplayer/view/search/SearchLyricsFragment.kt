@@ -10,13 +10,13 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.example.musicplayer.data.model.SongModel
 import com.example.musicplayer.databinding.FragmentLyricsSearchBinding
-import com.example.musicplayer.factory.BaseViewModelFactory
 import com.example.musicplayer.view.main.MainActivity
 
 class SearchLyricsFragment : Fragment() {
     lateinit var binding: FragmentLyricsSearchBinding
-    lateinit var viewModel: LyricsViewModel
     lateinit var songModel: SongModel
+    lateinit var lyricsViewModel: LyricsViewModel
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -35,11 +35,12 @@ class SearchLyricsFragment : Fragment() {
             (activity as MainActivity?)!!.hideMusicController()
         }
 
-        //viewModel
-        viewModel = ViewModelProvider(
-            requireActivity(),
-            BaseViewModelFactory()
-        ).get(LyricsViewModel::class.java)
+        //search lyrics viewModel
+        lyricsViewModel =
+            ViewModelProvider(
+                this,
+                ViewModelProvider.AndroidViewModelFactory.getInstance(activity?.application!!)
+            ).get(LyricsViewModel::class.java)
 
         //set data
         binding.edtSong.setText(songModel.artist)
@@ -47,7 +48,7 @@ class SearchLyricsFragment : Fragment() {
 
 
         //show lyrics in textView
-        viewModel.lyrics.observe(requireActivity(), {
+        lyricsViewModel.lyrics.observe(requireActivity(), {
             if (it.lyrics != null) {
                 binding.txtLyrics.text = it.lyrics
                 songModel.lyrics = it.lyrics.toString()
@@ -56,7 +57,7 @@ class SearchLyricsFragment : Fragment() {
         })
 
         //find lyrics
-        viewModel.findLyrics.observe(requireActivity(), { find ->
+        lyricsViewModel.findLyrics.observe(requireActivity(), { find ->
             if (find) {
                 binding.btnSearch.visibility = View.GONE
                 binding.btnApply.visibility = View.VISIBLE
@@ -71,7 +72,7 @@ class SearchLyricsFragment : Fragment() {
             if (binding.edtSong.text != null &&
                 binding.edtTitle.text != null
             ) {
-                viewModel.searchLyrics(
+                lyricsViewModel.searchLyrics(
                     binding.edtSong.text.toString().trim(),
                     binding.edtSong.text.toString().trim()
                 )
@@ -80,6 +81,8 @@ class SearchLyricsFragment : Fragment() {
 
         //apply lyrics
         binding.btnApply.setOnClickListener {
+            //insert lyrics
+            lyricsViewModel.insert(songModel)
             findNavController().navigate(
                 SearchLyricsFragmentDirections.actionSearchLyricsFragmentToDetailFragment(
                     songModel
