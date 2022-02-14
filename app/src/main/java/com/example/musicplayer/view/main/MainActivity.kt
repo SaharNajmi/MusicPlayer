@@ -1,9 +1,16 @@
 package com.example.musicplayer.view.main
 
+import android.app.Notification
+import android.app.PendingIntent
+import android.content.ComponentName
+import android.content.Intent
+import android.content.ServiceConnection
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.os.IBinder
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.NotificationCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import com.bumptech.glide.Glide
@@ -11,6 +18,10 @@ import com.example.musicplayer.R
 import com.example.musicplayer.data.model.SongModel
 import com.example.musicplayer.databinding.ActivityMainBinding
 import com.example.musicplayer.factory.BaseViewModelFactory
+import com.example.musicplayer.service.ForegroundService
+import com.example.musicplayer.service.NotificationReceiver
+import com.example.musicplayer.utils.ActionPlaying
+import com.example.musicplayer.utils.Constants
 import com.example.musicplayer.utils.PlayerState
 import com.example.musicplayer.view.album.AlbumDetailFragment
 import com.example.musicplayer.view.album.AlbumDetailFragmentDirections
@@ -23,12 +34,14 @@ import com.example.musicplayer.view.file.FileDetailFragmentDirections
 import com.example.musicplayer.view.search.SearchMusicFragment
 import com.example.musicplayer.view.search.SearchMusicFragmentDirections
 
-class MainActivity : AppCompatActivity() {
+
+class MainActivity : AppCompatActivity(), ServiceConnection, ActionPlaying {
     lateinit var binding: ActivityMainBinding
     var duration = 0
     lateinit var viewModel: MainViewModel
     lateinit var editor: SharedPreferences.Editor
     lateinit var sharedPreferences: SharedPreferences
+    var musicService: ForegroundService? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,6 +54,10 @@ class MainActivity : AppCompatActivity() {
         //sharedPreferences
         sharedPreferences = getSharedPreferences("sharedPreferences", MODE_PRIVATE)
         editor = sharedPreferences.edit()
+
+        //bind service
+        val intent = Intent(this, ForegroundService::class.java)
+        bindService(intent, this, BIND_AUTO_CREATE)
 
         //main viewModel
         viewModel = ViewModelProvider(
@@ -56,6 +73,7 @@ class MainActivity : AppCompatActivity() {
         //update ui music controller
         viewModel.songModel.observe(this, {
             updateUi(it)
+            showNotification(it, R.drawable.ic_pause)
         })
 
         //update ui button pause or play music
@@ -168,10 +186,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun updateUiPlayOrPause(playerState: PlayerState) {
-        if (playerState == PlayerState.PAUSED)
+        if (playerState == PlayerState.PAUSED) {
+            showNotification(viewModel.songModel.value!!, R.drawable.ic_play)
             binding.playMusicLayout.btnPlayPause.setImageResource(R.drawable.ic_play)
-        else if (playerState == PlayerState.PLAYING)
+        } else if (playerState == PlayerState.PLAYING) {
+            showNotification(viewModel.songModel.value!!, R.drawable.ic_pause)
             binding.playMusicLayout.btnPlayPause.setImageResource(R.drawable.ic_pause)
+        }
     }
 
     fun hideMusicController() {
@@ -199,4 +220,86 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun onServiceConnected(p0: ComponentName?, iBinder: IBinder?) {
+        val binder: ForegroundService.MusicBinder = iBinder as ForegroundService.MusicBinder
+        musicService = binder.getService()
+        musicService!!.setCallBack(this)
+    }
+
+    override fun onServiceDisconnected(p0: ComponentName?) {
+        musicService = null
+    }
+
+    private fun showNotification(song: SongModel, playPause: Int) {
+        val notificationIntent = Intent(this, MainActivity::class.java)
+        notificationIntent.flags = (Intent.FLAG_ACTIVITY_NEW_TASK
+                or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+        val pendingIntent = PendingIntent.getActivity(
+            this, 0,
+            notificationIntent, 0
+        )
+
+        //play action
+        val playIntent =
+            Intent(this, NotificationReceiver::class.java).setAction(Constants.PLAY_ACTION)
+        val pplayIntent = PendingIntent.getBroadcast(
+            this, 0,
+            playIntent, PendingIntent.FLAG_UPDATE_CURRENT
+        )
+
+        //next action
+        val nextIntent =
+            Intent(this, NotificationReceiver::class.java).setAction(Constants.NEXT_ACTION)
+        val pnextIntent = PendingIntent.getBroadcast(
+            this, 0,
+            nextIntent, PendingIntent.FLAG_UPDATE_CURRENT
+        )
+        //close action
+        val closeIntent =
+            Intent(
+                this,
+                NotificationReceiver::class.java
+            ).setAction(Constants.STOPFOREGROUND_ACTION)
+        val pcloseIntent = PendingIntent.getBroadcast(
+            this, 0,
+            closeIntent, PendingIntent.FLAG_UPDATE_CURRENT
+        )
+
+        //create notification
+        val notification: Notification = NotificationCompat.Builder(this)
+            .setContentTitle(song.songTitle)
+            .setContentText(song.artist)
+            .setSmallIcon(R.drawable.music_note)
+            .setContentIntent(pendingIntent)
+            .setOngoing(true)
+            .addAction(
+                playPause, null,
+                pplayIntent
+            )
+            .addAction(
+                R.drawable.ic_next, null,
+                pnextIntent
+            )
+            .addAction(
+                R.drawable.ic_close, null,
+                pcloseIntent
+            ).build()
+        //start foregroundService
+        musicService?.startForeground(
+            1,
+            notification
+        )
+    }
+
+    override fun nextClicked() {
+        viewModel.nextSong()
+    }
+
+    override fun playClicked() {
+        viewModel.toggleState()
+    }
+
+    override fun closeClicked() {
+        viewModel.pauseSong()
+    }
 }

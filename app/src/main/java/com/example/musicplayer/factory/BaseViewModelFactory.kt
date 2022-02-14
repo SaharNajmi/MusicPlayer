@@ -14,7 +14,6 @@ import com.example.musicplayer.view.detail.DetailViewModel
 import com.example.musicplayer.view.file.FileDetailViewModel
 import com.example.musicplayer.view.file.FileViewModel
 import com.example.musicplayer.view.main.MainViewModel
-import com.example.musicplayer.view.search.LyricsViewModel
 import com.example.musicplayer.view.search.SearchMusicViewModel
 
 class BaseViewModelFactory(val context: Context) : ViewModelProvider.Factory {

@@ -8,6 +8,7 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <application
         android:allowBackup="true"
@@ -24,7 +25,18 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <service android:name="com.example.musicplayer.service.MusicService" />
+        <service
+            android:name=".service.ForegroundService"
+            android:enabled="true" />
+        <receiver
+            android:name=".service.NotificationReceiver"
+            android:enabled="true">
+            <intent-filter>
+                <action android:name="NEXT" />
+                <action android:name="PLAY" />
+                <action android:name="STOP" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

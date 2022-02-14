@@ -1,7 +1,6 @@
 package com.example.musicplayer.view.favorite
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -34,9 +33,6 @@ class FavoriteFragment : Fragment(), SongAdapter.SongEventListener {
                 this,
                 ViewModelProvider.AndroidViewModelFactory.getInstance(activity?.application!!)
             ).get(FavoriteViewModel::class.java)
-
-        Log.d("AAAAA", favoriteViewModel.getAll().toString())
-
 
         //show list favorite
         initRecycler()

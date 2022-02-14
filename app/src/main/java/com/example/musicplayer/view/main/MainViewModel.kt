@@ -30,6 +30,10 @@ class MainViewModel(val player: Player) : ViewModel() {
 
     fun toggleState() = player.toggleState()
 
+    fun pauseSong() {
+        player.pauseSong()
+    }
+
     fun nextSong() = player.nextSong()
 
     fun backSong() = player.backSong()
