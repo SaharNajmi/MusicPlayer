@@ -12,21 +12,23 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.Glide
 import com.example.musicplayer.R
-import com.example.musicplayer.data.model.SongModel
+import com.example.musicplayer.data.db.MusicDatabase
+import com.example.musicplayer.data.db.dao.entities.Song
+import com.example.musicplayer.data.repository.LocalMusic
+import com.example.musicplayer.data.repository.MusicRepository
 import com.example.musicplayer.databinding.FragmentDetailBinding
 import com.example.musicplayer.factory.BaseViewModelFactory
+import com.example.musicplayer.factory.DetailViewModelFactory
+import com.example.musicplayer.player.Player
 import com.example.musicplayer.utils.PlayerState
 import com.example.musicplayer.view.favorite.FavoriteViewModel
 import com.example.musicplayer.view.main.MainActivity
-import com.example.musicplayer.view.search.LyricsViewModel
 import java.util.concurrent.TimeUnit
 
 class DetailFragment : Fragment() {
     lateinit var binding: FragmentDetailBinding
-    lateinit var songModel: SongModel
+    lateinit var song: Song
     lateinit var viewModel: DetailViewModel
-    lateinit var lyricsViewModel: LyricsViewModel
-    lateinit var musicViewModel: LyricsViewModel
     lateinit var favoriteViewModel: FavoriteViewModel
     var favorite: Boolean = false
 
@@ -42,46 +44,34 @@ class DetailFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val args: DetailFragmentArgs by navArgs()
-        songModel = args.musicDetail
+        song = args.musicDetail
 
         if (requireActivity() is MainActivity) {
             (activity as MainActivity?)!!.hideMusicController()
         }
-
-        //viewModel
+        //detail viewModel
+        val musicDao = MusicDatabase.getInstance(requireContext()).musicDao()
         viewModel = ViewModelProvider(
             requireActivity(),
-            BaseViewModelFactory(requireContext())
+            DetailViewModelFactory(Player.getInstance())
         ).get(DetailViewModel::class.java)
 
-        //search lyrics viewModel
-        lyricsViewModel =
-            ViewModelProvider(
-                this,
-                ViewModelProvider.AndroidViewModelFactory.getInstance(activity?.application!!)
-            ).get(LyricsViewModel::class.java)
-
-        //music viewModel
-        musicViewModel =
-            ViewModelProvider(
-                this,
-                ViewModelProvider.AndroidViewModelFactory.getInstance(activity?.application!!)
-            ).get(LyricsViewModel::class.java)
-
         //favorite ViewModel
-        favoriteViewModel =
-            ViewModelProvider(
-                this,
-                ViewModelProvider.AndroidViewModelFactory.getInstance(activity?.application!!)
-            ).get(FavoriteViewModel::class.java)
+        favoriteViewModel = ViewModelProvider(
+            requireActivity(),
+            BaseViewModelFactory(
+                Player.getInstance(),
+                MusicRepository(LocalMusic(requireContext()), musicDao)
+            )
+        ).get(FavoriteViewModel::class.java)
 
-        updateUi(songModel)
+        updateUi(song)
 
         musicController()
 
         //update ui music detail controller
-        viewModel.songModel.observe(requireActivity(), {
-            songModel = it
+        viewModel.song.observe(requireActivity(), {
+            song = it
             updateUi(it)
         })
 
@@ -103,13 +93,13 @@ class DetailFragment : Fragment() {
         })
 
         //show lyrics
-        if (songModel.isLyrics)
-            binding.txtLyrics.text = songModel.lyrics
+        if (song.isLyrics)
+            binding.txtLyrics.text = song.lyrics
         else
             binding.txtLyrics.visibility = View.GONE
 
         //favorite
-        favorite = songModel.favorite
+        favorite = song.favorite
         changeFavorite()
 
         //go back
@@ -129,11 +119,11 @@ class DetailFragment : Fragment() {
         binding.favorite.setOnClickListener {
             favorite = if (favorite) {
                 binding.favorite.setImageResource(R.drawable.ic_not_favorite)
-                favoriteViewModel.delete(songModel)
+                favoriteViewModel.delete(song)
                 false
             } else {
                 binding.favorite.setImageResource(R.drawable.ic_favorite)
-                favoriteViewModel.insert(songModel)
+                favoriteViewModel.insert(song)
                 true
             }
         }
@@ -145,7 +135,7 @@ class DetailFragment : Fragment() {
             AppCompatActivity.MODE_PRIVATE
         )
         val oldProgressSong = sharedPreferences.getInt("progress", 0)
-        updateProgress(oldProgressSong, songModel.duration)
+        updateProgress(oldProgressSong, song.duration)
     }
 
     fun updateProgress(progress: Int, duration: Int) {
@@ -179,19 +169,19 @@ class DetailFragment : Fragment() {
                 TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(duration.toLong()))
     )
 
-    fun updateUi(songModel: SongModel) {
-        binding.songTitle.text = songModel.songTitle
-        binding.artist.text = songModel.artist
-        binding.seekBar.max = songModel.duration
-        binding.txtEndTime.text = durationPointSeekBar(songModel.duration)
+    fun updateUi(song: Song) {
+        binding.songTitle.text = song.songTitle
+        binding.artist.text = song.artist
+        binding.seekBar.max = song.duration
+        binding.txtEndTime.text = durationPointSeekBar(song.duration)
         if (activity != null) {
             Glide.with(this)
-                .load(songModel.coverImage)
+                .load(song.coverImage)
                 .into(binding.imgCoverSong)
         }
 
         updateUiShuffleOrRepeat()
-        checkFavorite(songModel.favorite)
+        checkFavorite(song.favorite)
     }
 
     fun updateUiPlayOrPause(playerState: PlayerState) {
@@ -203,9 +193,9 @@ class DetailFragment : Fragment() {
     }
 
     fun updateUiShuffleOrRepeat() {
-        if (viewModel.getShuffle())
+        if (viewModel.shuffle)
             binding.shuffle.setImageResource(R.drawable.ic_shuffle_pressed)
-        if (viewModel.getRepeat())
+        if (viewModel.repeat)
             binding.repeat.setImageResource(R.drawable.ic_repeat_pressed)
     }
 
@@ -247,7 +237,7 @@ class DetailFragment : Fragment() {
         binding.btnSearchLyrics.setOnClickListener {
             findNavController().navigate(
                 DetailFragmentDirections.actionDetailFragmentToSearchLyricsFragment(
-                    viewModel.songModel.value!!
+                    viewModel.song.value!!
                 )
             )
         }

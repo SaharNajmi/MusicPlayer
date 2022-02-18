@@ -8,9 +8,12 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.musicplayer.data.model.ArtistModel
+import com.example.musicplayer.data.db.MusicDatabase
+import com.example.musicplayer.data.db.dao.entities.Artist
+import com.example.musicplayer.data.repository.LocalMusic
+import com.example.musicplayer.data.repository.MusicRepository
 import com.example.musicplayer.databinding.FragmentArtistBinding
-import com.example.musicplayer.factory.BaseViewModelFactory
+import com.example.musicplayer.factory.MainViewModelFactory
 import com.example.musicplayer.view.main.MainFragmentDirections
 
 class ArtistFragment : Fragment(), ArtistAdapter.ArtistEventListener {
@@ -29,9 +32,12 @@ class ArtistFragment : Fragment(), ArtistAdapter.ArtistEventListener {
         super.onViewCreated(view, savedInstanceState)
 
         //viewModel
+        val musicDao = MusicDatabase.getInstance(requireContext()).musicDao()
         viewModel = ViewModelProvider(
             requireActivity(),
-            BaseViewModelFactory(requireContext())
+            MainViewModelFactory(
+                MusicRepository(LocalMusic(requireContext()), musicDao)
+            )
         ).get(ArtistViewModel::class.java)
 
         //show list artist
@@ -41,12 +47,12 @@ class ArtistFragment : Fragment(), ArtistAdapter.ArtistEventListener {
     private fun showArtists() {
         binding.recyclerAtrist.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerAtrist.adapter =
-            ArtistAdapter(requireContext(), viewModel.getArtists(requireContext()), this)
+            ArtistAdapter(requireContext(), viewModel.getArtists() as ArrayList<Artist>, this)
     }
 
-    override fun onSelect(artistModel: ArtistModel) {
+    override fun onSelect(artist: Artist) {
         val directions =
-            MainFragmentDirections.actionMainFragmentToArtistDetailFragment(artistModel)
+            MainFragmentDirections.actionMainFragmentToArtistDetailFragment(artist)
         findNavController().navigate(directions)
     }
 }

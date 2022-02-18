@@ -8,7 +8,10 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.musicplayer.data.model.SongModel
+import com.example.musicplayer.data.db.MusicDatabase
+import com.example.musicplayer.data.db.dao.entities.Song
+import com.example.musicplayer.data.repository.LocalMusic
+import com.example.musicplayer.data.repository.MusicRepository
 import com.example.musicplayer.databinding.FragmentFileDetailBinding
 import com.example.musicplayer.factory.BaseViewModelFactory
 import com.example.musicplayer.player.Player
@@ -34,26 +37,31 @@ class FileDetailFragment : Fragment(), SongAdapter.SongEventListener {
         binding.folderName.text = args.fileDetail
 
         //viewModel
+        val musicDao = MusicDatabase.getInstance(requireContext()).musicDao()
         viewModel = ViewModelProvider(
             requireActivity(),
-            BaseViewModelFactory(requireContext())
+            BaseViewModelFactory(
+                Player.getInstance(),
+                MusicRepository(LocalMusic(requireContext()), musicDao)
+            )
         ).get(FileDetailViewModel::class.java)
+
+        //update list musics
+        viewModel.updateList(args.fileDetail)
 
         //show items
         initRecycler()
     }
 
     fun initRecycler() {
-        val musics = viewModel.getMusics(requireContext())
         //Get list folder items by folderName
-        val list = viewModel.getMusicsInsideFolder(args.fileDetail, musics)
-
+        val list = viewModel.getSongByFolderName(args.fileDetail)
         binding.recyclerDetailFolder.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerDetailFolder.adapter =
-            SongAdapter(requireContext(), list, this)
+            SongAdapter(requireContext(), list as ArrayList<Song>, this)
     }
 
-    override fun onSelect(songModel: SongModel, posSong: Int) {
-        Player.getInstance(requireContext()).songSelected(songModel, posSong)
+    override fun onSelect(song: Song, posSong: Int) {
+        viewModel.songSelected(song, posSong)
     }
 }

@@ -1,23 +1,18 @@
 package com.example.musicplayer.view.file
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
-import com.example.musicplayer.data.model.SongModel
+import com.example.musicplayer.data.db.dao.entities.Song
+import com.example.musicplayer.data.repository.MusicRepository
 import com.example.musicplayer.player.Player
 
-class FileDetailViewModel(val player: Player) : ViewModel() {
-    fun getMusics(context: Context) = player.getSongs(context)
+class FileDetailViewModel(val player: Player, val musicRepository: MusicRepository) : ViewModel() {
 
-    fun getMusicsInsideFolder(
-        folderName: String,
-        musics: ArrayList<SongModel>
-    ): ArrayList<SongModel> {
-        val newList = ArrayList<SongModel>()
-        musics.forEach {
-            if (folderName == it.folderName)
-                newList.add(it)
-        }
-        player.musics = newList
-        return newList
-    }
+    fun updateList(folderName: String) =
+        player.updateList(getSongByFolderName(folderName) as ArrayList<Song>)
+
+    fun getSongByFolderName(folderName: String) = musicRepository.getSongByFolderName(folderName)
+
+    fun getMusics() = musicRepository.getMusics()
+
+    fun songSelected(song: Song, posSong: Int) = player.songSelected(song, posSong)
 }

@@ -7,7 +7,10 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.musicplayer.data.model.SongModel
+import com.example.musicplayer.data.db.MusicDatabase
+import com.example.musicplayer.data.db.dao.entities.Song
+import com.example.musicplayer.data.repository.LocalMusic
+import com.example.musicplayer.data.repository.MusicRepository
 import com.example.musicplayer.databinding.FragmentHomeBinding
 import com.example.musicplayer.factory.BaseViewModelFactory
 import com.example.musicplayer.player.Player
@@ -27,11 +30,14 @@ class HomeFragment : Fragment(), SongAdapter.SongEventListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         //viewModel
+        val musicDao = MusicDatabase.getInstance(requireContext()).musicDao()
         viewModel = ViewModelProvider(
             requireActivity(),
-            BaseViewModelFactory(requireContext())
+            BaseViewModelFactory(
+                Player.getInstance(),
+                MusicRepository(LocalMusic(requireContext()), musicDao)
+            )
         ).get(HomeViewModel::class.java)
     }
 
@@ -39,16 +45,21 @@ class HomeFragment : Fragment(), SongAdapter.SongEventListener {
         super.onResume()
         //show list musics
         showMusics()
+
+        //update list musics
+        viewModel.updateList()
     }
 
     fun showMusics() {
-        val musics = viewModel.getMusics(requireContext())
+        val musics = viewModel.getMusics()
         binding.recyclerMusics.layoutManager = LinearLayoutManager(requireContext())
-        binding.recyclerMusics.adapter = SongAdapter(requireContext(), musics, this)
+        binding.recyclerMusics.adapter = SongAdapter(
+            requireContext(),
+            musics as ArrayList<Song>, this
+        )
     }
 
-    override fun onSelect(songModel: SongModel, posSong: Int) {
-        viewModel.getMusics(requireContext())
-        Player.getInstance(requireContext()).songSelected(songModel, posSong)
+    override fun onSelect(song: Song, posSong: Int) {
+        viewModel.songSelected(song, posSong)
     }
 }

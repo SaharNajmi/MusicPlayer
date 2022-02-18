@@ -15,9 +15,13 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import com.bumptech.glide.Glide
 import com.example.musicplayer.R
-import com.example.musicplayer.data.model.SongModel
+import com.example.musicplayer.data.db.MusicDatabase
+import com.example.musicplayer.data.db.dao.entities.Song
+import com.example.musicplayer.data.repository.LocalMusic
+import com.example.musicplayer.data.repository.MusicRepository
 import com.example.musicplayer.databinding.ActivityMainBinding
 import com.example.musicplayer.factory.BaseViewModelFactory
+import com.example.musicplayer.player.Player
 import com.example.musicplayer.service.ForegroundService
 import com.example.musicplayer.service.NotificationReceiver
 import com.example.musicplayer.utils.ActionPlaying
@@ -34,10 +38,8 @@ import com.example.musicplayer.view.file.FileDetailFragmentDirections
 import com.example.musicplayer.view.search.SearchMusicFragment
 import com.example.musicplayer.view.search.SearchMusicFragmentDirections
 
-
 class MainActivity : AppCompatActivity(), ServiceConnection, ActionPlaying {
     lateinit var binding: ActivityMainBinding
-    var duration = 0
     lateinit var viewModel: MainViewModel
     lateinit var editor: SharedPreferences.Editor
     lateinit var sharedPreferences: SharedPreferences
@@ -60,10 +62,19 @@ class MainActivity : AppCompatActivity(), ServiceConnection, ActionPlaying {
         bindService(intent, this, BIND_AUTO_CREATE)
 
         //main viewModel
+        val musicDao = MusicDatabase.getInstance(this).musicDao()
         viewModel = ViewModelProvider(
             this,
-            BaseViewModelFactory(this)
+            BaseViewModelFactory(
+                Player.getInstance(),
+                MusicRepository(LocalMusic(this), musicDao)
+            )
         ).get(MainViewModel::class.java)
+
+        //insert database
+        viewModel.insertMusics()
+        viewModel.insertAlbums()
+        viewModel.insertArtists()
 
         //save old data with sharedPreferences
         shaowSaveState()
@@ -71,7 +82,7 @@ class MainActivity : AppCompatActivity(), ServiceConnection, ActionPlaying {
         musicController()
 
         //update ui music controller
-        viewModel.songModel.observe(this, {
+        viewModel.song.observe(this, {
             updateUi(it)
             showNotification(it, R.drawable.ic_pause)
         })
@@ -89,36 +100,36 @@ class MainActivity : AppCompatActivity(), ServiceConnection, ActionPlaying {
                 when (frg) {
                     //home
                     is MainFragment -> mNavController.navigate(
-                        MainFragmentDirections.actionMainFragmentToDetailFragment(viewModel.songModel.value!!)
+                        MainFragmentDirections.actionMainFragmentToDetailFragment(viewModel.song.value!!)
                     )
                     //album
                     is AlbumDetailFragment -> mNavController.navigate(
                         AlbumDetailFragmentDirections.actionAlbumDetailsFragmentToDetailFragment(
-                            viewModel.songModel.value!!
+                            viewModel.song.value!!
                         )
                     )
                     //artist
                     is ArtistDetailFragment -> mNavController.navigate(
                         ArtistDetailFragmentDirections.actionArtistDetailFragmentToDetailFragment(
-                            viewModel.songModel.value!!
+                            viewModel.song.value!!
                         )
                     )
                     //folder
                     is FileDetailFragment -> mNavController.navigate(
                         FileDetailFragmentDirections.actionFileDetailFragmentToDetailFragment(
-                            viewModel.songModel.value!!
+                            viewModel.song.value!!
                         )
                     )
                     //search
                     is SearchMusicFragment -> mNavController.navigate(
                         SearchMusicFragmentDirections.actionSearchMusicFragmentToDetailFragment(
-                            viewModel.songModel.value!!
+                            viewModel.song.value!!
                         )
                     )
                     //favorite
                     is FavoriteFragment -> mNavController.navigate(
                         FavoriteFragmentDirections.actionFavoriteFragmentToDetailFragment(
-                            viewModel.songModel.value!!
+                            viewModel.song.value!!
                         )
                     )
                 }
@@ -139,7 +150,7 @@ class MainActivity : AppCompatActivity(), ServiceConnection, ActionPlaying {
             oldPositionSong = 0
 
         //update ui music controller
-        val musics = viewModel.getMusics(this)
+        val musics = viewModel.musics()
         if (musics.size != 0 && oldPositionSong != 0)
             updateUi(musics[oldPositionSong])
 
@@ -150,7 +161,7 @@ class MainActivity : AppCompatActivity(), ServiceConnection, ActionPlaying {
         updateProgress(oldProgressSong, oldDurationSong)
 
         //Change default values in Player
-        viewModel.changeSongModel(musics[oldPositionSong])
+        viewModel.changeSong(musics[oldPositionSong])
         viewModel.changeSongPosition(oldPositionSong)
     }
 
@@ -158,16 +169,17 @@ class MainActivity : AppCompatActivity(), ServiceConnection, ActionPlaying {
         super.onPause()
         //save values
         editor.apply {
-            putInt("position", viewModel.getSongPosition())
-            putInt("progress", viewModel.getValueProgress()!!)
-            putInt("duration", viewModel.getDuration())
+            putInt("position", viewModel.songPosition)
+            putInt("progress", viewModel.progress.value!!)
+            putInt("duration", viewModel.duration)
             commit()
+
         }
     }
 
     fun updateProgress(progress: Int) {
         //set progress to seekbar
-        binding.playMusicLayout.seekBar.max = viewModel.getNewSongDuration()
+        binding.playMusicLayout.seekBar.max = viewModel.duration
         binding.playMusicLayout.seekBar.progress = progress
     }
 
@@ -176,7 +188,7 @@ class MainActivity : AppCompatActivity(), ServiceConnection, ActionPlaying {
         binding.playMusicLayout.seekBar.progress = progress
     }
 
-    fun updateUi(song: SongModel) {
+    fun updateUi(song: Song) {
         Glide.with(this)
             .load(song.coverImage)
             .into(binding.playMusicLayout.coverImage)
@@ -187,10 +199,10 @@ class MainActivity : AppCompatActivity(), ServiceConnection, ActionPlaying {
 
     fun updateUiPlayOrPause(playerState: PlayerState) {
         if (playerState == PlayerState.PAUSED) {
-            showNotification(viewModel.songModel.value!!, R.drawable.ic_play)
+            showNotification(viewModel.song.value!!, R.drawable.ic_play)
             binding.playMusicLayout.btnPlayPause.setImageResource(R.drawable.ic_play)
         } else if (playerState == PlayerState.PLAYING) {
-            showNotification(viewModel.songModel.value!!, R.drawable.ic_pause)
+            showNotification(viewModel.song.value!!, R.drawable.ic_pause)
             binding.playMusicLayout.btnPlayPause.setImageResource(R.drawable.ic_pause)
         }
     }
@@ -230,7 +242,7 @@ class MainActivity : AppCompatActivity(), ServiceConnection, ActionPlaying {
         musicService = null
     }
 
-    private fun showNotification(song: SongModel, playPause: Int) {
+    private fun showNotification(song: Song, playPause: Int) {
         val notificationIntent = Intent(this, MainActivity::class.java)
         notificationIntent.flags = (Intent.FLAG_ACTIVITY_NEW_TASK
                 or Intent.FLAG_ACTIVITY_CLEAR_TASK)

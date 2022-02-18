@@ -5,23 +5,22 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.example.musicplayer.data.model.SongModel
+import com.example.musicplayer.data.db.dao.entities.Song
 import com.example.musicplayer.databinding.MusicItemLayoutBinding
-
 
 class SongAdapter(
     val context: Context,
-    var list: ArrayList<SongModel>,
+    var list: ArrayList<Song>,
     val eventListener: SongEventListener
 ) :
     RecyclerView.Adapter<SongAdapter.Holder>() {
 
     inner class Holder(val view: MusicItemLayoutBinding) : RecyclerView.ViewHolder(view.root) {
-        fun bind(songModel: SongModel) {
-            view.artist.text = songModel.artist
-            view.songTitle.text = songModel.songTitle
+        fun bind(song: Song) {
+            view.artist.text = song.artist
+            view.songTitle.text = song.songTitle
             Glide.with(context)
-                .load(songModel.coverImage)
+                .load(song.coverImage)
                 .into(view.coverImage)
         }
     }
@@ -54,13 +53,13 @@ class SongAdapter(
 
     override fun getItemCount(): Int = list.size
 
-    fun updateList(songs: ArrayList<SongModel>) {
+    fun updateList(songs: ArrayList<Song>) {
         list = songs
         notifyDataSetChanged()
     }
 
     interface SongEventListener {
-        fun onSelect(songModel: SongModel, posSong: Int)
+        fun onSelect(song: Song, posSong: Int)
     }
 }
 

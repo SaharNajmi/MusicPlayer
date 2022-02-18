@@ -8,8 +8,11 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.musicplayer.data.db.MusicDatabase
+import com.example.musicplayer.data.repository.LocalMusic
+import com.example.musicplayer.data.repository.MusicRepository
 import com.example.musicplayer.databinding.FragmentFileBinding
-import com.example.musicplayer.factory.BaseViewModelFactory
+import com.example.musicplayer.factory.MainViewModelFactory
 import com.example.musicplayer.view.main.MainFragmentDirections
 
 class FileFragment : Fragment(), FileAdapter.FileEventListener {
@@ -28,9 +31,12 @@ class FileFragment : Fragment(), FileAdapter.FileEventListener {
         super.onViewCreated(view, savedInstanceState)
 
         //viewModel
+        val musicDao = MusicDatabase.getInstance(requireContext()).musicDao()
         viewModel = ViewModelProvider(
             requireActivity(),
-            BaseViewModelFactory(requireContext())
+            MainViewModelFactory(
+                MusicRepository(LocalMusic(requireContext()), musicDao)
+            )
         ).get(FileViewModel::class.java)
 
         //show list folders
@@ -39,7 +45,7 @@ class FileFragment : Fragment(), FileAdapter.FileEventListener {
 
     private fun showFolders() {
         binding.recyclerFile.layoutManager = LinearLayoutManager(requireContext())
-        binding.recyclerFile.adapter = FileAdapter(viewModel.getFiles(requireContext()), this)
+        binding.recyclerFile.adapter = FileAdapter(viewModel.getFileNames(), this)
     }
 
     override fun onFileItemClick(fileName: String) {

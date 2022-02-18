@@ -6,24 +6,19 @@ import android.content.ContentUris
 import android.content.Context
 import android.net.Uri
 import android.provider.MediaStore
-import com.example.musicplayer.data.model.AlbumModel
-import com.example.musicplayer.data.model.ArtistModel
-import com.example.musicplayer.data.model.SongModel
+import com.example.musicplayer.data.db.dao.entities.Album
+import com.example.musicplayer.data.db.dao.entities.Artist
+import com.example.musicplayer.data.db.dao.entities.Song
 import java.io.File
 
-class LocalMusic {
-    val albums = ArrayList<AlbumModel>()
-    val folderNames = ArrayList<String>()
-    val albumIDs = ArrayList<Long>()
-    val artists = ArrayList<ArtistModel>()
-    val artistIDs = ArrayList<Long>()
+class LocalMusic(context: Context) {
+    var musicResolver: ContentResolver = context.contentResolver
+    val musicUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+    val musicCursor = musicResolver.query(musicUri, null, null, null, null)
 
     @SuppressLint("Recycle", "InlinedApi")
-    fun readExternalData(context: Context): ArrayList<SongModel> {
-        val musics = ArrayList<SongModel>()
-        var musicResolver: ContentResolver = context.contentResolver
-        val musicUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
-        val musicCursor = musicResolver.query(musicUri, null, null, null, null)
+    fun musics(): ArrayList<Song> {
+        val musics = ArrayList<Song>()
         if (musicCursor != null && musicCursor.moveToFirst()) {
             val songId = musicCursor.getColumnIndex(MediaStore.Audio.Media._ID)
             val songArtist = musicCursor.getColumnIndex(MediaStore.Audio.Media.ARTIST)
@@ -44,7 +39,7 @@ class LocalMusic {
 
                 //add music into array song
                 musics.add(
-                    SongModel(
+                    Song(
                         musicCursor.getLong(songId),
                         musicCursor.getString(songArtist),
                         musicCursor.getLong(albumId),
@@ -62,75 +57,51 @@ class LocalMusic {
         return musics
     }
 
-    fun getFolderNames(list: ArrayList<SongModel>): List<String> {
-        list.forEach {
-            folderNames.add(it.folderName)
-        }
-        return folderNames.distinct()
-    }
+    fun artists(): ArrayList<Artist> {
+        val artists = ArrayList<Artist>()
+        if (musicCursor != null && musicCursor.moveToFirst()) {
+            val artist = musicCursor.getColumnIndex(MediaStore.Audio.Media.ARTIST)
+            val artistId = musicCursor.getColumnIndex(MediaStore.Audio.Media.ARTIST_ID)
 
-    fun getAlbumIDs(list: ArrayList<SongModel>): List<Long> {
-        list.forEach {
-            albumIDs.add(it.albumID)
-        }
-        return albumIDs.distinct()
-    }
+            while (musicCursor.moveToNext()) {
 
-    fun getArtistIDs(list: ArrayList<SongModel>): List<Long> {
-        list.forEach {
-            artistIDs.add(it.artistID)
-        }
-        return artistIDs.distinct()
-    }
-
-    fun getAlbums(
-        musics: ArrayList<SongModel>,
-        albumIDs: List<Long>
-    ): ArrayList<AlbumModel> {
-        var j = 0
-        var k = 0
-        while (albumIDs.size > j) {
-            while (musics.size > k) {
-                if (musics[k].albumID == albumIDs[j]) {
-                    albums.add(
-                        AlbumModel(
-                            musics[k].albumID,
-                            musics[k].songTitle,
-                            musics[k].artist,
-                            musics[k].coverImage,
-                        )
+                //add artists into array artist
+                artists.add(
+                    Artist(
+                        musicCursor.getLong(artistId),
+                        musicCursor.getString(artist),
                     )
+                )
 
-                    break
-                }
-                k++
             }
-            j++
-        }
-        return albums
-    }
-
-    fun getArtists(
-        music: ArrayList<SongModel>,
-        artistIDs: List<Long>
-    ): ArrayList<ArtistModel> {
-        var j = 0
-        var k = 0
-        while (artistIDs.size > j) {
-            while (music.size > k) {
-                if (music[k].artistID == artistIDs[j]) {
-                    artists.add(
-                        ArtistModel(
-                            music[k].artistID,
-                            music[k].artist
-                        )
-                    )
-                    break
-                }
-                k++
-            }
-            j++
         }
         return artists
+    }
+
+    fun albums(): ArrayList<Album> {
+        val albums = ArrayList<Album>()
+        if (musicCursor != null && musicCursor.moveToFirst()) {
+            val artist = musicCursor.getColumnIndex(MediaStore.Audio.Media.ARTIST)
+            val albumName = musicCursor.getColumnIndex(MediaStore.Audio.Media.TITLE)
+            val albumId = musicCursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID)
+
+            while (musicCursor.moveToNext()) {
+                //get cover image song
+                val image_uri = Uri.parse("content://media/external/audio/albumart")
+                val album_uri =
+                    ContentUris.withAppendedId(image_uri, musicCursor.getLong(albumId))
+
+                //add albums into array album
+                albums.add(
+                    Album(
+                        musicCursor.getLong(albumId),
+                        musicCursor.getString(albumName),
+                        musicCursor.getString(artist),
+                        album_uri.toString()
+                    )
+                )
+            }
+        }
+        return albums
     }
 }

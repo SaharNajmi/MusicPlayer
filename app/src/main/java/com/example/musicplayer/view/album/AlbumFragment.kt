@@ -1,6 +1,7 @@
 package com.example.musicplayer.view.album
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,9 +10,12 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.musicplayer.data.model.AlbumModel
+import com.example.musicplayer.data.db.MusicDatabase
+import com.example.musicplayer.data.db.dao.entities.Album
+import com.example.musicplayer.data.repository.LocalMusic
+import com.example.musicplayer.data.repository.MusicRepository
 import com.example.musicplayer.databinding.FragmentAlbumBinding
-import com.example.musicplayer.factory.BaseViewModelFactory
+import com.example.musicplayer.factory.MainViewModelFactory
 import com.example.musicplayer.view.main.MainFragmentDirections
 
 class AlbumFragment : Fragment(), AlbumAdapter.AlbumEventListener {
@@ -31,11 +35,15 @@ class AlbumFragment : Fragment(), AlbumAdapter.AlbumEventListener {
         super.onViewCreated(view, savedInstanceState)
 
         //viewModel
+        val musicDao = MusicDatabase.getInstance(requireContext()).musicDao()
         viewModel = ViewModelProvider(
             requireActivity(),
-            BaseViewModelFactory(requireContext())
+            MainViewModelFactory(
+                MusicRepository(LocalMusic(requireContext()), musicDao)
+            )
         ).get(AlbumViewModel::class.java)
 
+        Log.e("DDDDD", viewModel.getAlbums().toString())
         //show list album
         showAlbums()
     }
@@ -44,11 +52,11 @@ class AlbumFragment : Fragment(), AlbumAdapter.AlbumEventListener {
         binding.recyclerAlbum.layoutManager =
             GridLayoutManager(requireContext(), 2, RecyclerView.VERTICAL, false)
         binding.recyclerAlbum.adapter =
-            AlbumAdapter(requireContext(), viewModel.getAlbums(requireContext()), this)
+            AlbumAdapter(requireContext(), viewModel.getAlbums() as ArrayList<Album>, this)
     }
 
-    override fun onSelect(albumModel: AlbumModel) {
-        val directions = MainFragmentDirections.actionMainFragmentToAlbumDetailsFragment(albumModel)
+    override fun onSelect(album: Album) {
+        val directions = MainFragmentDirections.actionMainFragmentToAlbumDetailsFragment(album)
         findNavController().navigate(directions)
     }
 

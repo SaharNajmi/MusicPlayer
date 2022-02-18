@@ -3,18 +3,18 @@ package com.example.musicplayer.view.album
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.example.musicplayer.data.model.SongModel
+import com.example.musicplayer.data.db.dao.entities.Song
 import com.example.musicplayer.databinding.AlbumDetailsItemBinding
 import com.example.musicplayer.view.all.SongAdapter
 
 class AlbumDetailAdapter(
-    val list: ArrayList<SongModel>,
+    val list: ArrayList<Song>,
     val songEventListener: SongAdapter.SongEventListener
 ) : RecyclerView.Adapter<AlbumDetailAdapter.Holder>() {
     class Holder(val view: AlbumDetailsItemBinding) : RecyclerView.ViewHolder(view.root) {
-        fun bind(songModel: SongModel) {
-            view.artist.text = songModel.artist
-            view.songTitle.text = songModel.songTitle
+        fun bind(song: Song) {
+            view.artist.text = song.artist
+            view.songTitle.text = song.songTitle
         }
     }
 

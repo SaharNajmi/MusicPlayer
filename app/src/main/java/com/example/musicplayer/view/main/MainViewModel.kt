@@ -1,38 +1,41 @@
 package com.example.musicplayer.view.main
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
-import com.example.musicplayer.data.model.SongModel
+import com.example.musicplayer.data.db.dao.entities.Song
+import com.example.musicplayer.data.repository.MusicRepository
 import com.example.musicplayer.player.Player
 
-class MainViewModel(val player: Player) : ViewModel() {
-    var songModel = player.songModel
+class MainViewModel(val player: Player, val musicRepository: MusicRepository) : ViewModel() {
+    var song = player.song
     var playerState = player.playerState
-    var progress = player.progress
+    val progress
+        get() = player.progress
+
+    val songPosition
+        get() = player.songPosition
+
+    val duration
+        get() = player.duration
 
     fun changeSongPosition(position: Int) {
         player.songPosition = position
     }
 
-    fun changeSongModel(songModel: SongModel) {
-        player.songModel.value = songModel
+    fun changeSong(song: Song) {
+        player.song.value = song
     }
 
-    fun getSongPosition() = player.songPosition
+    fun insertMusics() = musicRepository.insertSongs()
 
-    fun getValueProgress() = player.progress.value
+    fun insertAlbums() = musicRepository.insertAlbums()
 
-    fun getDuration() = player.duration
+    fun insertArtists() = musicRepository.insertArtists()
 
-    fun getMusics(context: Context) = player.getSongs(context)
-
-    fun getNewSongDuration() = player.duration
+    fun musics() = musicRepository.getMusics()
 
     fun toggleState() = player.toggleState()
 
-    fun pauseSong() {
-        player.pauseSong()
-    }
+    fun pauseSong() = player.pauseSong()
 
     fun nextSong() = player.nextSong()
 

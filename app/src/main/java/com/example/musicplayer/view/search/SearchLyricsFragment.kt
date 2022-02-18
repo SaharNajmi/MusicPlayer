@@ -8,13 +8,17 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import com.example.musicplayer.data.model.SongModel
+import com.example.musicplayer.data.db.MusicDatabase
+import com.example.musicplayer.data.db.dao.entities.Song
+import com.example.musicplayer.data.repository.LocalMusic
+import com.example.musicplayer.data.repository.MusicRepository
 import com.example.musicplayer.databinding.FragmentLyricsSearchBinding
+import com.example.musicplayer.factory.MainViewModelFactory
 import com.example.musicplayer.view.main.MainActivity
 
 class SearchLyricsFragment : Fragment() {
     lateinit var binding: FragmentLyricsSearchBinding
-    lateinit var songModel: SongModel
+    lateinit var song: Song
     lateinit var lyricsViewModel: LyricsViewModel
 
     override fun onCreateView(
@@ -29,29 +33,32 @@ class SearchLyricsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val args: SearchLyricsFragmentArgs by navArgs()
-        songModel = args.lyricsDetail
+        song = args.lyricsDetail
         // hide music controller
         if (requireActivity() is MainActivity) {
             (activity as MainActivity?)!!.hideMusicController()
         }
 
         //search lyrics viewModel
+        val musicDao = MusicDatabase.getInstance(requireContext()).musicDao()
         lyricsViewModel =
             ViewModelProvider(
                 this,
-                ViewModelProvider.AndroidViewModelFactory.getInstance(activity?.application!!)
+                MainViewModelFactory(
+                    MusicRepository(LocalMusic(requireContext()), musicDao)
+                )
             ).get(LyricsViewModel::class.java)
 
         //set data
-        binding.edtSong.setText(songModel.artist)
-        binding.edtTitle.setText(songModel.songTitle)
+        binding.edtSong.setText(song.artist)
+        binding.edtTitle.setText(song.songTitle)
 
 
         //show lyrics in textView
         lyricsViewModel.lyrics.observe(requireActivity(), {
             if (it.lyrics != null) {
                 binding.txtLyrics.text = it.lyrics
-                songModel.lyrics = it.lyrics.toString()
+                song.lyrics = it.lyrics.toString()
             } else
                 binding.txtLyrics.text = it.error
         })
@@ -81,11 +88,11 @@ class SearchLyricsFragment : Fragment() {
 
         //apply lyrics
         binding.btnApply.setOnClickListener {
-            //insert lyrics
-            lyricsViewModel.insert(songModel)
+            //update lyrics
+            lyricsViewModel.update(song)
             findNavController().navigate(
                 SearchLyricsFragmentDirections.actionSearchLyricsFragmentToDetailFragment(
-                    songModel
+                    song
                 )
             )
         }

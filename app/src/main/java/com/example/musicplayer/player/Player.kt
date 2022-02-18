@@ -1,29 +1,30 @@
 package com.example.musicplayer.player
 
-import android.content.Context
 import android.media.AudioManager
 import android.media.MediaPlayer
 import android.os.Handler
 import android.os.Looper
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.example.musicplayer.data.model.SongModel
-import com.example.musicplayer.data.repository.LocalMusic
-import com.example.musicplayer.data.repository.LocalMusicRepository
+import com.example.musicplayer.data.db.dao.entities.Song
 import com.example.musicplayer.utils.PlayerState
 import java.io.IOException
 import kotlin.random.Random
 
 class Player private constructor(
-    val mediaPlayer: MediaPlayer,
-    val musicRepository: LocalMusicRepository
+    val mediaPlayer: MediaPlayer
 ) :
     MediaPlayer.OnPreparedListener,
     MediaPlayer.OnErrorListener,
     MediaPlayer.OnCompletionListener {
-    var playerState = MutableLiveData<PlayerState>()
-    var songModel = MutableLiveData<SongModel>()
-    var progress = MutableLiveData<Int>()
-    var musics = ArrayList<SongModel>()
+    private val _playerState = MutableLiveData<PlayerState>()
+    val playerState: LiveData<PlayerState> = _playerState
+    val song = MutableLiveData<Song>()
+    private val _progress = MutableLiveData<Int>()
+    val progress: LiveData<Int> = _progress
+    private var musics = ArrayList<Song>()
+
+    //  var musics: ArrayList<Song> = musicDao.getMusics() as ArrayList<Song>
     var isShuffle = false
         set(value) {
             if (value)
@@ -37,24 +38,28 @@ class Player private constructor(
             field = value
         }
     var duration = 0
+        private set
     var songPosition = 0
 
     init {
         // progress.value = 0
-        playerState.value = PlayerState.PAUSED
+        _playerState.value = PlayerState.PAUSED
         initMusicPlayer()
     }
 
     companion object {
         var INSTANCE: Player? = null
-        fun getInstance(context: Context): Player {
+        fun getInstance(): Player {
             if (INSTANCE == null)
                 INSTANCE = Player(
-                    MediaPlayer(),
-                    LocalMusicRepository(LocalMusic(), context)
+                    MediaPlayer()
                 )
             return INSTANCE!!
         }
+    }
+
+    fun updateList(songs: ArrayList<Song>) {
+        musics = songs
     }
 
     fun initMusicPlayer() {
@@ -64,16 +69,11 @@ class Player private constructor(
         mediaPlayer.setOnCompletionListener(this)
     }
 
-    fun getSongs(context: Context): ArrayList<SongModel> {
-        musics = musicRepository.getMusics(context)
-        return musics
-    }
-
-    fun songSelected(song: SongModel, posSong: Int) {
-        songModel.value = song
+    fun songSelected(song: Song, posSong: Int) {
+        this.song.value = song
         songPosition = posSong
         playSong()
-        playerState.value = PlayerState.PLAYING
+        _playerState.value = PlayerState.PLAYING
     }
 
     fun toggleState() {
@@ -86,7 +86,7 @@ class Player private constructor(
     fun progressRunner(): Runnable {
         val progressRunner: Runnable = object : Runnable {
             override fun run() {
-                progress.value = mediaPlayer.currentPosition
+                _progress.value = mediaPlayer.currentPosition
                 //run again after 1 second
                 // if (mediaPlayer.isPlaying)
                 if (playerState.value == PlayerState.PLAYING)
@@ -104,7 +104,7 @@ class Player private constructor(
         initMusicPlayer()
         mediaPlayer.reset()
 
-        playerState.value = PlayerState.PLAYING
+        _playerState.value = PlayerState.PLAYING
 
         try {
             mediaPlayer.setDataSource(musics[songPosition].path)
@@ -120,12 +120,12 @@ class Player private constructor(
 
 
     fun pauseSong() {
-        playerState.value = PlayerState.PAUSED
+        _playerState.value = PlayerState.PAUSED
         mediaPlayer.pause()
     }
 
     fun resumeSong() {
-        playerState.value = PlayerState.PLAYING
+        _playerState.value = PlayerState.PLAYING
         mediaPlayer.start()
 
         //Run Progressbar seekBar
@@ -139,7 +139,7 @@ class Player private constructor(
             songPosition++
             if (songPosition >= musics.size) songPosition = 0
             playSong()
-            songModel.value = musics[songPosition]
+            song.value = musics[songPosition]
         }
     }
 
@@ -150,12 +150,12 @@ class Player private constructor(
             songPosition--
             if (songPosition < 0) songPosition = musics.size - 1
             playSong()
-            songModel.value = musics[songPosition]
+            song.value = musics[songPosition]
         }
     }
 
     fun repeatSong() {
-        songModel.value = musics[songPosition]
+        song.value = musics[songPosition]
         playSong()
     }
 
@@ -166,7 +166,7 @@ class Player private constructor(
                 newSong = Random.nextInt(musics.size - 1)
             songPosition = newSong
         }
-        songModel.value = musics[songPosition]
+        song.value = musics[songPosition]
         playSong()
     }
 

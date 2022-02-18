@@ -9,7 +9,10 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.musicplayer.data.model.SongModel
+import com.example.musicplayer.data.db.MusicDatabase
+import com.example.musicplayer.data.db.dao.entities.Song
+import com.example.musicplayer.data.repository.LocalMusic
+import com.example.musicplayer.data.repository.MusicRepository
 import com.example.musicplayer.databinding.FragmentSearchMusicBinding
 import com.example.musicplayer.factory.BaseViewModelFactory
 import com.example.musicplayer.player.Player
@@ -34,9 +37,13 @@ SearchMusicFragment : Fragment(), SongAdapter.SongEventListener {
         super.onViewCreated(view, savedInstanceState)
 
         //viewModel
+        val musicDao = MusicDatabase.getInstance(requireContext()).musicDao()
         viewModel = ViewModelProvider(
             requireActivity(),
-            BaseViewModelFactory(requireContext())
+            BaseViewModelFactory(
+                Player.getInstance(),
+                MusicRepository(LocalMusic(requireContext()), musicDao)
+            )
         ).get(SearchMusicViewModel::class.java)
 
         //show all song
@@ -50,8 +57,8 @@ SearchMusicFragment : Fragment(), SongAdapter.SongEventListener {
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
             }
 
-            override fun afterTextChanged(p0: Editable?) {
-                viewModel.searchSong(p0.toString(), requireContext(), adapter)
+            override fun afterTextChanged(text: Editable?) {
+                viewModel.searchSong(text.toString(), adapter)
             }
         })
 
@@ -62,12 +69,12 @@ SearchMusicFragment : Fragment(), SongAdapter.SongEventListener {
     }
 
     fun showMusics() {
-        adapter = SongAdapter(requireContext(), viewModel.getMusics(requireContext()), this)
+        adapter = SongAdapter(requireContext(), arrayListOf(), this)
         binding.recyclerShowItemSearch.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerShowItemSearch.adapter = adapter
     }
 
-    override fun onSelect(songModel: SongModel, posSong: Int) {
-        Player.getInstance(requireContext()).songSelected(songModel, posSong)
+    override fun onSelect(song: Song, posSong: Int) {
+        viewModel.songSelected(song, posSong)
     }
 }

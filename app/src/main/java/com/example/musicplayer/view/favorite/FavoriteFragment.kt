@@ -7,8 +7,12 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.musicplayer.data.model.SongModel
+import com.example.musicplayer.data.db.MusicDatabase
+import com.example.musicplayer.data.db.dao.entities.Song
+import com.example.musicplayer.data.repository.LocalMusic
+import com.example.musicplayer.data.repository.MusicRepository
 import com.example.musicplayer.databinding.FragmentFavoriteBinding
+import com.example.musicplayer.factory.BaseViewModelFactory
 import com.example.musicplayer.player.Player
 import com.example.musicplayer.view.all.SongAdapter
 
@@ -28,11 +32,17 @@ class FavoriteFragment : Fragment(), SongAdapter.SongEventListener {
         super.onViewCreated(view, savedInstanceState)
 
         //favorite ViewModel
-        favoriteViewModel =
-            ViewModelProvider(
-                this,
-                ViewModelProvider.AndroidViewModelFactory.getInstance(activity?.application!!)
-            ).get(FavoriteViewModel::class.java)
+        val musicDao = MusicDatabase.getInstance(requireContext()).musicDao()
+        favoriteViewModel = ViewModelProvider(
+            requireActivity(),
+            BaseViewModelFactory(
+                Player.getInstance(),
+                MusicRepository(LocalMusic(requireContext()), musicDao)
+            )
+        ).get(FavoriteViewModel::class.java)
+
+        //update list musics
+        favoriteViewModel.updateList()
 
         //show list favorite
         initRecycler()
@@ -47,11 +57,11 @@ class FavoriteFragment : Fragment(), SongAdapter.SongEventListener {
         binding.recyclerFavorite.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerFavorite.adapter = SongAdapter(
             requireContext(),
-            favoriteViewModel.getAll(), this
+            favoriteViewModel.getFavorites() as ArrayList<Song>, this
         )
     }
 
-    override fun onSelect(songModel: SongModel, posSong: Int) {
-        Player.getInstance(requireContext()).songSelected(songModel, posSong)
+    override fun onSelect(song: Song, posSong: Int) {
+        favoriteViewModel.songSelected(song, posSong)
     }
 }

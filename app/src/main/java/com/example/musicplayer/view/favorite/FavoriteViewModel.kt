@@ -1,31 +1,26 @@
 package com.example.musicplayer.view.favorite
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
-import com.example.musicplayer.data.db.FavoriteDatabase
-import com.example.musicplayer.data.model.SongModel
+import androidx.lifecycle.ViewModel
+import com.example.musicplayer.data.db.dao.entities.Song
+import com.example.musicplayer.data.repository.MusicRepository
 import com.example.musicplayer.player.Player
 
+class FavoriteViewModel(val player: Player, private val musicRepository: MusicRepository) :
+    ViewModel() {
 
-class FavoriteViewModel(app: Application) : AndroidViewModel(app) {
-    var repository: FavoriteRepository
+    fun updateList() = player.updateList(getFavorites() as ArrayList<Song>)
 
-    init {
-        val musicDao = FavoriteDatabase.getInstance(getApplication()).favoriteDao()
-        val player: Player = Player.getInstance(app)
-        repository = FavoriteRepository(musicDao)
-        player.musics = getAll()
+    fun getFavorites(): List<Song> = musicRepository.getFavorites()
+
+    fun songSelected(song: Song, posSong: Int) = player.songSelected(song, posSong)
+
+    fun insert(song: Song) {
+        song.favorite = true
+        musicRepository.update(song)
     }
 
-    fun getAll(): ArrayList<SongModel> = repository.getAll() as ArrayList<SongModel>
-
-    fun insert(songModel: SongModel) {
-        songModel.favorite = true
-        repository.insert(songModel)
-    }
-
-    fun delete(songModel: SongModel) {
-        songModel.favorite = false
-        repository.delete(songModel)
+    fun delete(song: Song) {
+        song.favorite = false
+        musicRepository.update(song)
     }
 }

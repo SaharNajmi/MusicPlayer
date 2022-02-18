@@ -1,25 +1,18 @@
 package com.example.musicplayer.view.search
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import com.example.musicplayer.data.api.APiService
-import com.example.musicplayer.data.db.LyricsDatabase
+import com.example.musicplayer.data.db.dao.entities.Song
 import com.example.musicplayer.data.model.Lyric
-import com.example.musicplayer.data.model.SongModel
+import com.example.musicplayer.data.repository.MusicRepository
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class LyricsViewModel(application: Application) : AndroidViewModel(application) {
+class LyricsViewModel(val musicRepository: MusicRepository) : ViewModel() {
     val lyrics = MutableLiveData<Lyric>()
     val findLyrics = MutableLiveData(false)
-    var repository: LyricsRepository
-
-    init {
-        val musicDao = LyricsDatabase.getInstance(getApplication()).lyricsDao()
-        repository = LyricsRepository(musicDao)
-    }
 
     fun searchLyrics(artist: String, title: String) {
         APiService.api.search(artist, title).enqueue(object : Callback<Lyric> {
@@ -43,9 +36,9 @@ class LyricsViewModel(application: Application) : AndroidViewModel(application) 
         })
     }
 
-    fun insert(songModel: SongModel) {
-        songModel.isLyrics = true
-        repository.insert(songModel)
+    fun update(song: Song) {
+        song.isLyrics = true
+        musicRepository.update(song)
     }
 
 }

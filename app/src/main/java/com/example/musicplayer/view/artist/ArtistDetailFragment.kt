@@ -8,8 +8,11 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.musicplayer.data.model.ArtistModel
-import com.example.musicplayer.data.model.SongModel
+import com.example.musicplayer.data.db.MusicDatabase
+import com.example.musicplayer.data.db.dao.entities.Artist
+import com.example.musicplayer.data.db.dao.entities.Song
+import com.example.musicplayer.data.repository.LocalMusic
+import com.example.musicplayer.data.repository.MusicRepository
 import com.example.musicplayer.databinding.FragmentArtistDetailBinding
 import com.example.musicplayer.factory.BaseViewModelFactory
 import com.example.musicplayer.player.Player
@@ -17,7 +20,7 @@ import com.example.musicplayer.view.all.SongAdapter
 
 class ArtistDetailFragment : Fragment(), SongAdapter.SongEventListener {
     lateinit var binding: FragmentArtistDetailBinding
-    lateinit var artistModel: ArtistModel
+    lateinit var artist: Artist
     lateinit var viewModel: ArtistDetailViewModel
 
     override fun onCreateView(
@@ -32,16 +35,23 @@ class ArtistDetailFragment : Fragment(), SongAdapter.SongEventListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val args: ArtistDetailFragmentArgs by navArgs()
-        artistModel = args.artistDetail
+        artist = args.artistDetail
 
         //viewModel
+        val musicDao = MusicDatabase.getInstance(requireContext()).musicDao()
         viewModel = ViewModelProvider(
             requireActivity(),
-            BaseViewModelFactory(requireContext())
+            BaseViewModelFactory(
+                Player.getInstance(),
+                MusicRepository(LocalMusic(requireContext()), musicDao)
+            )
         ).get(ArtistDetailViewModel::class.java)
 
+        //update list musics
+        viewModel.updateList(artist.id)
+
         //set title
-        binding.artist.text = artistModel.artist
+        binding.artist.text = artist.artist
 
         //show items
         initRecycler()
@@ -49,12 +59,15 @@ class ArtistDetailFragment : Fragment(), SongAdapter.SongEventListener {
 
     fun initRecycler() {
         //Get list artist items by artistId
-        val artists = viewModel.getArtists(artistModel.id, requireContext())
+        val artists = viewModel.getArtistById(artist.id)
         binding.recyclerDetailArtist.layoutManager = LinearLayoutManager(requireContext())
-        binding.recyclerDetailArtist.adapter = SongAdapter(requireContext(), artists, this)
+        binding.recyclerDetailArtist.adapter = SongAdapter(
+            requireContext(),
+            artists as ArrayList<Song>, this
+        )
     }
 
-    override fun onSelect(songModel: SongModel, posSong: Int) {
-        Player.getInstance(requireContext()).songSelected(songModel, posSong)
+    override fun onSelect(song: Song, posSong: Int) {
+        viewModel.songSelected(song, posSong)
     }
 }

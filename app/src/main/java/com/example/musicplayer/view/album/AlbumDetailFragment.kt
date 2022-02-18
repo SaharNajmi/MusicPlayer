@@ -9,8 +9,11 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
-import com.example.musicplayer.data.model.AlbumModel
-import com.example.musicplayer.data.model.SongModel
+import com.example.musicplayer.data.db.MusicDatabase
+import com.example.musicplayer.data.db.dao.entities.Album
+import com.example.musicplayer.data.db.dao.entities.Song
+import com.example.musicplayer.data.repository.LocalMusic
+import com.example.musicplayer.data.repository.MusicRepository
 import com.example.musicplayer.databinding.FragmentAlbumDetailBinding
 import com.example.musicplayer.factory.BaseViewModelFactory
 import com.example.musicplayer.player.Player
@@ -18,7 +21,7 @@ import com.example.musicplayer.view.all.SongAdapter
 
 class AlbumDetailFragment : Fragment(), SongAdapter.SongEventListener {
     lateinit var binding: FragmentAlbumDetailBinding
-    lateinit var albumModel: AlbumModel
+    lateinit var album: Album
     lateinit var viewModel: AlbumDetailViewModel
 
     override fun onCreateView(
@@ -33,13 +36,20 @@ class AlbumDetailFragment : Fragment(), SongAdapter.SongEventListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val args: AlbumDetailFragmentArgs by navArgs()
-        albumModel = args.albumDetail
+        album = args.albumDetail
 
         //viewModel
+        val musicDao = MusicDatabase.getInstance(requireContext()).musicDao()
         viewModel = ViewModelProvider(
             requireActivity(),
-            BaseViewModelFactory(requireContext())
+            BaseViewModelFactory(
+                Player.getInstance(),
+                MusicRepository(LocalMusic(requireContext()), musicDao)
+            )
         ).get(AlbumDetailViewModel::class.java)
+
+        //update list musics
+        viewModel.updateList(album.id)
 
         //set data
         updateUI()
@@ -49,21 +59,21 @@ class AlbumDetailFragment : Fragment(), SongAdapter.SongEventListener {
     }
 
     fun updateUI() {
-        binding.albumTitle.text = albumModel.albumName
-        binding.artist.text = albumModel.artist
+        binding.albumTitle.text = album.albumName
+        binding.artist.text = album.artist
         Glide.with(this)
-            .load(albumModel.albumImage)
+            .load(album.albumImage)
             .into(binding.imgCoverAlbum)
     }
 
     fun initRecycler() {
         //Get list album items by albumId
-        val albums = viewModel.getAlbums(albumModel.id, requireContext())
+        val albums = viewModel.getAlbumById(album.id)
         binding.recyclerDetailAlbum.layoutManager = LinearLayoutManager(requireContext())
-        binding.recyclerDetailAlbum.adapter = AlbumDetailAdapter(albums, this)
+        binding.recyclerDetailAlbum.adapter = AlbumDetailAdapter(albums as ArrayList<Song>, this)
     }
 
-    override fun onSelect(songModel: SongModel, posSong: Int) {
-        Player.getInstance(requireContext()).songSelected(songModel, posSong)
+    override fun onSelect(song: Song, posSong: Int) {
+        viewModel.songSelected(song, posSong)
     }
 }
