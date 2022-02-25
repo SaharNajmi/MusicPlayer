@@ -41,9 +41,6 @@ class FavoriteFragment : Fragment(), SongAdapter.SongEventListener {
             )
         ).get(FavoriteViewModel::class.java)
 
-        //update list musics
-        favoriteViewModel.updateList()
-
         //show list favorite
         initRecycler()
 
@@ -55,10 +52,12 @@ class FavoriteFragment : Fragment(), SongAdapter.SongEventListener {
 
     fun initRecycler() {
         binding.recyclerFavorite.layoutManager = LinearLayoutManager(requireContext())
-        binding.recyclerFavorite.adapter = SongAdapter(
-            requireContext(),
-            favoriteViewModel.getFavorites() as ArrayList<Song>, this
-        )
+        favoriteViewModel.getFavorites().observe(viewLifecycleOwner, { list ->
+            binding.recyclerFavorite.adapter = SongAdapter(
+                requireContext(),
+                list, this
+            )
+        })
     }
 
     override fun onSelect(song: Song, posSong: Int) {

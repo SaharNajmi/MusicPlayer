@@ -34,7 +34,7 @@ class FileDetailFragment : Fragment(), SongAdapter.SongEventListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         //set Text textView FolderName
-        binding.folderName.text = args.fileDetail
+        binding.folderName.text = args.fileName
 
         //viewModel
         val musicDao = MusicDatabase.getInstance(requireContext()).musicDao()
@@ -46,19 +46,17 @@ class FileDetailFragment : Fragment(), SongAdapter.SongEventListener {
             )
         ).get(FileDetailViewModel::class.java)
 
-        //update list musics
-        viewModel.updateList(args.fileDetail)
-
         //show items
         initRecycler()
     }
 
-    fun initRecycler() {
-        //Get list folder items by folderName
-        val list = viewModel.getSongByFolderName(args.fileDetail)
+    private fun initRecycler() {
         binding.recyclerDetailFolder.layoutManager = LinearLayoutManager(requireContext())
-        binding.recyclerDetailFolder.adapter =
-            SongAdapter(requireContext(), list as ArrayList<Song>, this)
+        //Get musics by fileName
+        viewModel.getMusics(args.fileName).observe(viewLifecycleOwner, { list ->
+            binding.recyclerDetailFolder.adapter =
+                SongAdapter(requireContext(), list, this)
+        })
     }
 
     override fun onSelect(song: Song, posSong: Int) {

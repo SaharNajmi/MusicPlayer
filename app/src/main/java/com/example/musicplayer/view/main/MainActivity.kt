@@ -41,7 +41,6 @@ import com.example.musicplayer.view.search.SearchMusicFragmentDirections
 class MainActivity : AppCompatActivity(), ServiceConnection, ActionPlaying {
     lateinit var binding: ActivityMainBinding
     lateinit var viewModel: MainViewModel
-    lateinit var editor: SharedPreferences.Editor
     lateinit var sharedPreferences: SharedPreferences
     var musicService: ForegroundService? = null
 
@@ -55,7 +54,6 @@ class MainActivity : AppCompatActivity(), ServiceConnection, ActionPlaying {
 
         //sharedPreferences
         sharedPreferences = getSharedPreferences("sharedPreferences", MODE_PRIVATE)
-        editor = sharedPreferences.edit()
 
         //bind service
         val intent = Intent(this, ForegroundService::class.java)
@@ -72,12 +70,16 @@ class MainActivity : AppCompatActivity(), ServiceConnection, ActionPlaying {
         ).get(MainViewModel::class.java)
 
         //insert database
-        viewModel.insertMusics()
-        viewModel.insertAlbums()
-        viewModel.insertArtists()
+        viewModel.databaseExists.observe(this, { exists ->
+            if (!exists) {
+                viewModel.insertMusics()
+                viewModel.insertAlbums()
+                viewModel.insertArtists()
+            }
+        })
 
         //save old data with sharedPreferences
-        shaowSaveState()
+        showSaveState()
 
         musicController()
 
@@ -88,7 +90,6 @@ class MainActivity : AppCompatActivity(), ServiceConnection, ActionPlaying {
         })
 
         //update ui button pause or play music
-        updateUiPlayOrPause(PlayerState.PAUSED)
         viewModel.playerState.observe(this, {
             updateUiPlayOrPause(it)
         })
@@ -143,16 +144,22 @@ class MainActivity : AppCompatActivity(), ServiceConnection, ActionPlaying {
         })
     }
 
-    private fun shaowSaveState() {
+    private fun showSaveState() {
         var oldPositionSong = sharedPreferences.getInt("position", 0)
         //when first play application
         if (oldPositionSong < 0)
             oldPositionSong = 0
 
         //update ui music controller
-        val musics = viewModel.musics()
-        if (musics.size != 0 && oldPositionSong != 0)
-            updateUi(musics[oldPositionSong])
+        viewModel.musics.observe(this, { list ->
+            if (list.isNotEmpty() && oldPositionSong != 0) {
+                //update UI
+                updateUi(list[oldPositionSong])
+
+                //Change default song model
+                viewModel.changeSong(list[oldPositionSong])
+            }
+        })
 
         //update progress
         //get old progress/duration song
@@ -160,20 +167,18 @@ class MainActivity : AppCompatActivity(), ServiceConnection, ActionPlaying {
         val oldDurationSong = sharedPreferences.getInt("duration", 0)
         updateProgress(oldProgressSong, oldDurationSong)
 
-        //Change default values in Player
-        viewModel.changeSong(musics[oldPositionSong])
+        //Change default position song
         viewModel.changeSongPosition(oldPositionSong)
     }
 
     override fun onPause() {
         super.onPause()
         //save values
-        editor.apply {
+        sharedPreferences.edit().apply {
             putInt("position", viewModel.songPosition)
             putInt("progress", viewModel.progress.value!!)
             putInt("duration", viewModel.duration)
-            commit()
-
+            apply()
         }
     }
 
@@ -197,9 +202,12 @@ class MainActivity : AppCompatActivity(), ServiceConnection, ActionPlaying {
         binding.playMusicLayout.artist.text = song.artist
     }
 
-    fun updateUiPlayOrPause(playerState: PlayerState) {
+    private fun updateUiPlayOrPause(playerState: PlayerState) {
         if (playerState == PlayerState.PAUSED) {
-            showNotification(viewModel.song.value!!, R.drawable.ic_play)
+            viewModel.song.observe(this, {
+                if (it != null)
+                    showNotification(viewModel.song.value!!, R.drawable.ic_play)
+            })
             binding.playMusicLayout.btnPlayPause.setImageResource(R.drawable.ic_play)
         } else if (playerState == PlayerState.PLAYING) {
             showNotification(viewModel.song.value!!, R.drawable.ic_pause)

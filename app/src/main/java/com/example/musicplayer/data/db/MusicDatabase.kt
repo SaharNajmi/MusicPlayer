@@ -24,7 +24,6 @@ abstract class MusicDatabase : RoomDatabase() {
                     MusicDatabase::class.java,
                     DB_NAME
                 )
-                    .allowMainThreadQueries()
                     .fallbackToDestructiveMigration()
                     .build()
 

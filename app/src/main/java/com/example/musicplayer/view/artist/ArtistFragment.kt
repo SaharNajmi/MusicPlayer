@@ -46,8 +46,10 @@ class ArtistFragment : Fragment(), ArtistAdapter.ArtistEventListener {
 
     private fun showArtists() {
         binding.recyclerAtrist.layoutManager = LinearLayoutManager(requireContext())
-        binding.recyclerAtrist.adapter =
-            ArtistAdapter(requireContext(), viewModel.getArtists() as ArrayList<Artist>, this)
+        viewModel.artists.observe(viewLifecycleOwner, { list ->
+            binding.recyclerAtrist.adapter =
+                ArtistAdapter(requireContext(), list, this)
+        })
     }
 
     override fun onSelect(artist: Artist) {

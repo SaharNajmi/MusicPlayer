@@ -8,7 +8,7 @@ import com.example.musicplayer.databinding.AlbumDetailsItemBinding
 import com.example.musicplayer.view.all.SongAdapter
 
 class AlbumDetailAdapter(
-    val list: ArrayList<Song>,
+    val list: List<Song>,
     val songEventListener: SongAdapter.SongEventListener
 ) : RecyclerView.Adapter<AlbumDetailAdapter.Holder>() {
     class Holder(val view: AlbumDetailsItemBinding) : RecyclerView.ViewHolder(view.root) {

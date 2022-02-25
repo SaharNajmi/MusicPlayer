@@ -8,38 +8,41 @@ import com.example.musicplayer.data.db.dao.entities.Song
 @Dao
 interface MusicDao {
     @Query("Select * from song")
-    fun getMusics(): List<Song>
+    suspend fun getMusics(): List<Song>
 
     @Query("Select * from song where favorite = 1")
-    fun getFavorites(): List<Song>
+    suspend fun getFavorites(): List<Song>
 
     @Query("Select * from artist")
-    fun getArtists(): List<Artist>
+    suspend fun getArtists(): List<Artist>
 
     @Query("Select * from album")
-    fun getAlbums(): List<Album>
+    suspend fun getAlbums(): List<Album>
 
     @Query("SELECT DISTINCT folderName from song")
-    fun getFileNames(): List<String>
+    suspend fun getFileNames(): List<String>
 
     @Query("Select * from song where artistID=:artistId")
-    fun getArtistById(artistId: Long): List<Song>
+    suspend fun getArtistById(artistId: Long): List<Song>
 
     @Query("Select * from song where albumID=:albumId ")
-    fun getAlbumById(albumId: Long): List<Song>
+    suspend fun getAlbumById(albumId: Long): List<Song>
 
     @Query("Select * from song where folderName=:folderName ")
-    fun getSongByFolderName(folderName: String): List<Song>
+    suspend fun getSongByFolderName(folderName: String): List<Song>
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    fun insertSongs(song: List<Song>)
+    @Query("SELECT EXISTS (SELECT 1 FROM song)")
+    suspend fun databaseExists(): Boolean
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    fun insertArtists(artist: List<Artist>)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertSongs(song: List<Song>)
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    fun insertAlbums(album: List<Album>)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertArtists(artist: List<Artist>)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAlbums(album: List<Album>)
 
     @Update
-    fun update(song: Song)
+    suspend fun update(song: Song)
 }

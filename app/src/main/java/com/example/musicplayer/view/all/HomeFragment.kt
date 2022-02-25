@@ -46,17 +46,17 @@ class HomeFragment : Fragment(), SongAdapter.SongEventListener {
         //show list musics
         showMusics()
 
-        //update list musics
-        viewModel.updateList()
     }
 
-    fun showMusics() {
-        val musics = viewModel.getMusics()
+    private fun showMusics() {
         binding.recyclerMusics.layoutManager = LinearLayoutManager(requireContext())
-        binding.recyclerMusics.adapter = SongAdapter(
-            requireContext(),
-            musics as ArrayList<Song>, this
-        )
+        viewModel.musics.observe(viewLifecycleOwner, { list ->
+            binding.recyclerMusics.adapter = SongAdapter(
+                requireContext(),
+                list, this
+            )
+        })
+
     }
 
     override fun onSelect(song: Song, posSong: Int) {

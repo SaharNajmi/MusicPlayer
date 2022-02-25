@@ -10,7 +10,7 @@ import com.example.musicplayer.databinding.MusicItemLayoutBinding
 
 class SongAdapter(
     val context: Context,
-    var list: ArrayList<Song>,
+    var list: List<Song>,
     val eventListener: SongEventListener
 ) :
     RecyclerView.Adapter<SongAdapter.Holder>() {

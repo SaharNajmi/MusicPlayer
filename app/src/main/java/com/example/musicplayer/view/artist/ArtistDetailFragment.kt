@@ -20,8 +20,8 @@ import com.example.musicplayer.view.all.SongAdapter
 
 class ArtistDetailFragment : Fragment(), SongAdapter.SongEventListener {
     lateinit var binding: FragmentArtistDetailBinding
-    lateinit var artist: Artist
     lateinit var viewModel: ArtistDetailViewModel
+    lateinit var artist: Artist
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -47,9 +47,6 @@ class ArtistDetailFragment : Fragment(), SongAdapter.SongEventListener {
             )
         ).get(ArtistDetailViewModel::class.java)
 
-        //update list musics
-        viewModel.updateList(artist.id)
-
         //set title
         binding.artist.text = artist.artist
 
@@ -58,13 +55,14 @@ class ArtistDetailFragment : Fragment(), SongAdapter.SongEventListener {
     }
 
     fun initRecycler() {
-        //Get list artist items by artistId
-        val artists = viewModel.getArtistById(artist.id)
         binding.recyclerDetailArtist.layoutManager = LinearLayoutManager(requireContext())
-        binding.recyclerDetailArtist.adapter = SongAdapter(
-            requireContext(),
-            artists as ArrayList<Song>, this
-        )
+        //Get musics by artistId
+        viewModel.getMusics(artist.id).observe(viewLifecycleOwner, { list ->
+            binding.recyclerDetailArtist.adapter = SongAdapter(
+                requireContext(),
+                list, this
+            )
+        })
     }
 
     override fun onSelect(song: Song, posSong: Int) {

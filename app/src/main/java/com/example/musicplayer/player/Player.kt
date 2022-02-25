@@ -22,9 +22,7 @@ class Player private constructor(
     val song = MutableLiveData<Song>()
     private val _progress = MutableLiveData<Int>()
     val progress: LiveData<Int> = _progress
-    private var musics = ArrayList<Song>()
-
-    //  var musics: ArrayList<Song> = musicDao.getMusics() as ArrayList<Song>
+    private var musics = listOf<Song>()
     var isShuffle = false
         set(value) {
             if (value)
@@ -42,7 +40,7 @@ class Player private constructor(
     var songPosition = 0
 
     init {
-        // progress.value = 0
+        _progress.value = 0
         _playerState.value = PlayerState.PAUSED
         initMusicPlayer()
     }
@@ -58,7 +56,7 @@ class Player private constructor(
         }
     }
 
-    fun updateList(songs: ArrayList<Song>) {
+    fun updateList(songs: List<Song>) {
         musics = songs
     }
 

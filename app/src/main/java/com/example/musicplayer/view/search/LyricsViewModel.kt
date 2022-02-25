@@ -2,43 +2,40 @@ package com.example.musicplayer.view.search
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.musicplayer.data.api.APiService
 import com.example.musicplayer.data.db.dao.entities.Song
 import com.example.musicplayer.data.model.Lyric
 import com.example.musicplayer.data.repository.MusicRepository
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import kotlinx.coroutines.launch
 
 class LyricsViewModel(val musicRepository: MusicRepository) : ViewModel() {
     val lyrics = MutableLiveData<Lyric>()
     val findLyrics = MutableLiveData(false)
 
-    fun searchLyrics(artist: String, title: String) {
-        APiService.api.search(artist, title).enqueue(object : Callback<Lyric> {
-            override fun onResponse(call: Call<Lyric>, response: Response<Lyric>) {
-                if (response.isSuccessful && response.body() != null) {
-                    lyrics.postValue(response.body())
-                    findLyrics.value = true
-                } else {
-                    /* val jsonString =
-                         """{"lyrics":"","error":"${response.errorBody()?.toString()}"}"""
-                     lyrics.postValue(Gson().fromJson(jsonString, Lyric::class.java))*/
-                    lyrics.postValue(Lyric(null, "Not Find!!!"))
-                    findLyrics.value = false
-                }
-            }
+/*    private val coroutineExceptionHandler =
+        CoroutineExceptionHandler { _, throwable ->
+            Log.e("Error->", throwable.message.toString())
+            lyrics.value=Lyric(null, "Network error, please try again")
+            findLyrics.value=false
+        }*/
 
-            override fun onFailure(call: Call<Lyric>, t: Throwable) {
-                lyrics.postValue(Lyric(null, "Network error, please try again"))
+    fun searchLyrics(artist: String, title: String) {
+        viewModelScope.launch {
+            try {
+                lyrics.value = APiService.api.search(artist, title)
+                findLyrics.value = true
+            } catch (throwable: Throwable) {
+                lyrics.value = Lyric(null, "Not found!!!")
                 findLyrics.value = false
             }
-        })
+        }
     }
 
     fun update(song: Song) {
         song.isLyrics = true
-        musicRepository.update(song)
+        viewModelScope.launch {
+            musicRepository.update(song)
+        }
     }
-
 }

@@ -1,9 +1,12 @@
 package com.example.musicplayer.view.main
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.liveData
+import androidx.lifecycle.viewModelScope
 import com.example.musicplayer.data.db.dao.entities.Song
 import com.example.musicplayer.data.repository.MusicRepository
 import com.example.musicplayer.player.Player
+import kotlinx.coroutines.launch
 
 class MainViewModel(val player: Player, val musicRepository: MusicRepository) : ViewModel() {
     var song = player.song
@@ -17,6 +20,17 @@ class MainViewModel(val player: Player, val musicRepository: MusicRepository) : 
     val duration
         get() = player.duration
 
+    val musics = liveData {
+        val result = musicRepository.getMusics()
+        player.updateList(result)
+        emit(result)
+    }
+
+    val databaseExists = liveData {
+        val result = musicRepository.databaseExists()
+        emit(result)
+    }
+
     fun changeSongPosition(position: Int) {
         player.songPosition = position
     }
@@ -25,13 +39,11 @@ class MainViewModel(val player: Player, val musicRepository: MusicRepository) : 
         player.song.value = song
     }
 
-    fun insertMusics() = musicRepository.insertSongs()
+    fun insertMusics() = viewModelScope.launch { musicRepository.insertMusics() }
 
-    fun insertAlbums() = musicRepository.insertAlbums()
+    fun insertAlbums() = viewModelScope.launch { musicRepository.insertAlbums() }
 
-    fun insertArtists() = musicRepository.insertArtists()
-
-    fun musics() = musicRepository.getMusics()
+    fun insertArtists() = viewModelScope.launch { musicRepository.insertArtists() }
 
     fun toggleState() = player.toggleState()
 

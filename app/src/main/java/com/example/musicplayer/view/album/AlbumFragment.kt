@@ -1,7 +1,6 @@
 package com.example.musicplayer.view.album
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -43,16 +42,17 @@ class AlbumFragment : Fragment(), AlbumAdapter.AlbumEventListener {
             )
         ).get(AlbumViewModel::class.java)
 
-        Log.e("DDDDD", viewModel.getAlbums().toString())
         //show list album
         showAlbums()
     }
 
-    fun showAlbums() {
+    private fun showAlbums() {
         binding.recyclerAlbum.layoutManager =
             GridLayoutManager(requireContext(), 2, RecyclerView.VERTICAL, false)
-        binding.recyclerAlbum.adapter =
-            AlbumAdapter(requireContext(), viewModel.getAlbums() as ArrayList<Album>, this)
+        viewModel.albums.observe(viewLifecycleOwner, { list ->
+            binding.recyclerAlbum.adapter =
+                AlbumAdapter(requireContext(), list, this)
+        })
     }
 
     override fun onSelect(album: Album) {

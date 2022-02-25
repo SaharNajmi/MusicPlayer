@@ -1,10 +1,13 @@
 package com.example.musicplayer.view.search
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.musicplayer.data.db.dao.entities.Song
 import com.example.musicplayer.data.repository.MusicRepository
 import com.example.musicplayer.player.Player
 import com.example.musicplayer.view.all.SongAdapter
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class SearchMusicViewModel(val player: Player, val musicRepository: MusicRepository) : ViewModel() {
 
@@ -12,19 +15,21 @@ class SearchMusicViewModel(val player: Player, val musicRepository: MusicReposit
 
     fun searchSong(value: String, adapter: SongAdapter) {
         val filterSongs = ArrayList<Song>()
-        for (song in musicRepository.getMusics()) {
-            var isListAdded = false
-            if (song.songTitle.toLowerCase().contains(value.toLowerCase())
-                && value != ""
-            ) {
-                filterSongs.add(song)
-                isListAdded = true
-            }
-            if (song.artist.toLowerCase().contains(value.toLowerCase())
-                && value != ""
-            ) {
-                if (!isListAdded)
+        viewModelScope.launch(Dispatchers.IO) {
+            for (song in musicRepository.getMusics()) {
+                var isListAdded = false
+                if (song.songTitle.toLowerCase().contains(value.toLowerCase())
+                    && value != ""
+                ) {
                     filterSongs.add(song)
+                    isListAdded = true
+                }
+                if (song.artist.toLowerCase().contains(value.toLowerCase())
+                    && value != ""
+                ) {
+                    if (!isListAdded)
+                        filterSongs.add(song)
+                }
             }
         }
         //update list musics

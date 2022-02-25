@@ -2,30 +2,46 @@ package com.example.musicplayer.data.repository
 
 import com.example.musicplayer.data.db.dao.MusicDao
 import com.example.musicplayer.data.db.dao.entities.Song
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class MusicRepository(private val localMusic: LocalMusic, val musicDao: MusicDao) {
 
-    fun getFavorites() = musicDao.getFavorites()
+    suspend fun getFavorites() = withContext(Dispatchers.IO) { musicDao.getFavorites() }
 
-    fun getMusics() = musicDao.getMusics()
+    suspend fun getMusics() = withContext(Dispatchers.IO) { musicDao.getMusics() }
 
-    fun getArtists() = musicDao.getArtists()
+    suspend fun getArtists() = withContext(Dispatchers.IO) { musicDao.getArtists() }
 
-    fun getAlbums() = musicDao.getAlbums()
+    suspend fun getAlbums() = withContext(Dispatchers.IO) { musicDao.getAlbums() }
 
-    fun getFileNames() = musicDao.getFileNames()
+    suspend fun getFileNames() = withContext(Dispatchers.IO) { musicDao.getFileNames() }
 
-    fun getArtistById(artistId: Long) = musicDao.getArtistById(artistId)
+    suspend fun getArtistById(artistId: Long) =
+        withContext(Dispatchers.IO) { musicDao.getArtistById(artistId) }
 
-    fun getAlbumById(albumId: Long) = musicDao.getAlbumById(albumId)
+    suspend fun getAlbumById(albumId: Long) =
+        withContext(Dispatchers.IO) { musicDao.getAlbumById(albumId) }
 
-    fun getSongByFolderName(folderName: String) = musicDao.getSongByFolderName(folderName)
+    suspend fun getSongByFolderName(folderName: String) = withContext(Dispatchers.IO) {
+        musicDao.getSongByFolderName(folderName)
+    }
 
-    fun insertSongs() = musicDao.insertSongs(localMusic.musics())
+    suspend fun insertMusics() = withContext(Dispatchers.IO) {
+        musicDao.insertSongs(localMusic.musics())
+    }
 
-    fun insertAlbums() = musicDao.insertAlbums(localMusic.albums())
+    suspend fun databaseExists() = withContext(Dispatchers.IO) { musicDao.databaseExists() }
 
-    fun insertArtists() = musicDao.insertArtists(localMusic.artists())
+    suspend fun insertAlbums() = withContext(Dispatchers.IO) {
+        musicDao.insertAlbums(localMusic.albums())
+    }
 
-    fun update(song: Song) = musicDao.update(song)
+    suspend fun insertArtists() = withContext(Dispatchers.IO) {
+        musicDao.insertArtists(localMusic.artists())
+    }
+
+    suspend fun update(song: Song) = withContext(Dispatchers.IO) {
+        musicDao.update(song)
+    }
 }

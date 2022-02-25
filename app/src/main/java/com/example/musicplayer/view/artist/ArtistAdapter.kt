@@ -9,7 +9,7 @@ import com.example.musicplayer.databinding.ArtistItemBinding
 
 class ArtistAdapter(
     val context: Context,
-    val list: ArrayList<Artist>,
+    val list: List<Artist>,
     val artistEventListener: ArtistEventListener
 ) :
     RecyclerView.Adapter<ArtistAdapter.Holder>() {

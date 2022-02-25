@@ -45,7 +45,9 @@ class FileFragment : Fragment(), FileAdapter.FileEventListener {
 
     private fun showFolders() {
         binding.recyclerFile.layoutManager = LinearLayoutManager(requireContext())
-        binding.recyclerFile.adapter = FileAdapter(viewModel.getFileNames(), this)
+        viewModel.fileNames.observe(viewLifecycleOwner, { list ->
+            binding.recyclerFile.adapter = FileAdapter(list, this)
+        })
     }
 
     override fun onFileItemClick(fileName: String) {

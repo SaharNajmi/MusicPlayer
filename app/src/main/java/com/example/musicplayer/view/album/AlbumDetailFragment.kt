@@ -48,9 +48,6 @@ class AlbumDetailFragment : Fragment(), SongAdapter.SongEventListener {
             )
         ).get(AlbumDetailViewModel::class.java)
 
-        //update list musics
-        viewModel.updateList(album.id)
-
         //set data
         updateUI()
 
@@ -67,10 +64,11 @@ class AlbumDetailFragment : Fragment(), SongAdapter.SongEventListener {
     }
 
     fun initRecycler() {
-        //Get list album items by albumId
-        val albums = viewModel.getAlbumById(album.id)
         binding.recyclerDetailAlbum.layoutManager = LinearLayoutManager(requireContext())
-        binding.recyclerDetailAlbum.adapter = AlbumDetailAdapter(albums as ArrayList<Song>, this)
+        //Get musics by albumId
+        viewModel.getMusics(album.id).observe(viewLifecycleOwner, { list ->
+            binding.recyclerDetailAlbum.adapter = AlbumDetailAdapter(list, this)
+        })
     }
 
     override fun onSelect(song: Song, posSong: Int) {
