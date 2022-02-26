@@ -8,6 +8,7 @@ import android.content.ServiceConnection
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.os.IBinder
+import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
@@ -37,12 +38,18 @@ import com.example.musicplayer.view.file.FileDetailFragment
 import com.example.musicplayer.view.file.FileDetailFragmentDirections
 import com.example.musicplayer.view.search.SearchMusicFragment
 import com.example.musicplayer.view.search.SearchMusicFragmentDirections
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity(), ServiceConnection, ActionPlaying {
     lateinit var binding: ActivityMainBinding
     lateinit var viewModel: MainViewModel
     lateinit var sharedPreferences: SharedPreferences
     var musicService: ForegroundService? = null
+
+    @Inject
+    lateinit var name: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,6 +57,7 @@ class MainActivity : AppCompatActivity(), ServiceConnection, ActionPlaying {
         val view = binding.root
         setContentView(view)
 
+        Log.e("MainActivity", name)
         val mNavController = findNavController(R.id.nav_host_fragment)
 
         //sharedPreferences
