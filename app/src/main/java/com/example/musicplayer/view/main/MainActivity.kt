@@ -8,21 +8,15 @@ import android.content.ServiceConnection
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.os.IBinder
-import android.util.Log
 import android.view.View
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import com.bumptech.glide.Glide
 import com.example.musicplayer.R
-import com.example.musicplayer.data.db.MusicDatabase
 import com.example.musicplayer.data.db.dao.entities.Song
-import com.example.musicplayer.data.repository.LocalMusic
-import com.example.musicplayer.data.repository.MusicRepository
 import com.example.musicplayer.databinding.ActivityMainBinding
-import com.example.musicplayer.factory.BaseViewModelFactory
-import com.example.musicplayer.player.Player
 import com.example.musicplayer.service.ForegroundService
 import com.example.musicplayer.service.NotificationReceiver
 import com.example.musicplayer.utils.ActionPlaying
@@ -39,17 +33,13 @@ import com.example.musicplayer.view.file.FileDetailFragmentDirections
 import com.example.musicplayer.view.search.SearchMusicFragment
 import com.example.musicplayer.view.search.SearchMusicFragmentDirections
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(), ServiceConnection, ActionPlaying {
     lateinit var binding: ActivityMainBinding
-    lateinit var viewModel: MainViewModel
+    private val viewModel: MainViewModel by viewModels()
     lateinit var sharedPreferences: SharedPreferences
     var musicService: ForegroundService? = null
-
-    @Inject
-    lateinit var name: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,7 +47,6 @@ class MainActivity : AppCompatActivity(), ServiceConnection, ActionPlaying {
         val view = binding.root
         setContentView(view)
 
-        Log.e("MainActivity", name)
         val mNavController = findNavController(R.id.nav_host_fragment)
 
         //sharedPreferences
@@ -66,16 +55,6 @@ class MainActivity : AppCompatActivity(), ServiceConnection, ActionPlaying {
         //bind service
         val intent = Intent(this, ForegroundService::class.java)
         bindService(intent, this, BIND_AUTO_CREATE)
-
-        //main viewModel
-        val musicDao = MusicDatabase.getInstance(this).musicDao()
-        viewModel = ViewModelProvider(
-            this,
-            BaseViewModelFactory(
-                Player.getInstance(),
-                MusicRepository(LocalMusic(this), musicDao)
-            )
-        ).get(MainViewModel::class.java)
 
         //insert database
         viewModel.databaseExists.observe(this, { exists ->

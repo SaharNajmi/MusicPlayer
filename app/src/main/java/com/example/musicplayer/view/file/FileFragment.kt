@@ -5,19 +5,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.musicplayer.data.db.MusicDatabase
-import com.example.musicplayer.data.repository.LocalMusic
-import com.example.musicplayer.data.repository.MusicRepository
 import com.example.musicplayer.databinding.FragmentFileBinding
-import com.example.musicplayer.factory.MainViewModelFactory
 import com.example.musicplayer.view.main.MainFragmentDirections
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class FileFragment : Fragment(), FileAdapter.FileEventListener {
     lateinit var binding: FragmentFileBinding
-    lateinit var viewModel: FileViewModel
+    private val viewModel: FileViewModel by viewModels()
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -29,15 +27,6 @@ class FileFragment : Fragment(), FileAdapter.FileEventListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        //viewModel
-        val musicDao = MusicDatabase.getInstance(requireContext()).musicDao()
-        viewModel = ViewModelProvider(
-            requireActivity(),
-            MainViewModelFactory(
-                MusicRepository(LocalMusic(requireContext()), musicDao)
-            )
-        ).get(FileViewModel::class.java)
 
         //show list folders
         showFolders()

@@ -5,22 +5,19 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.musicplayer.data.db.MusicDatabase
 import com.example.musicplayer.data.db.dao.entities.Song
-import com.example.musicplayer.data.repository.LocalMusic
-import com.example.musicplayer.data.repository.MusicRepository
 import com.example.musicplayer.databinding.FragmentFileDetailBinding
-import com.example.musicplayer.factory.BaseViewModelFactory
-import com.example.musicplayer.player.Player
 import com.example.musicplayer.view.all.SongAdapter
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class FileDetailFragment : Fragment(), SongAdapter.SongEventListener {
     lateinit var binding: FragmentFileDetailBinding
     val args: FileDetailFragmentArgs by navArgs()
-    lateinit var viewModel: FileDetailViewModel
+    private val viewModel: FileDetailViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -35,16 +32,6 @@ class FileDetailFragment : Fragment(), SongAdapter.SongEventListener {
         super.onViewCreated(view, savedInstanceState)
         //set Text textView FolderName
         binding.folderName.text = args.fileName
-
-        //viewModel
-        val musicDao = MusicDatabase.getInstance(requireContext()).musicDao()
-        viewModel = ViewModelProvider(
-            requireActivity(),
-            BaseViewModelFactory(
-                Player.getInstance(),
-                MusicRepository(LocalMusic(requireContext()), musicDao)
-            )
-        ).get(FileDetailViewModel::class.java)
 
         //show items
         initRecycler()

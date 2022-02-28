@@ -5,24 +5,21 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
-import com.example.musicplayer.data.db.MusicDatabase
 import com.example.musicplayer.data.db.dao.entities.Album
 import com.example.musicplayer.data.db.dao.entities.Song
-import com.example.musicplayer.data.repository.LocalMusic
-import com.example.musicplayer.data.repository.MusicRepository
 import com.example.musicplayer.databinding.FragmentAlbumDetailBinding
-import com.example.musicplayer.factory.BaseViewModelFactory
-import com.example.musicplayer.player.Player
 import com.example.musicplayer.view.all.SongAdapter
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class AlbumDetailFragment : Fragment(), SongAdapter.SongEventListener {
     lateinit var binding: FragmentAlbumDetailBinding
     lateinit var album: Album
-    lateinit var viewModel: AlbumDetailViewModel
+    private val viewModel: AlbumDetailViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -37,16 +34,6 @@ class AlbumDetailFragment : Fragment(), SongAdapter.SongEventListener {
         super.onViewCreated(view, savedInstanceState)
         val args: AlbumDetailFragmentArgs by navArgs()
         album = args.albumDetail
-
-        //viewModel
-        val musicDao = MusicDatabase.getInstance(requireContext()).musicDao()
-        viewModel = ViewModelProvider(
-            requireActivity(),
-            BaseViewModelFactory(
-                Player.getInstance(),
-                MusicRepository(LocalMusic(requireContext()), musicDao)
-            )
-        ).get(AlbumDetailViewModel::class.java)
 
         //set data
         updateUI()

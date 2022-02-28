@@ -6,8 +6,11 @@ import androidx.lifecycle.liveData
 import com.example.musicplayer.data.db.dao.entities.Song
 import com.example.musicplayer.data.repository.MusicRepository
 import com.example.musicplayer.player.Player
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class ArtistDetailViewModel(
+@HiltViewModel
+class ArtistDetailViewModel @Inject constructor(
     val player: Player,
     val musicRepository: MusicRepository
 ) : ViewModel() {

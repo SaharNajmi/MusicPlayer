@@ -11,12 +11,11 @@ import com.example.musicplayer.utils.PlayerState
 import java.io.IOException
 import kotlin.random.Random
 
-class Player private constructor(
-    val mediaPlayer: MediaPlayer
-) :
+class Player() :
     MediaPlayer.OnPreparedListener,
     MediaPlayer.OnErrorListener,
     MediaPlayer.OnCompletionListener {
+    val mediaPlayer: MediaPlayer = MediaPlayer()
     private val _playerState = MutableLiveData<PlayerState>()
     val playerState: LiveData<PlayerState> = _playerState
     val song = MutableLiveData<Song>()
@@ -43,17 +42,6 @@ class Player private constructor(
         _progress.value = 0
         _playerState.value = PlayerState.PAUSED
         initMusicPlayer()
-    }
-
-    companion object {
-        var INSTANCE: Player? = null
-        fun getInstance(): Player {
-            if (INSTANCE == null)
-                INSTANCE = Player(
-                    MediaPlayer()
-                )
-            return INSTANCE!!
-        }
     }
 
     fun updateList(songs: List<Song>) {

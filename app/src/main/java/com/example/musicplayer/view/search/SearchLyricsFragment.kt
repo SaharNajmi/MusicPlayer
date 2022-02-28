@@ -5,21 +5,19 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import com.example.musicplayer.data.db.MusicDatabase
 import com.example.musicplayer.data.db.dao.entities.Song
-import com.example.musicplayer.data.repository.LocalMusic
-import com.example.musicplayer.data.repository.MusicRepository
 import com.example.musicplayer.databinding.FragmentLyricsSearchBinding
-import com.example.musicplayer.factory.MainViewModelFactory
 import com.example.musicplayer.view.main.MainActivity
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class SearchLyricsFragment : Fragment() {
     lateinit var binding: FragmentLyricsSearchBinding
     lateinit var song: Song
-    lateinit var lyricsViewModel: LyricsViewModel
+    private val lyricsViewModel: LyricsViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -38,16 +36,6 @@ class SearchLyricsFragment : Fragment() {
         if (requireActivity() is MainActivity) {
             (activity as MainActivity?)!!.hideMusicController()
         }
-
-        //search lyrics viewModel
-        val musicDao = MusicDatabase.getInstance(requireContext()).musicDao()
-        lyricsViewModel =
-            ViewModelProvider(
-                this,
-                MainViewModelFactory(
-                    MusicRepository(LocalMusic(requireContext()), musicDao)
-                )
-            ).get(LyricsViewModel::class.java)
 
         //set data
         binding.edtSong.setText(song.artist)

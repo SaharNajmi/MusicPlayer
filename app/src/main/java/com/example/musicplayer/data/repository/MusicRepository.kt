@@ -4,8 +4,12 @@ import com.example.musicplayer.data.db.dao.MusicDao
 import com.example.musicplayer.data.db.dao.entities.Song
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
-class MusicRepository(private val localMusic: LocalMusic, val musicDao: MusicDao) {
+class MusicRepository @Inject constructor(
+    private val localMusic: LocalMusic,
+    private val musicDao: MusicDao
+) {
 
     suspend fun getFavorites() = withContext(Dispatchers.IO) { musicDao.getFavorites() }
 

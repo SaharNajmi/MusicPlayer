@@ -2,8 +2,11 @@ package com.example.musicplayer.view.detail
 
 import androidx.lifecycle.ViewModel
 import com.example.musicplayer.player.Player
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class DetailViewModel(val player: Player) : ViewModel() {
+@HiltViewModel
+class DetailViewModel @Inject constructor(val player: Player) : ViewModel() {
     var song = player.song
     var playerState = player.playerState
     var progress = player.progress

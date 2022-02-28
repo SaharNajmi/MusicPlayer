@@ -7,9 +7,15 @@ import androidx.lifecycle.viewModelScope
 import com.example.musicplayer.data.db.dao.entities.Song
 import com.example.musicplayer.data.repository.MusicRepository
 import com.example.musicplayer.player.Player
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class FavoriteViewModel(val player: Player, private val musicRepository: MusicRepository) :
+@HiltViewModel
+class FavoriteViewModel @Inject constructor(
+    val player: Player,
+    private val musicRepository: MusicRepository
+) :
     ViewModel() {
 
     fun getFavorites(): LiveData<List<Song>> = liveData {

@@ -5,20 +5,18 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.musicplayer.data.db.MusicDatabase
 import com.example.musicplayer.data.db.dao.entities.Artist
-import com.example.musicplayer.data.repository.LocalMusic
-import com.example.musicplayer.data.repository.MusicRepository
 import com.example.musicplayer.databinding.FragmentArtistBinding
-import com.example.musicplayer.factory.MainViewModelFactory
 import com.example.musicplayer.view.main.MainFragmentDirections
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class ArtistFragment : Fragment(), ArtistAdapter.ArtistEventListener {
     lateinit var binding: FragmentArtistBinding
-    lateinit var viewModel: ArtistViewModel
+    private val viewModel: ArtistViewModel by viewModels()
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -30,15 +28,6 @@ class ArtistFragment : Fragment(), ArtistAdapter.ArtistEventListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        //viewModel
-        val musicDao = MusicDatabase.getInstance(requireContext()).musicDao()
-        viewModel = ViewModelProvider(
-            requireActivity(),
-            MainViewModelFactory(
-                MusicRepository(LocalMusic(requireContext()), musicDao)
-            )
-        ).get(ArtistViewModel::class.java)
 
         //show list artist
         showArtists()

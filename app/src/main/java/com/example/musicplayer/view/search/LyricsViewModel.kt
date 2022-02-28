@@ -3,13 +3,19 @@ package com.example.musicplayer.view.search
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.musicplayer.data.api.APiService
 import com.example.musicplayer.data.db.dao.entities.Song
 import com.example.musicplayer.data.model.Lyric
+import com.example.musicplayer.data.repository.LyricsRepository
 import com.example.musicplayer.data.repository.MusicRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class LyricsViewModel(val musicRepository: MusicRepository) : ViewModel() {
+@HiltViewModel
+class LyricsViewModel @Inject constructor(
+    private val musicRepository: MusicRepository,
+    private val lyricsRepository: LyricsRepository
+) : ViewModel() {
     val lyrics = MutableLiveData<Lyric>()
     val findLyrics = MutableLiveData(false)
 
@@ -23,7 +29,7 @@ class LyricsViewModel(val musicRepository: MusicRepository) : ViewModel() {
     fun searchLyrics(artist: String, title: String) {
         viewModelScope.launch {
             try {
-                lyrics.value = APiService.api.search(artist, title)
+                lyrics.value = lyricsRepository.searchLyrics(artist, title)
                 findLyrics.value = true
             } catch (throwable: Throwable) {
                 lyrics.value = Lyric(null, "Not found!!!")

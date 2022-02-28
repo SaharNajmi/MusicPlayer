@@ -7,29 +7,25 @@ import android.view.ViewGroup
 import android.widget.SeekBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.Glide
 import com.example.musicplayer.R
-import com.example.musicplayer.data.db.MusicDatabase
 import com.example.musicplayer.data.db.dao.entities.Song
-import com.example.musicplayer.data.repository.LocalMusic
-import com.example.musicplayer.data.repository.MusicRepository
 import com.example.musicplayer.databinding.FragmentDetailBinding
-import com.example.musicplayer.factory.BaseViewModelFactory
-import com.example.musicplayer.factory.DetailViewModelFactory
-import com.example.musicplayer.player.Player
 import com.example.musicplayer.utils.PlayerState
 import com.example.musicplayer.view.favorite.FavoriteViewModel
 import com.example.musicplayer.view.main.MainActivity
+import dagger.hilt.android.AndroidEntryPoint
 import java.util.concurrent.TimeUnit
 
+@AndroidEntryPoint
 class DetailFragment : Fragment() {
     lateinit var binding: FragmentDetailBinding
     lateinit var song: Song
-    lateinit var viewModel: DetailViewModel
-    lateinit var favoriteViewModel: FavoriteViewModel
+    private val viewModel: DetailViewModel by viewModels()
+    private val favoriteViewModel: FavoriteViewModel by viewModels()
     var favorite: Boolean = false
 
     override fun onCreateView(
@@ -49,21 +45,6 @@ class DetailFragment : Fragment() {
         if (requireActivity() is MainActivity) {
             (activity as MainActivity?)!!.hideMusicController()
         }
-        //detail viewModel
-        val musicDao = MusicDatabase.getInstance(requireContext()).musicDao()
-        viewModel = ViewModelProvider(
-            requireActivity(),
-            DetailViewModelFactory(Player.getInstance())
-        ).get(DetailViewModel::class.java)
-
-        //favorite ViewModel
-        favoriteViewModel = ViewModelProvider(
-            requireActivity(),
-            BaseViewModelFactory(
-                Player.getInstance(),
-                MusicRepository(LocalMusic(requireContext()), musicDao)
-            )
-        ).get(FavoriteViewModel::class.java)
 
         updateUi(song)
 
