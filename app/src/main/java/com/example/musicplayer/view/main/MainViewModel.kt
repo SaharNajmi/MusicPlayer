@@ -5,13 +5,18 @@ import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import com.example.musicplayer.data.db.dao.entities.Song
 import com.example.musicplayer.data.repository.MusicRepository
+import com.example.musicplayer.data.repository.SharedPreferenceRepository
 import com.example.musicplayer.player.Player
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class MainViewModel @Inject constructor(val player: Player, val musicRepository: MusicRepository) :
+class MainViewModel @Inject constructor(
+    val player: Player,
+    val musicRepository: MusicRepository,
+    private val sharedPreference: SharedPreferenceRepository
+) :
     ViewModel() {
     var song = player.song
     var playerState = player.playerState
@@ -20,9 +25,6 @@ class MainViewModel @Inject constructor(val player: Player, val musicRepository:
 
     val songPosition
         get() = player.songPosition
-
-    val duration
-        get() = player.duration
 
     val musics = liveData {
         val result = musicRepository.getMusics()
@@ -33,6 +35,14 @@ class MainViewModel @Inject constructor(val player: Player, val musicRepository:
     val databaseExists = liveData {
         val result = musicRepository.databaseExists()
         emit(result)
+    }
+
+    fun getSharedPreference(prefName: String, defaultValue: Int): Int {
+        return sharedPreference.getSharedPreferenceInt(prefName, defaultValue)
+    }
+
+    fun setSharedPreference(prefName: String, defaultValue: Int) {
+        sharedPreference.setSharedPreferenceInt(prefName, defaultValue)
     }
 
     fun changeSongPosition(position: Int) {

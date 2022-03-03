@@ -1,6 +1,8 @@
 package com.example.musicplayer.hilt.module
 
 import android.app.Application
+import android.content.SharedPreferences
+import androidx.appcompat.app.AppCompatActivity
 import androidx.room.Room
 import com.example.musicplayer.data.api.LyricsAPI
 import com.example.musicplayer.data.db.MusicDatabase
@@ -50,5 +52,10 @@ class AppModule {
         .baseUrl(Constants.BASE_URL)
         .build()
         .create(LyricsAPI::class.java)
+
+    @Singleton
+    @Provides
+    fun provideSharedPreferences(application: Application): SharedPreferences =
+        application.getSharedPreferences("sharedPreferences", AppCompatActivity.MODE_PRIVATE)
 
 }

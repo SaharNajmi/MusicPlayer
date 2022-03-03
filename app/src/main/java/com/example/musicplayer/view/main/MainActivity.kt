@@ -5,9 +5,9 @@ import android.app.PendingIntent
 import android.content.ComponentName
 import android.content.Intent
 import android.content.ServiceConnection
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.os.IBinder
+import android.provider.MediaStore
 import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -38,7 +38,6 @@ import dagger.hilt.android.AndroidEntryPoint
 class MainActivity : AppCompatActivity(), ServiceConnection, ActionPlaying {
     lateinit var binding: ActivityMainBinding
     private val viewModel: MainViewModel by viewModels()
-    lateinit var sharedPreferences: SharedPreferences
     var musicService: ForegroundService? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,9 +47,6 @@ class MainActivity : AppCompatActivity(), ServiceConnection, ActionPlaying {
         setContentView(view)
 
         val mNavController = findNavController(R.id.nav_host_fragment)
-
-        //sharedPreferences
-        sharedPreferences = getSharedPreferences("sharedPreferences", MODE_PRIVATE)
 
         //bind service
         val intent = Intent(this, ForegroundService::class.java)
@@ -132,7 +128,11 @@ class MainActivity : AppCompatActivity(), ServiceConnection, ActionPlaying {
     }
 
     private fun showSaveState() {
-        var oldPositionSong = sharedPreferences.getInt("position", 0)
+        //get saveState
+        var oldPositionSong = viewModel.getSharedPreference("position", 0)
+        val oldProgressSong = viewModel.getSharedPreference("progress", 0)
+        val oldDurationSong = viewModel.getSharedPreference("duration", 0)
+
         //when first play application
         if (oldPositionSong < 0)
             oldPositionSong = 0
@@ -149,9 +149,6 @@ class MainActivity : AppCompatActivity(), ServiceConnection, ActionPlaying {
         })
 
         //update progress
-        //get old progress/duration song
-        val oldProgressSong = sharedPreferences.getInt("progress", 0)
-        val oldDurationSong = sharedPreferences.getInt("duration", 0)
         updateProgress(oldProgressSong, oldDurationSong)
 
         //Change default position song
@@ -161,21 +158,20 @@ class MainActivity : AppCompatActivity(), ServiceConnection, ActionPlaying {
     override fun onPause() {
         super.onPause()
         //save values
-        sharedPreferences.edit().apply {
-            putInt("position", viewModel.songPosition)
-            putInt("progress", viewModel.progress.value!!)
-            putInt("duration", viewModel.duration)
-            apply()
-        }
+        viewModel.setSharedPreference("position", viewModel.songPosition)
+        viewModel.setSharedPreference("progress", viewModel.progress.value!!)
+        viewModel.setSharedPreference("duration", viewModel.song.value!!.duration)
     }
 
-    fun updateProgress(progress: Int) {
+    private fun updateProgress(progress: Int) {
         //set progress to seekbar
-        binding.playMusicLayout.seekBar.max = viewModel.duration
+        viewModel.song.observe(this) { song ->
+            binding.playMusicLayout.seekBar.max = song.duration
+        }
         binding.playMusicLayout.seekBar.progress = progress
     }
 
-    fun updateProgress(progress: Int, duration: Int) {
+    private fun updateProgress(progress: Int, duration: Int) {
         binding.playMusicLayout.seekBar.max = duration
         binding.playMusicLayout.seekBar.progress = progress
     }
@@ -308,5 +304,24 @@ class MainActivity : AppCompatActivity(), ServiceConnection, ActionPlaying {
 
     override fun closeClicked() {
         viewModel.pauseSong()
+    }
+
+    fun getMp3Songs() {
+        val selection = MediaStore.Audio.Media.IS_MUSIC + " != 0"
+        val projection = arrayOf(
+            MediaStore.Audio.Media._ID,
+            MediaStore.Audio.Media.ARTIST,
+            MediaStore.Audio.Media.TITLE,
+            MediaStore.Audio.Media.DATA,
+            MediaStore.Audio.Media.DISPLAY_NAME,
+            MediaStore.Audio.Media.DURATION
+        )
+        val cursor = this.managedQuery(
+            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+            projection, selection, null, null
+        )
+        while (cursor.moveToNext()) {
+            println("===================")
+        }
     }
 }
