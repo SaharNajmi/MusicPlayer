@@ -18,7 +18,7 @@ class SongAdapter(
     inner class Holder(val view: MusicItemLayoutBinding) : RecyclerView.ViewHolder(view.root) {
         fun bind(song: Song) {
             view.artist.text = song.artist
-            view.songTitle.text = song.songTitle
+            view.songTitle.text = song.title
             Glide.with(context)
                 .load(song.coverImage)
                 .into(view.coverImage)

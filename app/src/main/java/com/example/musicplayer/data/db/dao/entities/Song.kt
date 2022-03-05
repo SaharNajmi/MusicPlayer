@@ -10,15 +10,17 @@ import kotlinx.parcelize.Parcelize
 data class Song(
     @PrimaryKey(autoGenerate = false)
     val id: Long,
-    val artist: String,
+    val title: String,
     val albumID: Long,
+    val album: String,
     val artistID: Long,
-    val songTitle: String,
+    val artist: String,
+    val folderID: Long,
+    val folderName: String,
+    val path: String,
+    var duration: Int,
     val coverImage: String,
     var lyrics: String = "",
     var isLyrics: Boolean = false,
-    val folderName: String,
-    val path: String,
-    val duration: Int,
     var favorite: Boolean = false
 ) : Parcelable

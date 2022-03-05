@@ -179,7 +179,7 @@ class MainActivity : AppCompatActivity(), ServiceConnection, ActionPlaying {
             .load(song.coverImage)
             .into(binding.playMusicLayout.coverImage)
 
-        binding.playMusicLayout.songTitle.text = song.songTitle
+        binding.playMusicLayout.songTitle.text = song.title
         binding.playMusicLayout.artist.text = song.artist
     }
 
@@ -268,7 +268,7 @@ class MainActivity : AppCompatActivity(), ServiceConnection, ActionPlaying {
 
         //create notification
         val notification: Notification = NotificationCompat.Builder(this)
-            .setContentTitle(song.songTitle)
+            .setContentTitle(song.title)
             .setContentText(song.artist)
             .setSmallIcon(R.drawable.music_note)
             .setContentIntent(pendingIntent)

@@ -32,17 +32,17 @@ class MusicRepository @Inject constructor(
     }
 
     suspend fun insertMusics() = withContext(Dispatchers.IO) {
-        musicDao.insertSongs(localMusic.musics())
+        musicDao.insertSongs(localMusic.getAllSongs())
     }
 
     suspend fun databaseExists() = withContext(Dispatchers.IO) { musicDao.databaseExists() }
 
     suspend fun insertAlbums() = withContext(Dispatchers.IO) {
-        musicDao.insertAlbums(localMusic.albums())
+        musicDao.insertAlbums(localMusic.getAllAlbums())
     }
 
     suspend fun insertArtists() = withContext(Dispatchers.IO) {
-        musicDao.insertArtists(localMusic.artists())
+        musicDao.insertArtists(localMusic.getAllArtists())
     }
 
     suspend fun update(song: Song) = withContext(Dispatchers.IO) {

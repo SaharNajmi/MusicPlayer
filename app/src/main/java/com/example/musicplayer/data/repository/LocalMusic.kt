@@ -1,107 +1,134 @@
 package com.example.musicplayer.data.repository
 
 import android.annotation.SuppressLint
-import android.content.ContentResolver
 import android.content.ContentUris
 import android.content.Context
+import android.database.Cursor
 import android.net.Uri
 import android.provider.MediaStore
 import com.example.musicplayer.data.db.dao.entities.Album
 import com.example.musicplayer.data.db.dao.entities.Artist
 import com.example.musicplayer.data.db.dao.entities.Song
+import com.example.musicplayer.utils.Constants
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.File
 
-class LocalMusic(context: Context) {
-    var musicResolver: ContentResolver = context.contentResolver
-    val musicUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
-    val musicCursor = musicResolver.query(musicUri, null, null, null, null)
+@Suppress("RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
+class LocalMusic(private val context: Context) {
 
-    @SuppressLint("Recycle", "InlinedApi")
-    fun musics(): ArrayList<Song> {
-        val musics = ArrayList<Song>()
-        if (musicCursor != null && musicCursor.moveToFirst()) {
-            val songId = musicCursor.getColumnIndex(MediaStore.Audio.Media._ID)
-            val songArtist = musicCursor.getColumnIndex(MediaStore.Audio.Media.ARTIST)
-            val songTitle = musicCursor.getColumnIndex(MediaStore.Audio.Media.TITLE)
-            val albumId = musicCursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID)
-            val artistId = musicCursor.getColumnIndex(MediaStore.Audio.Media.ARTIST_ID)
-            val path = musicCursor.getColumnIndex(MediaStore.Audio.Media.DATA)
-            val duration = musicCursor.getColumnIndex(MediaStore.Audio.Media.DURATION)
-            val folderName: String = File(musicCursor.getString(path)).parentFile.name
-            //val folderName = musicCursor.getColumnIndex(MediaStore.Audio.Media.BUCKET_DISPLAY_NAME)
-            //val folderId = musicCursor.getColumnIndex(MediaStore.Audio.Media.BUCKET_ID)
+    suspend fun getAllSongs(): List<Song> =
+        withContext(Dispatchers.IO) { songs(makeSongCursor()) }
 
-            while (musicCursor.moveToNext()) {
-                //get cover image song
-                val image_uri = Uri.parse("content://media/external/audio/albumart")
-                val album_uri =
-                    ContentUris.withAppendedId(image_uri, musicCursor.getLong(albumId))
+    suspend fun getAllArtists(): List<Artist> =
+        withContext(Dispatchers.IO) { artists(makeSongCursor()) }
 
-                //add music into array song
-                musics.add(
-                    Song(
-                        musicCursor.getLong(songId),
-                        musicCursor.getString(songArtist),
-                        musicCursor.getLong(albumId),
-                        musicCursor.getLong(artistId),
-                        musicCursor.getString(songTitle),
-                        album_uri.toString(),
-                        folderName = folderName,
-                        path = musicCursor.getString(path),
-                        duration = musicCursor.getInt(duration)
-                    )
-                )
+    suspend fun getAllAlbums(): List<Album> =
+        withContext(Dispatchers.IO) { albums(makeSongCursor()) }
 
-            }
+    private fun songs(cursor: Cursor?): List<Song> {
+        val songs = arrayListOf<Song>()
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                songs.add(getSongFromCursorImpl(cursor))
+            } while (cursor.moveToNext())
         }
-        return musics
+        cursor?.close()
+        return songs
     }
 
-    fun artists(): ArrayList<Artist> {
-        val artists = ArrayList<Artist>()
-        if (musicCursor != null && musicCursor.moveToFirst()) {
-            val artist = musicCursor.getColumnIndex(MediaStore.Audio.Media.ARTIST)
-            val artistId = musicCursor.getColumnIndex(MediaStore.Audio.Media.ARTIST_ID)
-
-            while (musicCursor.moveToNext()) {
-
-                //add artists into array artist
-                artists.add(
-                    Artist(
-                        musicCursor.getLong(artistId),
-                        musicCursor.getString(artist),
-                    )
-                )
-
-            }
+    private fun artists(cursor: Cursor?): List<Artist> {
+        val artists = arrayListOf<Artist>()
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                artists.add(getArtistFromCursorImpl(cursor))
+            } while (cursor.moveToNext())
         }
+        cursor?.close()
         return artists
     }
 
-    fun albums(): ArrayList<Album> {
-        val albums = ArrayList<Album>()
-        if (musicCursor != null && musicCursor.moveToFirst()) {
-            val artist = musicCursor.getColumnIndex(MediaStore.Audio.Media.ARTIST)
-            val albumName = musicCursor.getColumnIndex(MediaStore.Audio.Media.TITLE)
-            val albumId = musicCursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID)
-
-            while (musicCursor.moveToNext()) {
-                //get cover image song
-                val image_uri = Uri.parse("content://media/external/audio/albumart")
-                val album_uri =
-                    ContentUris.withAppendedId(image_uri, musicCursor.getLong(albumId))
-
-                //add albums into array album
-                albums.add(
-                    Album(
-                        musicCursor.getLong(albumId),
-                        musicCursor.getString(albumName),
-                        musicCursor.getString(artist),
-                        album_uri.toString()
-                    )
-                )
-            }
+    private fun albums(cursor: Cursor?): List<Album> {
+        val albums = arrayListOf<Album>()
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                albums.add(getAlbumFromCursorImpl(cursor))
+            } while (cursor.moveToNext())
         }
+        cursor?.close()
         return albums
     }
+
+    private fun getSongFromCursorImpl(cursor: Cursor): Song {
+        val id = cursor.getLong(0)
+        val title = cursor.getString(1)
+        val albumID = cursor.getLong(2)
+        val album = cursor.getString(3)
+        val artistID = cursor.getLong(4)
+        val artist = cursor.getString(5)
+        val path = cursor.getString(6)
+        val duration = cursor.getInt(7)
+        val folderID: Long = 0
+        val folderName: String = File(path).parentFile.name
+        val uri = Uri.parse("content://media/external/audio/albumart")
+        val coverImage = ContentUris.withAppendedId(uri, albumID)
+
+        return Song(
+            id = id,
+            title = title,
+            albumID = albumID,
+            album = album ?: "<unknown>",
+            artistID = artistID,
+            artist = artist ?: "<unknown>",
+            folderID = folderID,
+            folderName = folderName,
+            path = path,
+            duration = duration,
+            coverImage = coverImage.toString()
+        )
+    }
+
+    private fun getArtistFromCursorImpl(cursor: Cursor): Artist {
+        val artistID = cursor.getLong(4)
+        val artist = cursor.getString(5)
+
+        return Artist(
+            artistID,
+            artist ?: "<unknown>",
+        )
+    }
+
+    private fun getAlbumFromCursorImpl(cursor: Cursor): Album {
+        val albumID = cursor.getLong(2)
+        val album = cursor.getString(3)
+        val artist = cursor.getString(5)
+        val uri = Uri.parse("content://media/external/audio/albumart")
+        val coverImage = ContentUris.withAppendedId(uri, albumID)
+
+        return Album(
+            id = albumID,
+            albumName = album ?: "<unknown>",
+            artist = artist ?: "<unknown>",
+            coverImage.toString()
+        )
+    }
+
+    @SuppressLint("Recycle")
+    private fun makeSongCursor(): Cursor? {
+        val uri: Uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+        val selection = MediaStore.Audio.Media.IS_MUSIC + " != 0"
+
+        return try {
+            context.applicationContext.contentResolver.query(
+                uri,
+                Constants.baseProjection,
+                null,
+                null,
+                MediaStore.Audio.Media.DEFAULT_SORT_ORDER
+            )
+        } catch (e: SecurityException) {
+            null
+        }
+    }
 }
+

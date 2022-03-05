@@ -14,7 +14,7 @@ class AlbumDetailAdapter(
     class Holder(val view: AlbumDetailsItemBinding) : RecyclerView.ViewHolder(view.root) {
         fun bind(song: Song) {
             view.artist.text = song.artist
-            view.songTitle.text = song.songTitle
+            view.songTitle.text = song.title
         }
     }
 

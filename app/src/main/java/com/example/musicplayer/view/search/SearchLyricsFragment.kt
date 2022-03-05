@@ -39,7 +39,7 @@ class SearchLyricsFragment : Fragment() {
 
         //set data
         binding.edtSong.setText(song.artist)
-        binding.edtTitle.setText(song.songTitle)
+        binding.edtTitle.setText(song.title)
 
         //show ProgressBar
         lyricsViewModel.loading.observe(viewLifecycleOwner, {

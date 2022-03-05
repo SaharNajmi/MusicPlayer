@@ -18,7 +18,7 @@ class SearchMusicViewModel(val player: Player, val musicRepository: MusicReposit
         viewModelScope.launch(Dispatchers.IO) {
             for (song in musicRepository.getMusics()) {
                 var isListAdded = false
-                if (song.songTitle.toLowerCase().contains(value.toLowerCase())
+                if (song.title.toLowerCase().contains(value.toLowerCase())
                     && value != ""
                 ) {
                     filterSongs.add(song)

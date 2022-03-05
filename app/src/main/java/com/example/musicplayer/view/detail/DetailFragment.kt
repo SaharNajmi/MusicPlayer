@@ -146,7 +146,7 @@ class DetailFragment : Fragment() {
     )
 
     fun updateUi(song: Song) {
-        binding.songTitle.text = song.songTitle
+        binding.songTitle.text = song.title
         binding.artist.text = song.artist
         binding.seekBar.max = song.duration
         binding.txtEndTime.text = durationPointSeekBar(song.duration)
