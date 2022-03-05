@@ -19,13 +19,15 @@
         android:screenOrientation="portrait"
         android:supportsRtl="true"
         android:theme="@style/Theme.MusicPlayer">
-        <activity android:name="com.example.musicplayer.view.main.MainActivity">
+        <activity android:name=".view.main.SplashScreen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name="com.example.musicplayer.view.main.MainActivity" />
+
         <service
             android:name=".service.ForegroundService"
             android:enabled="true" />
