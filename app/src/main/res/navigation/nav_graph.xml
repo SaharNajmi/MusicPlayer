@@ -52,7 +52,7 @@
             app:destination="@id/detailFragment" />
         <argument
             android:name="lyricsDetail"
-            app:argType="com.example.musicplayer.data.model.SongModel" />
+            app:argType="com.example.musicplayer.data.db.dao.entities.Song" />
         <action
             android:id="@+id/action_searchLyricsFragment_to_detailFragment2"
             app:destination="@id/detailFragment" />
@@ -92,7 +92,7 @@
             app:destination="@id/mainFragment" />
         <argument
             android:name="musicDetail"
-            app:argType="com.example.musicplayer.data.model.SongModel" />
+            app:argType="com.example.musicplayer.data.db.dao.entities.Song" />
     </fragment>
     <fragment
         android:id="@+id/albumDetailsFragment"
@@ -104,7 +104,7 @@
             app:destination="@id/detailFragment" />
         <argument
             android:name="albumDetail"
-            app:argType="com.example.musicplayer.data.model.AlbumModel" />
+            app:argType="com.example.musicplayer.data.db.dao.entities.Album" />
     </fragment>
     <fragment
         android:id="@+id/artistDetailFragment"
@@ -113,7 +113,7 @@
         tools:layout="@layout/fragment_artist_detail">
         <argument
             android:name="artistDetail"
-            app:argType="com.example.musicplayer.data.model.ArtistModel" />
+            app:argType="com.example.musicplayer.data.db.dao.entities.Artist" />
         <action
             android:id="@+id/action_artistDetailFragment_to_detailFragment"
             app:destination="@id/detailFragment" />
@@ -124,7 +124,7 @@
         android:label="fragment_file_detail"
         tools:layout="@layout/fragment_file_detail">
         <argument
-            android:name="fileDetail"
+            android:name="fileName"
             app:argType="string" />
         <action
             android:id="@+id/action_fileDetailFragment_to_detailFragment"

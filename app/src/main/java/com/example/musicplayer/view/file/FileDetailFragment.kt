@@ -5,19 +5,19 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.musicplayer.data.model.SongModel
+import com.example.musicplayer.data.db.dao.entities.Song
 import com.example.musicplayer.databinding.FragmentFileDetailBinding
-import com.example.musicplayer.factory.BaseViewModelFactory
-import com.example.musicplayer.player.Player
 import com.example.musicplayer.view.all.SongAdapter
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class FileDetailFragment : Fragment(), SongAdapter.SongEventListener {
     lateinit var binding: FragmentFileDetailBinding
     val args: FileDetailFragmentArgs by navArgs()
-    lateinit var viewModel: FileDetailViewModel
+    private val viewModel: FileDetailViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -31,29 +31,22 @@ class FileDetailFragment : Fragment(), SongAdapter.SongEventListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         //set Text textView FolderName
-        binding.folderName.text = args.fileDetail
-
-        //viewModel
-        viewModel = ViewModelProvider(
-            requireActivity(),
-            BaseViewModelFactory(requireContext())
-        ).get(FileDetailViewModel::class.java)
+        binding.folderName.text = args.fileName
 
         //show items
         initRecycler()
     }
 
-    fun initRecycler() {
-        val musics = viewModel.getMusics(requireContext())
-        //Get list folder items by folderName
-        val list = viewModel.getMusicsInsideFolder(args.fileDetail, musics)
-
+    private fun initRecycler() {
         binding.recyclerDetailFolder.layoutManager = LinearLayoutManager(requireContext())
-        binding.recyclerDetailFolder.adapter =
-            SongAdapter(requireContext(), list, this)
+        //Get musics by fileName
+        viewModel.getMusics(args.fileName).observe(viewLifecycleOwner, { list ->
+            binding.recyclerDetailFolder.adapter =
+                SongAdapter(requireContext(), list, this)
+        })
     }
 
-    override fun onSelect(songModel: SongModel, posSong: Int) {
-        Player.getInstance(requireContext()).songSelected(songModel, posSong)
+    override fun onSelect(song: Song, posSong: Int) {
+        viewModel.songSelected(song, posSong)
     }
 }

@@ -5,17 +5,18 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.musicplayer.data.model.ArtistModel
+import com.example.musicplayer.data.db.dao.entities.Artist
 import com.example.musicplayer.databinding.FragmentArtistBinding
-import com.example.musicplayer.factory.BaseViewModelFactory
 import com.example.musicplayer.view.main.MainFragmentDirections
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class ArtistFragment : Fragment(), ArtistAdapter.ArtistEventListener {
     lateinit var binding: FragmentArtistBinding
-    lateinit var viewModel: ArtistViewModel
+    private val viewModel: ArtistViewModel by viewModels()
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -28,25 +29,21 @@ class ArtistFragment : Fragment(), ArtistAdapter.ArtistEventListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        //viewModel
-        viewModel = ViewModelProvider(
-            requireActivity(),
-            BaseViewModelFactory(requireContext())
-        ).get(ArtistViewModel::class.java)
-
         //show list artist
         showArtists()
     }
 
     private fun showArtists() {
         binding.recyclerAtrist.layoutManager = LinearLayoutManager(requireContext())
-        binding.recyclerAtrist.adapter =
-            ArtistAdapter(requireContext(), viewModel.getArtists(requireContext()), this)
+        viewModel.artists.observe(viewLifecycleOwner, { list ->
+            binding.recyclerAtrist.adapter =
+                ArtistAdapter(requireContext(), list, this)
+        })
     }
 
-    override fun onSelect(artistModel: ArtistModel) {
+    override fun onSelect(artist: Artist) {
         val directions =
-            MainFragmentDirections.actionMainFragmentToArtistDetailFragment(artistModel)
+            MainFragmentDirections.actionMainFragmentToArtistDetailFragment(artist)
         findNavController().navigate(directions)
     }
 }

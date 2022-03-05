@@ -1,21 +1,25 @@
 package com.example.musicplayer.view.artist
 
-import android.content.Context
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
-import com.example.musicplayer.data.model.SongModel
+import androidx.lifecycle.liveData
+import com.example.musicplayer.data.db.dao.entities.Song
+import com.example.musicplayer.data.repository.MusicRepository
 import com.example.musicplayer.player.Player
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class ArtistDetailViewModel(val player: Player) : ViewModel() {
+@HiltViewModel
+class ArtistDetailViewModel @Inject constructor(
+    val player: Player,
+    val musicRepository: MusicRepository
+) : ViewModel() {
 
-    fun getArtists(artistId: Long, context: Context): ArrayList<SongModel> {
-        val newList = ArrayList<SongModel>()
-        val musics = player.getSongs(context)
-        musics.forEach {
-            if (artistId == it.artistID)
-                newList.add(it)
-        }
-        player.musics = newList
-        return newList
+    fun getMusics(artistId: Long): LiveData<List<Song>> = liveData {
+        val result = musicRepository.getArtistById(artistId)
+        player.updateList(result)
+        emit(result)
     }
 
+    fun songSelected(song: Song, posSong: Int) = player.songSelected(song, posSong)
 }

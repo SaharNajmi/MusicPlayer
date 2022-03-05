@@ -1,14 +1,17 @@
 package com.example.musicplayer.view.file
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
-import com.example.musicplayer.data.repository.LocalMusic
-import com.example.musicplayer.player.Player
+import androidx.lifecycle.liveData
+import com.example.musicplayer.data.repository.MusicRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import javax.inject.Inject
 
-class FileViewModel(val player: Player, val localMusic: LocalMusic) : ViewModel() {
+@HiltViewModel
+class FileViewModel @Inject constructor(val musicRepository: MusicRepository) : ViewModel() {
 
-    fun getFiles(context: Context): List<String> {
-        val musics = player.getSongs(context)
-        return localMusic.getFolderNames(musics)
+    val fileNames = liveData(Dispatchers.IO) {
+        val result = musicRepository.getFileNames()
+        emit(result)
     }
 }

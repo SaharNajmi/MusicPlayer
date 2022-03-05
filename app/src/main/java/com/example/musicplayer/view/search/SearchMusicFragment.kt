@@ -7,19 +7,18 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.musicplayer.data.model.SongModel
+import com.example.musicplayer.data.db.dao.entities.Song
 import com.example.musicplayer.databinding.FragmentSearchMusicBinding
-import com.example.musicplayer.factory.BaseViewModelFactory
-import com.example.musicplayer.player.Player
 import com.example.musicplayer.view.all.SongAdapter
+import dagger.hilt.android.AndroidEntryPoint
 
-class
-SearchMusicFragment : Fragment(), SongAdapter.SongEventListener {
+@AndroidEntryPoint
+class SearchMusicFragment : Fragment(), SongAdapter.SongEventListener {
     lateinit var binding: FragmentSearchMusicBinding
     lateinit var adapter: SongAdapter
-    lateinit var viewModel: SearchMusicViewModel
+    private val viewModel: SearchMusicViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -33,12 +32,6 @@ SearchMusicFragment : Fragment(), SongAdapter.SongEventListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        //viewModel
-        viewModel = ViewModelProvider(
-            requireActivity(),
-            BaseViewModelFactory(requireContext())
-        ).get(SearchMusicViewModel::class.java)
-
         //show all song
         showMusics()
 
@@ -50,8 +43,8 @@ SearchMusicFragment : Fragment(), SongAdapter.SongEventListener {
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
             }
 
-            override fun afterTextChanged(p0: Editable?) {
-                viewModel.searchSong(p0.toString(), requireContext(), adapter)
+            override fun afterTextChanged(text: Editable?) {
+                viewModel.searchSong(text.toString(), adapter)
             }
         })
 
@@ -62,12 +55,12 @@ SearchMusicFragment : Fragment(), SongAdapter.SongEventListener {
     }
 
     fun showMusics() {
-        adapter = SongAdapter(requireContext(), viewModel.getMusics(requireContext()), this)
+        adapter = SongAdapter(requireContext(), arrayListOf(), this)
         binding.recyclerShowItemSearch.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerShowItemSearch.adapter = adapter
     }
 
-    override fun onSelect(songModel: SongModel, posSong: Int) {
-        Player.getInstance(requireContext()).songSelected(songModel, posSong)
+    override fun onSelect(song: Song, posSong: Int) {
+        viewModel.songSelected(song, posSong)
     }
 }

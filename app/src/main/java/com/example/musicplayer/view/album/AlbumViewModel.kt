@@ -1,17 +1,18 @@
 package com.example.musicplayer.view.album
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
-import com.example.musicplayer.data.model.AlbumModel
-import com.example.musicplayer.data.repository.LocalMusic
-import com.example.musicplayer.player.Player
+import androidx.lifecycle.liveData
+import com.example.musicplayer.data.repository.MusicRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import javax.inject.Inject
 
-class AlbumViewModel(val player: Player, val localMusic: LocalMusic) : ViewModel() {
-
-    fun getAlbums(context: Context): ArrayList<AlbumModel> {
-        //get array list album
-        val musics = player.getSongs(context)
-        val albumIDs = localMusic.getAlbumIDs(musics)
-        return localMusic.getAlbums(musics, albumIDs)
+@HiltViewModel
+class AlbumViewModel @Inject constructor(
+    val musicRepository: MusicRepository
+) : ViewModel() {
+    val albums = liveData(Dispatchers.IO) {
+        val result = musicRepository.getAlbums()
+        emit(result)
     }
 }

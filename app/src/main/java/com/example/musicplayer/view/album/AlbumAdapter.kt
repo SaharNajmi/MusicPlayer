@@ -5,21 +5,21 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.example.musicplayer.data.model.AlbumModel
+import com.example.musicplayer.data.db.dao.entities.Album
 import com.example.musicplayer.databinding.AlbumItemBinding
 
 class AlbumAdapter(
     val context: Context,
-    val list: ArrayList<AlbumModel>,
+    val list: List<Album>,
     val albumEventListener: AlbumEventListener
 ) :
     RecyclerView.Adapter<AlbumAdapter.Holder>() {
     inner class Holder(val view: AlbumItemBinding) : RecyclerView.ViewHolder(view.root) {
-        fun bind(albumModel: AlbumModel) {
-            view.artist.text = albumModel.artist
-            view.albumTitle.text = albumModel.albumName
+        fun bind(album: Album) {
+            view.artist.text = album.artist
+            view.albumTitle.text = album.albumName
             Glide.with(context)
-                .load(albumModel.albumImage)
+                .load(album.albumImage)
                 .into(view.coverImage)
         }
     }
@@ -41,6 +41,6 @@ class AlbumAdapter(
     override fun getItemCount(): Int = list.size
 
     interface AlbumEventListener {
-        fun onSelect(albumModel: AlbumModel)
+        fun onSelect(album: Album)
     }
 }

@@ -5,21 +5,21 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
-import com.example.musicplayer.data.model.AlbumModel
-import com.example.musicplayer.data.model.SongModel
+import com.example.musicplayer.data.db.dao.entities.Album
+import com.example.musicplayer.data.db.dao.entities.Song
 import com.example.musicplayer.databinding.FragmentAlbumDetailBinding
-import com.example.musicplayer.factory.BaseViewModelFactory
-import com.example.musicplayer.player.Player
 import com.example.musicplayer.view.all.SongAdapter
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class AlbumDetailFragment : Fragment(), SongAdapter.SongEventListener {
     lateinit var binding: FragmentAlbumDetailBinding
-    lateinit var albumModel: AlbumModel
-    lateinit var viewModel: AlbumDetailViewModel
+    lateinit var album: Album
+    private val viewModel: AlbumDetailViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -33,13 +33,7 @@ class AlbumDetailFragment : Fragment(), SongAdapter.SongEventListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val args: AlbumDetailFragmentArgs by navArgs()
-        albumModel = args.albumDetail
-
-        //viewModel
-        viewModel = ViewModelProvider(
-            requireActivity(),
-            BaseViewModelFactory(requireContext())
-        ).get(AlbumDetailViewModel::class.java)
+        album = args.albumDetail
 
         //set data
         updateUI()
@@ -49,21 +43,22 @@ class AlbumDetailFragment : Fragment(), SongAdapter.SongEventListener {
     }
 
     fun updateUI() {
-        binding.albumTitle.text = albumModel.albumName
-        binding.artist.text = albumModel.artist
+        binding.albumTitle.text = album.albumName
+        binding.artist.text = album.artist
         Glide.with(this)
-            .load(albumModel.albumImage)
+            .load(album.albumImage)
             .into(binding.imgCoverAlbum)
     }
 
     fun initRecycler() {
-        //Get list album items by albumId
-        val albums = viewModel.getAlbums(albumModel.id, requireContext())
         binding.recyclerDetailAlbum.layoutManager = LinearLayoutManager(requireContext())
-        binding.recyclerDetailAlbum.adapter = AlbumDetailAdapter(albums, this)
+        //Get musics by albumId
+        viewModel.getMusics(album.id).observe(viewLifecycleOwner, { list ->
+            binding.recyclerDetailAlbum.adapter = AlbumDetailAdapter(list, this)
+        })
     }
 
-    override fun onSelect(songModel: SongModel, posSong: Int) {
-        Player.getInstance(requireContext()).songSelected(songModel, posSong)
+    override fun onSelect(song: Song, posSong: Int) {
+        viewModel.songSelected(song, posSong)
     }
 }

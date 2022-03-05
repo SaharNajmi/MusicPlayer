@@ -1,31 +1,42 @@
 package com.example.musicplayer.view.favorite
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
-import com.example.musicplayer.data.db.FavoriteDatabase
-import com.example.musicplayer.data.model.SongModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.liveData
+import androidx.lifecycle.viewModelScope
+import com.example.musicplayer.data.db.dao.entities.Song
+import com.example.musicplayer.data.repository.MusicRepository
 import com.example.musicplayer.player.Player
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
+@HiltViewModel
+class FavoriteViewModel @Inject constructor(
+    val player: Player,
+    private val musicRepository: MusicRepository
+) :
+    ViewModel() {
 
-class FavoriteViewModel(app: Application) : AndroidViewModel(app) {
-    var repository: FavoriteRepository
-
-    init {
-        val musicDao = FavoriteDatabase.getInstance(getApplication()).favoriteDao()
-        val player: Player = Player.getInstance(app)
-        repository = FavoriteRepository(musicDao)
-        player.musics = getAll()
+    fun getFavorites(): LiveData<List<Song>> = liveData {
+        val result = musicRepository.getFavorites()
+        player.updateList(result)
+        emit(result)
     }
 
-    fun getAll(): ArrayList<SongModel> = repository.getAll() as ArrayList<SongModel>
+    fun songSelected(song: Song, posSong: Int) = player.songSelected(song, posSong)
 
-    fun insert(songModel: SongModel) {
-        songModel.favorite = true
-        repository.insert(songModel)
+    fun insert(song: Song) {
+        viewModelScope.launch {
+            song.favorite = true
+            musicRepository.update(song)
+        }
     }
 
-    fun delete(songModel: SongModel) {
-        songModel.favorite = false
-        repository.delete(songModel)
+    fun delete(song: Song) {
+        viewModelScope.launch {
+            song.favorite = false
+            musicRepository.update(song)
+        }
     }
 }
