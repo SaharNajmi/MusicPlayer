@@ -37,9 +37,9 @@ class MainViewModel @Inject constructor(
         emit(result)
     }
 
-    fun getSharedPreference(prefName: String, defaultValue: Int): Int {
-        return sharedPreference.getSharedPreferenceInt(prefName, defaultValue)
-    }
+    fun getSharedPreference(prefName: String, defaultValue: Int) =
+        sharedPreference.getSharedPreferenceInt(prefName, defaultValue)
+
 
     fun setSharedPreference(prefName: String, defaultValue: Int) {
         sharedPreference.setSharedPreferenceInt(prefName, defaultValue)

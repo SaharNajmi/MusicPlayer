@@ -15,8 +15,8 @@ class AlbumDetailViewModel @Inject constructor(
     val musicRepository: MusicRepository
 ) : ViewModel() {
 
-    fun getMusics(id: Long): LiveData<List<Song>> = liveData {
-        val result = musicRepository.getAlbumById(id)
+    fun getMusics(albumId: Long): LiveData<List<Song>> = liveData {
+        val result = musicRepository.getAlbumById(albumId)
         player.updateList(result)
         emit(result)
     }

@@ -7,7 +7,6 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.os.Bundle
 import android.os.IBinder
-import android.provider.MediaStore
 import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -45,7 +44,6 @@ class MainActivity : AppCompatActivity(), ServiceConnection, ActionPlaying {
         binding = ActivityMainBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
-
         val mNavController = findNavController(R.id.nav_host_fragment)
 
         //bind service
@@ -304,24 +302,5 @@ class MainActivity : AppCompatActivity(), ServiceConnection, ActionPlaying {
 
     override fun closeClicked() {
         viewModel.pauseSong()
-    }
-
-    fun getMp3Songs() {
-        val selection = MediaStore.Audio.Media.IS_MUSIC + " != 0"
-        val projection = arrayOf(
-            MediaStore.Audio.Media._ID,
-            MediaStore.Audio.Media.ARTIST,
-            MediaStore.Audio.Media.TITLE,
-            MediaStore.Audio.Media.DATA,
-            MediaStore.Audio.Media.DISPLAY_NAME,
-            MediaStore.Audio.Media.DURATION
-        )
-        val cursor = this.managedQuery(
-            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-            projection, selection, null, null
-        )
-        while (cursor.moveToNext()) {
-            println("===================")
-        }
     }
 }

@@ -34,8 +34,6 @@ class Player() :
                 isShuffle = false
             field = value
         }
-    var duration = 0
-        private set
     var songPosition = 0
 
     init {
@@ -104,7 +102,6 @@ class Player() :
         mediaPlayer.prepareAsync()
     }
 
-
     fun pauseSong() {
         _playerState.value = PlayerState.PAUSED
         mediaPlayer.pause()
@@ -159,7 +156,6 @@ class Player() :
     override fun onPrepared(p0: MediaPlayer?) {
         try {
             mediaPlayer.start()
-            duration = musics[songPosition].duration
         } catch (e: Exception) {
             e.printStackTrace()
         }

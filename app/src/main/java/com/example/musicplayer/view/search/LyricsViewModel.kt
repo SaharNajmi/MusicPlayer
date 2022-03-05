@@ -1,5 +1,6 @@
 package com.example.musicplayer.view.search
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -16,24 +17,23 @@ class LyricsViewModel @Inject constructor(
     private val musicRepository: MusicRepository,
     private val lyricsRepository: LyricsRepository
 ) : ViewModel() {
-    val lyrics = MutableLiveData<Lyric>()
-    val findLyrics = MutableLiveData(false)
 
-/*    private val coroutineExceptionHandler =
-        CoroutineExceptionHandler { _, throwable ->
-            Log.e("Error->", throwable.message.toString())
-            lyrics.value=Lyric(null, "Network error, please try again")
-            findLyrics.value=false
-        }*/
+    private val _lyrics = MutableLiveData<Lyric>()
+    val lyrics: LiveData<Lyric> = _lyrics
+    var loading = MutableLiveData<Boolean>()
 
     fun searchLyrics(artist: String, title: String) {
-        viewModelScope.launch {
-            try {
-                lyrics.value = lyricsRepository.searchLyrics(artist, title)
-                findLyrics.value = true
-            } catch (throwable: Throwable) {
-                lyrics.value = Lyric(null, "Not found!!!")
-                findLyrics.value = false
+        loading.value = true
+
+        viewModelScope.launch() {
+            val response = lyricsRepository.searchLyrics(artist, title)
+            if (response.isSuccessful) {
+                _lyrics.value = response.body()
+                loading.value = false
+            } else {
+                loading.value = false
+                val lyrics = Lyric(lyrics = null, error = "No lyrics found")
+                _lyrics.value = lyrics
             }
         }
     }

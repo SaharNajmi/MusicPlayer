@@ -26,6 +26,15 @@
         app:layout_constraintLeft_toRightOf="@id/btn_back_page"
         app:layout_constraintTop_toTopOf="@id/btn_back_page" />
 
+    <ProgressBar
+        android:visibility="gone"
+        android:id="@+id/progress_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <EditText
         android:id="@+id/edt_song"
         android:layout_width="match_parent"
@@ -82,14 +91,14 @@
             android:textColor="@color/white" />
 
         <Button
-            android:visibility="gone"
             android:id="@+id/btn_apply"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/myBlack"
             android:text="@string/apply_lyrics"
             android:textAllCaps="false"
-            android:textColor="@color/white" />
+            android:textColor="@color/white"
+            android:visibility="gone" />
     </FrameLayout>
 
 

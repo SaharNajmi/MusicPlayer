@@ -15,8 +15,8 @@ class FileDetailViewModel @Inject constructor(
     val musicRepository: MusicRepository
 ) : ViewModel() {
 
-    fun getMusics(name: String): LiveData<List<Song>> = liveData {
-        val result = musicRepository.getSongByFolderName(name)
+    fun getMusics(folderName: String): LiveData<List<Song>> = liveData {
+        val result = musicRepository.getSongByFolderName(folderName)
         player.updateList(result)
         emit(result)
     }

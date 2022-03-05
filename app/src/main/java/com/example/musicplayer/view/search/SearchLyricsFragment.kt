@@ -41,24 +41,22 @@ class SearchLyricsFragment : Fragment() {
         binding.edtSong.setText(song.artist)
         binding.edtTitle.setText(song.songTitle)
 
+        //show ProgressBar
+        lyricsViewModel.loading.observe(viewLifecycleOwner, {
+            binding.progressBar.visibility = if (it) View.VISIBLE else View.GONE
+        })
 
         //show lyrics in textView
         lyricsViewModel.lyrics.observe(requireActivity(), {
-            if (it.lyrics != null) {
-                binding.txtLyrics.text = it.lyrics
-                song.lyrics = it.lyrics.toString()
-            } else
+            if (it.lyrics.isNullOrEmpty()) {
                 binding.txtLyrics.text = it.error
-        })
-
-        //find lyrics
-        lyricsViewModel.findLyrics.observe(requireActivity(), { find ->
-            if (find) {
-                binding.btnSearch.visibility = View.GONE
-                binding.btnApply.visibility = View.VISIBLE
-            } else {
                 binding.btnSearch.visibility = View.VISIBLE
                 binding.btnApply.visibility = View.GONE
+            } else {
+                binding.txtLyrics.text = it.lyrics
+                song.lyrics = it.lyrics.toString()
+                binding.btnSearch.visibility = View.GONE
+                binding.btnApply.visibility = View.VISIBLE
             }
         })
 

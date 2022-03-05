@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.SeekBar
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -111,11 +110,7 @@ class DetailFragment : Fragment() {
     }
 
     private fun showOldProgressSeekBar() {
-        val sharedPreferences = requireContext().getSharedPreferences(
-            "sharedPreferences",
-            AppCompatActivity.MODE_PRIVATE
-        )
-        val oldProgressSong = sharedPreferences.getInt("progress", 0)
+        val oldProgressSong = viewModel.getSharedPreference("progress", 0)
         updateProgress(oldProgressSong, song.duration)
     }
 
