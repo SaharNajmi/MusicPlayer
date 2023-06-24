@@ -25,7 +25,6 @@ class AlbumDetailFragment : Fragment(), SongAdapter.SongEventListener {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         binding = FragmentAlbumDetailBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -35,10 +34,8 @@ class AlbumDetailFragment : Fragment(), SongAdapter.SongEventListener {
         val args: AlbumDetailFragmentArgs by navArgs()
         album = args.albumDetail
 
-        //set data
         updateUI()
 
-        //show items
         initRecycler()
     }
 
@@ -52,7 +49,6 @@ class AlbumDetailFragment : Fragment(), SongAdapter.SongEventListener {
 
     fun initRecycler() {
         binding.recyclerDetailAlbum.layoutManager = LinearLayoutManager(requireContext())
-        //Get musics by albumId
         viewModel.getMusics(album.id).observe(viewLifecycleOwner, { list ->
             binding.recyclerDetailAlbum.adapter = AlbumDetailAdapter(list, this)
         })

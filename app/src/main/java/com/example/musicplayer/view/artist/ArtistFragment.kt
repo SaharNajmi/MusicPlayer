@@ -21,7 +21,6 @@ class ArtistFragment : Fragment(), ArtistAdapter.ArtistEventListener {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         binding = FragmentArtistBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -29,7 +28,6 @@ class ArtistFragment : Fragment(), ArtistAdapter.ArtistEventListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        //show list artist
         showArtists()
     }
 

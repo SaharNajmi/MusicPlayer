@@ -23,23 +23,19 @@ class FileDetailFragment : Fragment(), SongAdapter.SongEventListener {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         binding = FragmentFileDetailBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        //set Text textView FolderName
         binding.folderName.text = args.fileName
 
-        //show items
         initRecycler()
     }
 
     private fun initRecycler() {
         binding.recyclerDetailFolder.layoutManager = LinearLayoutManager(requireContext())
-        //Get musics by fileName
         viewModel.getMusics(args.fileName).observe(viewLifecycleOwner, { list ->
             binding.recyclerDetailFolder.adapter =
                 SongAdapter(requireContext(), list, this)

@@ -46,11 +46,9 @@ class MainActivity : AppCompatActivity(), ServiceConnection, ActionPlaying {
         setContentView(view)
         val mNavController = findNavController(R.id.nav_host_fragment)
 
-        //bind service
         val intent = Intent(this, ForegroundService::class.java)
         bindService(intent, this, BIND_AUTO_CREATE)
 
-        //insert database
         viewModel.databaseExists.observe(this, { exists ->
             if (!exists) {
                 viewModel.insertMusics()
@@ -59,56 +57,46 @@ class MainActivity : AppCompatActivity(), ServiceConnection, ActionPlaying {
             }
         })
 
-        //save old data with sharedPreferences
         showSaveState()
 
         musicController()
 
-        //update ui music controller
         viewModel.song.observe(this, {
             updateUi(it)
             showNotification(it, R.drawable.ic_pause)
         })
 
-        //update ui button pause or play music
         viewModel.playerState.observe(this, {
             updateUiPlayOrPause(it)
         })
 
-        //go detail music
         binding.playMusicLayout.layoutController.setOnClickListener {
             val fragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment)
             fragment?.childFragmentManager?.fragments?.forEach { frg ->
                 when (frg) {
-                    //home
                     is MainFragment -> mNavController.navigate(
                         MainFragmentDirections.actionMainFragmentToDetailFragment(viewModel.song.value!!)
                     )
-                    //album
                     is AlbumDetailFragment -> mNavController.navigate(
                         AlbumDetailFragmentDirections.actionAlbumDetailsFragmentToDetailFragment(
                             viewModel.song.value!!
                         )
                     )
-                    //artist
                     is ArtistDetailFragment -> mNavController.navigate(
                         ArtistDetailFragmentDirections.actionArtistDetailFragmentToDetailFragment(
                             viewModel.song.value!!
                         )
                     )
-                    //folder
                     is FileDetailFragment -> mNavController.navigate(
                         FileDetailFragmentDirections.actionFileDetailFragmentToDetailFragment(
                             viewModel.song.value!!
                         )
                     )
-                    //search
                     is SearchMusicFragment -> mNavController.navigate(
                         SearchMusicFragmentDirections.actionSearchMusicFragmentToDetailFragment(
                             viewModel.song.value!!
                         )
                     )
-                    //favorite
                     is FavoriteFragment -> mNavController.navigate(
                         FavoriteFragmentDirections.actionFavoriteFragmentToDetailFragment(
                             viewModel.song.value!!
@@ -119,50 +107,40 @@ class MainActivity : AppCompatActivity(), ServiceConnection, ActionPlaying {
             }
         }
 
-        //update progressbar
         viewModel.progress.observe(this, {
             updateProgress(it)
         })
     }
 
     private fun showSaveState() {
-        //get saveState
         var oldPositionSong = viewModel.getSharedPreference("position", 0)
         val oldProgressSong = viewModel.getSharedPreference("progress", 0)
         val oldDurationSong = viewModel.getSharedPreference("duration", 0)
 
-        //when first play application
         if (oldPositionSong < 0)
             oldPositionSong = 0
 
-        //update ui music controller
         viewModel.musics.observe(this, { list ->
             if (list.isNotEmpty() && oldPositionSong != 0) {
-                //update UI
                 updateUi(list[oldPositionSong])
 
-                //Change default song model
                 viewModel.changeSong(list[oldPositionSong])
             }
         })
 
-        //update progress
         updateProgress(oldProgressSong, oldDurationSong)
 
-        //Change default position song
         viewModel.changeSongPosition(oldPositionSong)
     }
 
     override fun onPause() {
         super.onPause()
-        //save values
         viewModel.setSharedPreference("position", viewModel.songPosition)
         viewModel.setSharedPreference("progress", viewModel.progress.value!!)
         viewModel.setSharedPreference("duration", viewModel.song.value!!.duration)
     }
 
     private fun updateProgress(progress: Int) {
-        //set progress to seekbar
         viewModel.song.observe(this) { song ->
             binding.playMusicLayout.seekBar.max = song.duration
         }
@@ -205,17 +183,14 @@ class MainActivity : AppCompatActivity(), ServiceConnection, ActionPlaying {
     }
 
     fun musicController() {
-        //play and pause song
         binding.playMusicLayout.btnPlayPause.setOnClickListener {
             viewModel.toggleState()
         }
 
-        //next song
         binding.playMusicLayout.btnNext.setOnClickListener {
             viewModel.nextSong()
         }
 
-        //previous song
         binding.playMusicLayout.btnBack.setOnClickListener {
             viewModel.backSong()
         }
@@ -240,7 +215,6 @@ class MainActivity : AppCompatActivity(), ServiceConnection, ActionPlaying {
             notificationIntent, 0
         )
 
-        //play action
         val playIntent =
             Intent(this, NotificationReceiver::class.java).setAction(Constants.PLAY_ACTION)
         val pplayIntent = PendingIntent.getBroadcast(
@@ -248,14 +222,12 @@ class MainActivity : AppCompatActivity(), ServiceConnection, ActionPlaying {
             playIntent, PendingIntent.FLAG_UPDATE_CURRENT
         )
 
-        //next action
         val nextIntent =
             Intent(this, NotificationReceiver::class.java).setAction(Constants.NEXT_ACTION)
         val pnextIntent = PendingIntent.getBroadcast(
             this, 0,
             nextIntent, PendingIntent.FLAG_UPDATE_CURRENT
         )
-        //close action
         val closeIntent =
             Intent(
                 this,
@@ -266,7 +238,6 @@ class MainActivity : AppCompatActivity(), ServiceConnection, ActionPlaying {
             closeIntent, PendingIntent.FLAG_UPDATE_CURRENT
         )
 
-        //create notification
         val notification: Notification = NotificationCompat.Builder(this)
             .setContentTitle(song.title)
             .setContentText(song.artist)
@@ -285,7 +256,7 @@ class MainActivity : AppCompatActivity(), ServiceConnection, ActionPlaying {
                 R.drawable.ic_close, null,
                 pcloseIntent
             ).build()
-        //start foregroundService
+
         musicService?.startForeground(
             1,
             notification

@@ -23,7 +23,6 @@ class AlbumFragment : Fragment(), AlbumAdapter.AlbumEventListener {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         binding = FragmentAlbumBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -31,7 +30,6 @@ class AlbumFragment : Fragment(), AlbumAdapter.AlbumEventListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        //show list album
         showAlbums()
     }
 

@@ -20,7 +20,6 @@ class SplashScreen : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash_screen)
 
-        //check permission access storage
         if (checkPermission()) {
             goHome()
         } else {
@@ -49,7 +48,6 @@ class SplashScreen : AppCompatActivity() {
             ) {
                 goHome()
             } else {
-                //go app details settings
                 startActivity(
                     Intent(
                         Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
