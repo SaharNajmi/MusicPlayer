@@ -20,7 +20,6 @@ class FileFragment : Fragment(), FileAdapter.FileEventListener {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         binding = FragmentFileBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -28,7 +27,6 @@ class FileFragment : Fragment(), FileAdapter.FileEventListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        //show list folders
         showFolders()
     }
 

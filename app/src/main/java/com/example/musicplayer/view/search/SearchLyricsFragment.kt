@@ -23,7 +23,6 @@ class SearchLyricsFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         binding = FragmentLyricsSearchBinding.inflate(layoutInflater, container, false)
         return binding.root
     }
@@ -32,21 +31,17 @@ class SearchLyricsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         val args: SearchLyricsFragmentArgs by navArgs()
         song = args.lyricsDetail
-        // hide music controller
         if (requireActivity() is MainActivity) {
             (activity as MainActivity?)!!.hideMusicController()
         }
 
-        //set data
         binding.edtSong.setText(song.artist)
         binding.edtTitle.setText(song.title)
 
-        //show ProgressBar
         lyricsViewModel.loading.observe(viewLifecycleOwner, {
             binding.progressBar.visibility = if (it) View.VISIBLE else View.GONE
         })
 
-        //show lyrics in textView
         lyricsViewModel.lyrics.observe(requireActivity(), {
             if (it.lyrics.isNullOrEmpty()) {
                 binding.txtLyrics.text = it.error
@@ -60,7 +55,6 @@ class SearchLyricsFragment : Fragment() {
             }
         })
 
-        //search lyrics
         binding.btnSearch.setOnClickListener {
             if (binding.edtSong.text != null &&
                 binding.edtTitle.text != null
@@ -72,9 +66,7 @@ class SearchLyricsFragment : Fragment() {
             }
         }
 
-        //apply lyrics
         binding.btnApply.setOnClickListener {
-            //update lyrics
             lyricsViewModel.update(song)
             findNavController().navigate(
                 SearchLyricsFragmentDirections.actionSearchLyricsFragmentToDetailFragment(
@@ -83,7 +75,6 @@ class SearchLyricsFragment : Fragment() {
             )
         }
 
-        //go back
         binding.btnBackPage.setOnClickListener {
             requireActivity().onBackPressed()
         }

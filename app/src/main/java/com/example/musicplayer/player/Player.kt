@@ -111,7 +111,6 @@ class Player() :
         _playerState.value = PlayerState.PLAYING
         mediaPlayer.start()
 
-        //Run Progressbar seekBar
         progressRunner().run()
     }
 
@@ -167,13 +166,8 @@ class Player() :
 
     override fun onCompletion(p0: MediaPlayer?) {
         when {
-            //repeat is on
             isRepeat -> repeatSong()
-
-            //shuffle is on
             isShuffle -> shuffleSong()
-
-            //next song
             else -> nextSong()
         }
     }

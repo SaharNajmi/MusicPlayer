@@ -8,11 +8,8 @@ import com.example.musicplayer.player.Player
 import com.example.musicplayer.view.all.SongAdapter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-
 class SearchMusicViewModel(val player: Player, val musicRepository: MusicRepository) : ViewModel() {
-
     fun songSelected(song: Song, posSong: Int) = player.songSelected(song, posSong)
-
     fun searchSong(value: String, adapter: SongAdapter) {
         val filterSongs = ArrayList<Song>()
         viewModelScope.launch(Dispatchers.IO) {

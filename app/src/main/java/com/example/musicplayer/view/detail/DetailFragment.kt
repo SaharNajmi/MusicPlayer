@@ -31,7 +31,6 @@ class DetailFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         binding = FragmentDetailBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -49,40 +48,32 @@ class DetailFragment : Fragment() {
 
         musicController()
 
-        //update ui music detail controller
         viewModel.song.observe(requireActivity(), {
             song = it
             updateUi(it)
         })
 
-        //update ui button pause or play music
         updateUiPlayOrPause(PlayerState.PAUSED)
         viewModel.playerState.observe(requireActivity(), {
             updateUiPlayOrPause(it)
         })
 
-        // show old progress seekBar
         showOldProgressSeekBar()
 
-        // Seek bar change listener
         seekBarChangeListener(binding.seekBar)
 
-        //update progressbar
         viewModel.progress.observe(requireActivity(), { progress ->
             binding.seekBar.progress = progress
         })
 
-        //show lyrics
         if (song.isLyrics)
             binding.txtLyrics.text = song.lyrics
         else
             binding.txtLyrics.visibility = View.GONE
 
-        //favorite
         favorite = song.favorite
         changeFavorite()
 
-        //go back
         binding.btnBackPage.setOnClickListener {
             requireActivity().onBackPressed()
         }
@@ -176,22 +167,18 @@ class DetailFragment : Fragment() {
     }
 
     fun musicController() {
-        //play and pause song
         binding.btnPlayPause.setOnClickListener {
             viewModel.toggleState()
         }
 
-        //next song
         binding.btnNext.setOnClickListener {
             viewModel.nextSong()
         }
 
-        //previous song
         binding.btnBack.setOnClickListener {
             viewModel.backSong()
         }
 
-        //shuffle song
         binding.shuffle.setOnClickListener {
             if (viewModel.changeIsShuffle()) {
                 binding.shuffle.setImageResource(R.drawable.ic_shuffle_pressed)
@@ -200,7 +187,6 @@ class DetailFragment : Fragment() {
                 binding.shuffle.setImageResource(R.drawable.ic_shuffle)
         }
 
-        //repeat song
         binding.repeat.setOnClickListener {
             if (viewModel.changeIsRepeat()) {
                 binding.repeat.setImageResource(R.drawable.ic_repeat_pressed)
@@ -209,7 +195,6 @@ class DetailFragment : Fragment() {
                 binding.repeat.setImageResource(R.drawable.ic_repeat)
         }
 
-        //search lyrics
         binding.btnSearchLyrics.setOnClickListener {
             findNavController().navigate(
                 DetailFragmentDirections.actionDetailFragmentToSearchLyricsFragment(
@@ -221,7 +206,6 @@ class DetailFragment : Fragment() {
 
     override fun onStop() {
         super.onStop()
-        //Call showMusicController function when user go back
         if (requireActivity() is MainActivity) {
             (activity as MainActivity?)!!.showMusicController()
         }

@@ -24,7 +24,6 @@ class SearchMusicFragment : Fragment(), SongAdapter.SongEventListener {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         binding = FragmentSearchMusicBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -32,10 +31,8 @@ class SearchMusicFragment : Fragment(), SongAdapter.SongEventListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        //show all song
         showMusics()
 
-        //search item
         binding.searchView.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
             }
@@ -48,7 +45,6 @@ class SearchMusicFragment : Fragment(), SongAdapter.SongEventListener {
             }
         })
 
-        // go back
         binding.btnBackPage.setOnClickListener {
             requireActivity().onBackPressed()
         }

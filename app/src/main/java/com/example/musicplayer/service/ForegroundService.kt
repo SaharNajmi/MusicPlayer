@@ -24,11 +24,8 @@ class ForegroundService : Service() {
         val actionName = intent.getStringExtra("myActionName")
         if (actionName != null) {
             when (actionName) {
-                //play
                 Constants.PLAY_ACTION -> actionPlaying.playClicked()
-                //next
                 Constants.NEXT_ACTION -> actionPlaying.nextClicked()
-                //stop
                 Constants.STOPFOREGROUND_ACTION -> {
                     actionPlaying.closeClicked()
                     stopForeground(true)

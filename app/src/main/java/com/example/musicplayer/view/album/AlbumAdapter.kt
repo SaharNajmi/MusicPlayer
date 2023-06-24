@@ -32,7 +32,6 @@ class AlbumAdapter(
 
     override fun onBindViewHolder(holder: Holder, position: Int) {
         holder.bind(list[position])
-        //click item
         holder.itemView.setOnClickListener {
             albumEventListener.onSelect(list[position])
         }

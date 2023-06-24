@@ -20,7 +20,6 @@ class FavoriteFragment : Fragment(), SongAdapter.SongEventListener {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         binding = FragmentFavoriteBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -28,10 +27,8 @@ class FavoriteFragment : Fragment(), SongAdapter.SongEventListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        //show list favorite
         initRecycler()
 
-        //go back
         binding.btnBackPage.setOnClickListener {
             requireActivity().onBackPressed()
         }

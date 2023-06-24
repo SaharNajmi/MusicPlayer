@@ -24,7 +24,6 @@ class ArtistDetailFragment : Fragment(), SongAdapter.SongEventListener {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         binding = FragmentArtistDetailBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -34,16 +33,13 @@ class ArtistDetailFragment : Fragment(), SongAdapter.SongEventListener {
         val args: ArtistDetailFragmentArgs by navArgs()
         artist = args.artistDetail
 
-        //set title
         binding.artist.text = artist.artist
 
-        //show items
         initRecycler()
     }
 
     fun initRecycler() {
         binding.recyclerDetailArtist.layoutManager = LinearLayoutManager(requireContext())
-        //Get musics by artistId
         viewModel.getMusics(artist.id).observe(viewLifecycleOwner, { list ->
             binding.recyclerDetailArtist.adapter = SongAdapter(
                 requireContext(),
